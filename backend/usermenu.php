@@ -115,6 +115,7 @@ if(isset($_POST['but_logout'])){
         <a href="timesheetmenu.php">Timesheet Menu</a>
         <a href="#">Create New Job</a>
         <a href="#">Timesheet Edit</a>
+        <a href="#">Document Repository</a>
     </div>
 
     <form method='post' action="">
