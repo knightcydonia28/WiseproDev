@@ -30,6 +30,7 @@
             <p>Please login to continue</p>
         <?php
             session_start();
+            session_regenerate_id();
             if (isset($_SESSION['login_status'])) {
                 header('Location: home.php');
             }
