@@ -94,9 +94,12 @@
                                                     $password_expiration = 0;
                                                     $stmt->bind_param("sisssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $first_name, $last_name, $filtered_email, $phone, $birth_date);
                                                     if ($stmt->execute()) {
+                                                        $msg = "Your temporary password is: $shortened_temporary_password";
+                                                        mail($filtered_email, "Wisepro User Account Temporary Password", $msg);
                                                         echo 
                                                         "<p>Account creation was successful.</p>
                                                         <p>Temporary password: $shortened_temporary_password</p>
+                                                        <p>Temporary password sent to email: $filtered_email</p>
                                                         <p>Create another user?</p>
                                                         <form method=\"post\" action=\"#\">
                                                             <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
@@ -117,9 +120,12 @@
                                                         $password_expiration = 0;
                                                         $stmt->bind_param("sissssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $first_name, $middle_name, $last_name, $filtered_email, $phone, $birth_date);
                                                         if ($stmt->execute()) {
+                                                            $msg = "Your temporary password is: $shortened_temporary_password";
+                                                            mail($filtered_email, "Wisepro User Account Temporary Password", $msg);
                                                             echo 
                                                             "<p>Account creation was successful.</p>
                                                             <p>Temporary password: $shortened_temporary_password</p>
+                                                            <p>Temporary password sent to email: $filtered_email</p>
                                                             <p>Create another user?</p>
                                                             <form method=\"post\" action=\"#\">
                                                                 <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
