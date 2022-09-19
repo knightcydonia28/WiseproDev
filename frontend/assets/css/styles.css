@@ -82,7 +82,7 @@ Version: 0.1
     list-style: none;
     display: inline-block;
 }
-.techno_menu>ul>li {
+.techno_menu > ul > li {
  display: inline-block;
  position: relative;
 }
@@ -110,6 +110,9 @@ Version: 0.1
 .white .techno_menu>ul>li.current>a {
  color: #fff;
 }
+
+/* SUB-MENU BEGIN */
+
 /* sub menu style */
 .techno_menu ul .sub-menu {
     position: absolute;
@@ -265,6 +268,8 @@ a.dtbtn:hover {
 .mobile-menu.mean-container {
 	overflow: hidden;
 }
+
+/* SUB MENU END */
 
 /*====================================================
 --<	Techno Header Top Menu Area Css -->
