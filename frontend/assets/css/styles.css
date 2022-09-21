@@ -75,7 +75,7 @@ Version: 0.1
 }
 /* techno Menu Css*/
 .techno_menu {
-    text-align: right;
+    text-align: center;
 }
 .techno_menu ul {
     text-align: right;
@@ -110,6 +110,7 @@ Version: 0.1
 .white .techno_menu>ul>li.current>a {
  color: #fff;
 }
+
 
 /* SUB-MENU BEGIN */
 

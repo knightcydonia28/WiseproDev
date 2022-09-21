@@ -131,9 +131,11 @@ a.meanmenu-reveal{display:none}
 .mean-container a.meanmenu-reveal:hover span {
   background: #fff;
 }
+
+/* MOBILE STYLES PAGE*/
 .mean-container .mean-bar::before {
 	color: #fff;
-	content: "Techno";
+	content: "Wisepro Providers";
 	font-size: 22px;
 	font-weight: 800;
 	left: 10px;
