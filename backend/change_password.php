@@ -5,7 +5,7 @@
     }
     if ($_SESSION['password_expiration'] == 1) {
         header('Location: home.php');
-    }
+    }  
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,16 +38,15 @@
             <li>Password must be at most 128 characters</li>
             <li>Password must not have more than 2 identical characters in a row (e.g., aaa is not allowed)</li>
         </ul>
+        <p>Notice: If you have not setup Multi-factor authentication (MFA) for you account, then you will be required to do so after this process.</p>
         <?php
-            unset($_SESSION['search_user']);
-            unset($_SESSION['edit_user_authentication']);  
             if (isset($_POST['logout'])) {
                 include("logout.php");
                 logout();
             }
             if(isset($_GET['change_password_expiration'])){
                 function changePasswordExpiration() {
-                    unset($_SESSION['disabled']);
+                    unset($_SESSION['change_password_disabled']);
                     $_SESSION['password_expiration'] = 1;
                     header('Location: home.php');
                 }
@@ -89,7 +88,7 @@
                                                         $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ? WHERE username = ?");
                                                         $stmt->bind_param("iss", $password_expiration, $hashed_new_password, $username);
                                                         if ($stmt->execute()) {
-                                                            $_SESSION['disabled'] = 1;
+                                                            $_SESSION['change_password_disabled'] = 1;
                                                             echo "<p>Password was successfully changed. Please <a href=\"?change_password_expiration=true\">Click Here</a> to return to the home page or logout to exit this page.</p>";
                                                         }
                                                         else {
@@ -132,15 +131,15 @@
         ?>
         <form method="post" action="#">
             <label for="old_password">Enter your old password:</label><br /><br />
-            <input type="password" id="old_password" name="old_password" placeholder="old password" required <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>
-            <input type="checkbox" id="checkbox1" onclick="passwordVisibility('old_password')" <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>Show Password <br /><br />
+            <input type="password" id="old_password" name="old_password" placeholder="old password" required <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>
+            <input type="checkbox" id="checkbox1" onclick="passwordVisibility('old_password')" <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>Show Password <br /><br />
             <label for="new_password">Enter your new password:</label><br /><br />
-            <input type="password" id="new_password" name="new_password" placeholder="new password" required <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>
-            <input type="checkbox" id="checkbox2" onclick="passwordVisibility('new_password')" <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>Show Password <br /><br />
+            <input type="password" id="new_password" name="new_password" placeholder="new password" required <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>
+            <input type="checkbox" id="checkbox2" onclick="passwordVisibility('new_password')" <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>Show Password <br /><br />
             <label for="repeated_new_password">Enter your new password again:</label><br /><br />
-            <input type="password" id="repeated_new_password" name="repeated_new_password" placeholder="new password" required <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>
-            <input type="checkbox" id="checkbox3" onclick="passwordVisibility('repeated_new_password')" <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>Show Password <br /><br />
-            <input type="submit" id="change_password_submit" name="change_password_submit" value="Change Password" <?php if (isset($_SESSION['disabled'])) {echo "disabled";} ?>/>
+            <input type="password" id="repeated_new_password" name="repeated_new_password" placeholder="new password" required <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>
+            <input type="checkbox" id="checkbox3" onclick="passwordVisibility('repeated_new_password')" <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>Show Password <br /><br />
+            <input type="submit" id="change_password_submit" name="change_password_submit" value="Change Password" <?php if (isset($_SESSION['change_password_disabled'])) {echo "disabled";} ?>/>
         </form>
     </body>
 </html>
