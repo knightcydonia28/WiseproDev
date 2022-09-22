@@ -1,3 +1,10 @@
+<?php
+    session_start();
+    if (isset($_SESSION['login_status'])) {
+        header('Location: home.php');
+    }
+    unset($_SESSION['login']);
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -26,14 +33,9 @@
     </head>
     <body>
         <div class="login_form">
-            <h2>Login</h2>
-            <p>Please login to continue</p>
+        <h2>Login</h2>
+        <p>Please login to continue</p>
         <?php
-            session_start();
-            session_regenerate_id();
-            if (isset($_SESSION['login_status'])) {
-                header('Location: home.php');
-            }
             if (isset($_POST['login'])) {
                 if (!ctype_alnum($_POST['username'])) {
                     echo "<p>Invalid username or password.</p>";
@@ -52,27 +54,50 @@
                     if ($stmt->num_rows > 0) {
                         $stmt->fetch();
                         if (password_verify($password, $retrieved_password)) {
-                            session_start();
-                            $_SESSION['login_status'] = 1;
-                            $_SESSION['username'] = $retrieved_username;
-                            
+                                                        
                             include("database.php");
-                            $stmt = $DBConnect->prepare("SELECT password_expiration, user_role FROM users WHERE username = ?");
-                            $stmt->bind_param("s", $username); 
+                            $stmt = $DBConnect->prepare("SELECT password_expiration, secret_key, user_role FROM users WHERE username = ?");
+                            $stmt->bind_param("s", $retrieved_username); 
                             $stmt->execute();
                             $stmt->store_result();
-                            $stmt->bind_result($retrieved_password_expiration, $retrieved_user_role);
+                            $stmt->bind_result($retrieved_password_expiration, $retrieved_secret_key, $retrieved_user_role);
                             $stmt->fetch();
-                            
-                            $_SESSION['password_expiration'] = $retrieved_password_expiration;
-                            $_SESSION['user_role'] = $retrieved_user_role;
 
+                            if ($retrieved_secret_key == NULL) {
+                                session_start();
+                                $_SESSION['secret_key'] = 0;
+                            }
+                            else {
+                                session_start();
+                                $_SESSION['secret_key'] = 1;
+                            }
+                                                        
                             if ($retrieved_password_expiration == 0) {
+                                session_regenerate_id();
+                                $_SESSION['login_status'] = 1;
+                                $_SESSION['username'] = $retrieved_username;
+                                $_SESSION['password_expiration'] = $retrieved_password_expiration;
+                                $_SESSION['user_role'] = $retrieved_user_role;
                                 header('Location: change_password.php');
                             }
-                            if ($retrieved_password_expiration == 1) {
-                                header('Location: home.php');
-                            }  
+                            else {
+                                if ($_SESSION['secret_key'] == 0) {
+                                    session_regenerate_id();
+                                    $_SESSION['login_status'] = 1;
+                                    $_SESSION['username'] = $retrieved_username;
+                                    $_SESSION['password_expiration'] = $retrieved_password_expiration;
+                                    $_SESSION['user_role'] = $retrieved_user_role;
+                                    header('Location: setup_mfa.php');
+                                }
+                                else {
+                                    session_regenerate_id();
+                                    $_SESSION['username'] = $retrieved_username;
+                                    $_SESSION['password_expiration'] = $retrieved_password_expiration;
+                                    $_SESSION['user_role'] = $retrieved_user_role;
+                                    $_SESSION['login'] = 1;
+                                    header('Location: mfa.php');
+                                }  
+                            }
                         }
                         else {
                             echo "<p>Invalid username or password.</p>";
@@ -88,10 +113,10 @@
         ?>
             <hr />
             <form method="post" action="#">
-                <input type="text" name="username" placeholder="username" required /><br /><br />
-                <input type="password" id="password" name="password" placeholder="password" required /><br /><br />
-                <input type="checkbox" onclick="passwordVisibility('password')" />Show Password <br /><br />
-                <input type="submit" name="login" value="Login" />
+                <input type="text" name="username" placeholder="username" required <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> /><br /><br />
+                <input type="password" id="password" name="password" placeholder="password" required <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> /><br /><br />
+                <input type="checkbox" onclick="passwordVisibility('password')" <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> />Show Password <br /><br />
+                <input type="submit" name="login" value="Login" <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> />
             </form>
         </div>
     </body>
