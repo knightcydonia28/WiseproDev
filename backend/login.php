@@ -113,10 +113,10 @@
         ?>
             <hr />
             <form method="post" action="#">
-                <input type="text" name="username" placeholder="username" required <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> /><br /><br />
-                <input type="password" id="password" name="password" placeholder="password" required <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> /><br /><br />
-                <input type="checkbox" onclick="passwordVisibility('password')" <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> />Show Password <br /><br />
-                <input type="submit" name="login" value="Login" <?php if (isset($_SESSION['disable_login'])) {echo "disabled";} ?> />
+                <input type="text" name="username" placeholder="username" required /><br /><br />
+                <input type="password" id="password" name="password" placeholder="password" required /><br /><br />
+                <input type="checkbox" onclick="passwordVisibility('password')" />Show Password <br /><br />
+                <input type="submit" name="login" value="Login" />
             </form>
         </div>
     </body>
