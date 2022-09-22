@@ -9,6 +9,9 @@
     if ($_SESSION['password_expiration'] == 0) {
         header('Location: change_password.php');
     }
+    if ($_SESSION['secret_key'] == 0) {
+        header('Location: setup_mfa.php');
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,61 +81,93 @@
                                             echo "<p>Please enter a valid birth date.</p>"; 
                                         }
                                         else {
-                                            if (!preg_match("/^[0-9]{10}$/", $_POST['phone'])) {
-                                                echo "<p>Please enter a 10 digit phone number (without special characters including whitespace).</p>"; 
+                                            $minimum_year = date("Y") - 75;
+                                            if ($birth_date < "$minimum_year-01-01") {
+                                                echo "<p>Please ensure that birth date is not earlier than \"01/01/$minimum_year\"</p>";  
                                             }
                                             else {
-                                                $phone = $_POST['phone'];
-                                                $string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-                                                $temporary_password = str_shuffle($string);
-                                                $shortened_temporary_password = substr($temporary_password,0,10);
-                                                $hashed_temporary_password = password_hash($shortened_temporary_password, PASSWORD_DEFAULT);
-                                                
-                                                if (empty($_POST['middle_name'])) {
-                                                    include("database.php");
-                                                    $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_last_name, user_email, user_phone, user_birth_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                                                    $password_expiration = 0;
-                                                    $stmt->bind_param("sisssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $first_name, $last_name, $filtered_email, $phone, $birth_date);
-                                                    if ($stmt->execute()) {
-                                                        $msg = "Your temporary password is: $shortened_temporary_password";
-                                                        mail($filtered_email, "Wisepro User Account Temporary Password", $msg);
-                                                        echo 
-                                                        "<p>Account creation was successful.</p>
-                                                        <p>Temporary password: $shortened_temporary_password</p>
-                                                        <p>Temporary password sent to email: $filtered_email</p>
-                                                        <p>Create another user?</p>
-                                                        <form method=\"post\" action=\"#\">
-                                                            <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
-                                                        </form>";
-                                                    }
-                                                    else {
-                                                        echo "<p>Account creation was unsuccessful.</p>";
-                                                    }
+                                                $maximum_year = date("Y") - 16;
+                                                if ($birth_date > "$maximum_year-01-01") {
+                                                    echo "<p>Please ensure that birth date is not later than \"01/01/$maximum_year\"</p>";                                          
                                                 }
                                                 else {
-                                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['middle_name'])) {
-                                                        echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
+                                                    if (!preg_match("/^[0-9]{10}$/", $_POST['phone'])) {
+                                                        echo "<p>Please enter a 10 digit phone number (without special characters including whitespace).</p>"; 
                                                     }
                                                     else {
-                                                        $middle_name = $_POST['middle_name'];
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                                                        $password_expiration = 0;
-                                                        $stmt->bind_param("sissssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $first_name, $middle_name, $last_name, $filtered_email, $phone, $birth_date);
-                                                        if ($stmt->execute()) {
-                                                            $msg = "Your temporary password is: $shortened_temporary_password";
-                                                            mail($filtered_email, "Wisepro User Account Temporary Password", $msg);
-                                                            echo 
-                                                            "<p>Account creation was successful.</p>
-                                                            <p>Temporary password: $shortened_temporary_password</p>
-                                                            <p>Temporary password sent to email: $filtered_email</p>
-                                                            <p>Create another user?</p>
-                                                            <form method=\"post\" action=\"#\">
-                                                                <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
-                                                            </form>";
+                                                        $phone = $_POST['phone'];
+                                                        $string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+                                                        $temporary_password = str_shuffle($string);
+                                                        $shortened_temporary_password = substr($temporary_password,0,15);
+                                                        $hashed_temporary_password = password_hash($shortened_temporary_password, PASSWORD_DEFAULT);
+                                                        
+                                                        if (empty($_POST['middle_name'])) {
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_last_name, user_email, user_phone, user_birth_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                            $password_expiration = 0;
+                                                            $stmt->bind_param("sisssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $first_name, $last_name, $filtered_email, $phone, $birth_date);
+                                                            if ($stmt->execute()) {
+                                                                
+                                                                $to = $filtered_email;
+                                                                $subject = "Wisepro Account Temporary Password";
+                                                                $email_first_name = ucfirst(strtolower($first_name));
+                                                                $message = "Hi $email_first_name,\r\n\The temporary password for your account is: $shortened_temporary_password\r\nThanks,\r\nWisepro";
+                                                                $message = wordwrap($message, 70, "\r\n");
+                                                                if (mail($to, $subject, $message)) {
+                                                                    echo "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
+                                                                }
+                                                                else {
+                                                                    echo "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
+                                                                } 
+
+                                                                echo 
+                                                                "<p>Account creation was successful.</p>
+                                                                <p>Temporary password: $shortened_temporary_password</p>
+                                                                <p>Create another user?</p>
+                                                                <form method=\"post\" action=\"#\">
+                                                                    <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
+                                                                </form>";
+                                                            }
+                                                            else {
+                                                                echo "<p>Account creation was unsuccessful.</p>";
+                                                            }
                                                         }
                                                         else {
-                                                            echo "<p>Account creation was unsuccessful.</p>";
+                                                            if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['middle_name'])) {
+                                                                echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
+                                                            }
+                                                            else {
+                                                                $middle_name = $_POST['middle_name'];
+                                                                include("database.php");
+                                                                $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                $password_expiration = 0;
+                                                                $stmt->bind_param("sissssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $first_name, $middle_name, $last_name, $filtered_email, $phone, $birth_date);
+                                                                if ($stmt->execute()) {
+                                                                    
+                                                                    $to = $filtered_email;
+                                                                    $subject = "Wisepro Account Temporary Password";
+                                                                    $email_first_name = ucfirst(strtolower($first_name));
+                                                                    $message = "Hi $email_first_name,\r\n\The temporary password for your account is: $shortened_temporary_password\r\nThanks,\r\nWisepro";
+                                                                    $message = wordwrap($message, 70, "\r\n");
+                                                                    if (mail($to, $subject, $message)) {
+                                                                        echo "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
+                                                                    }
+                                                                    else {
+                                                                        echo "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
+                                                                    } 
+                                                                    
+                                                                    echo 
+                                                                    "<p>Account creation was successful.</p>
+                                                                    <p>Temporary password: $shortened_temporary_password</p>
+                                                                    <p>Create another user?</p>
+                                                                    <form method=\"post\" action=\"#\">
+                                                                        <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
+                                                                    </form>";
+                                                                }
+                                                                else {
+                                                                    echo "<p>Account creation was unsuccessful.</p>";
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -183,4 +218,3 @@
         ?>
     </body>
 </html>
-
