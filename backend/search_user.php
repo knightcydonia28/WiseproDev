@@ -113,6 +113,7 @@
             if (isset($_POST['select_user_submit'])) {
                 $_SESSION['search_user'] = 1;
                 header("Location: edit_user.php");
+                exit();
             }
             if (isset($_POST['search_user_submit'])) {
                 if (empty($_POST['username']) && empty($_POST['first_name']) && empty($_POST['middle_name']) && empty($_POST['last_name'])) {
