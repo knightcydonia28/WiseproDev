@@ -9,6 +9,11 @@
     <head>
         <meta charset="UTF-8" />
         <title>MFA</title>
+        <script>
+            function destroySession() {
+                
+            }
+        </script>
         <style>
             .mfa_form {
                 border-style: double;
@@ -20,7 +25,7 @@
             }
         </style>
     </head>
-    <body>
+    <body onload="destroySession()">
         <br />
         <div class="mfa_form">
             <h2>Multi-factor Authentication</h2>

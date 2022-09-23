@@ -2,8 +2,10 @@
     session_start();
     if (isset($_SESSION['login_status'])) {
         header('Location: home.php');
+        exit();
     }
     unset($_SESSION['login']);
+    unset($_SESSION['disable_mfa']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,27 +77,33 @@
                             if ($retrieved_password_expiration == 0) {
                                 session_regenerate_id();
                                 $_SESSION['login_status'] = 1;
+                                $_SESSION['login_time'] = time();
                                 $_SESSION['username'] = $retrieved_username;
                                 $_SESSION['password_expiration'] = $retrieved_password_expiration;
                                 $_SESSION['user_role'] = $retrieved_user_role;
                                 header('Location: change_password.php');
+                                exit();
                             }
                             else {
                                 if ($_SESSION['secret_key'] == 0) {
                                     session_regenerate_id();
                                     $_SESSION['login_status'] = 1;
+                                    $_SESSION['login_time'] = time();
                                     $_SESSION['username'] = $retrieved_username;
                                     $_SESSION['password_expiration'] = $retrieved_password_expiration;
                                     $_SESSION['user_role'] = $retrieved_user_role;
                                     header('Location: setup_mfa.php');
+                                    exit();
                                 }
                                 else {
                                     session_regenerate_id();
+                                    $_SESSION['mfa_time'] = time();
                                     $_SESSION['username'] = $retrieved_username;
                                     $_SESSION['password_expiration'] = $retrieved_password_expiration;
                                     $_SESSION['user_role'] = $retrieved_user_role;
                                     $_SESSION['login'] = 1;
                                     header('Location: mfa.php');
+                                    exit();
                                 }  
                             }
                         }
