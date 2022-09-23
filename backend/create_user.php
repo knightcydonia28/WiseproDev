@@ -2,20 +2,46 @@
     session_start();
     if (!isset($_SESSION['login_status'])) {
         header('Location: login.php');
-    }
-    if ($_SESSION['user_role'] != "administrator") {
-        header('Location: home.php');
+        exit();
     }
     if ($_SESSION['password_expiration'] == 0) {
         header('Location: change_password.php');
+        exit();
     }
     if ($_SESSION['secret_key'] == 0) {
         header('Location: setup_mfa.php');
+        exit();
     }
+    if ($_SESSION['user_role'] != "administrator") {
+        header('Location: home.php');
+        exit();
+    }
+    unset($_SESSION['search_user']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <?php
+            if (time() - $_SESSION['login_time'] > 900) {
+                function destroySession() {
+                    $_SESSION = array();
+                    if (ini_get("session.use_cookies")) {
+                        $params = session_get_cookie_params();
+                        setcookie(session_name(), '', time() - 42000,
+                            $params["path"], $params["domain"],
+                            $params["secure"], $params["httponly"]
+                        );
+                    }
+                    session_destroy();
+                }
+                destroySession();
+                echo 
+                "<script>
+                    alert(\"Your session has expired.\");
+                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
+                </script>";
+            }
+        ?>
         <meta charset="UTF-8" />
         <title>Create User</title>
     </head>
@@ -27,14 +53,13 @@
         <h2>Create User</h2>
         <p>Please fill the form below to create an account:</p>
         <?php
-            unset($_SESSION['search_user']);
-            unset($_SESSION['edit_user_authentication']);
             if (isset($_POST['logout'])) {
                 include("logout.php");
                 logout();
             }
             if (isset($_POST['create_another_user_submit'])) {
                 header('Location: create_user.php');
+                exit();
             }
             if (isset($_POST['create_user_submit'])) {
                 if (!ctype_alnum($_POST['username'])) {
@@ -111,9 +136,10 @@
                                                                 $to = $filtered_email;
                                                                 $subject = "Wisepro Account Temporary Password";
                                                                 $email_first_name = ucfirst(strtolower($first_name));
-                                                                $message = "Hi $email_first_name,\r\n\The temporary password for your account is: $shortened_temporary_password\r\nThanks,\r\nWisepro";
+                                                                $message = "Hi $email_first_name,\r\nThe temporary password for your account is: $shortened_temporary_password\r\nThanks,\r\nWisepro Administrative Team";
                                                                 $message = wordwrap($message, 70, "\r\n");
-                                                                if (mail($to, $subject, $message)) {
+                                                                $headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion());
+                                                                if (mail($to, $subject, $message, $headers)) {
                                                                     echo "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
                                                                 }
                                                                 else {
@@ -147,9 +173,10 @@
                                                                     $to = $filtered_email;
                                                                     $subject = "Wisepro Account Temporary Password";
                                                                     $email_first_name = ucfirst(strtolower($first_name));
-                                                                    $message = "Hi $email_first_name,\r\n\The temporary password for your account is: $shortened_temporary_password\r\nThanks,\r\nWisepro";
+                                                                    $message = "Hi $email_first_name,\r\nThe temporary password for your account is: $shortened_temporary_password\r\nThanks,\r\nWisepro Administrative Team";
                                                                     $message = wordwrap($message, 70, "\r\n");
-                                                                    if (mail($to, $subject, $message)) {
+                                                                    $headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion());
+                                                                    if (mail($to, $subject, $message, $headers)) {
                                                                         echo "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
                                                                     }
                                                                     else {
