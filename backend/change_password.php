@@ -13,25 +13,25 @@
 <html lang="en">
     <head>
         <?php
-                if (time() - $_SESSION['login_time'] > 900) {
-                    function destroySession() {
-                        $_SESSION = array();
-                        if (ini_get("session.use_cookies")) {
-                            $params = session_get_cookie_params();
-                            setcookie(session_name(), '', time() - 42000,
-                                $params["path"], $params["domain"],
-                                $params["secure"], $params["httponly"]
-                            );
-                        }
-                        session_destroy();
+            if (time() - $_SESSION['login_time'] > 900) {
+                function destroySession() {
+                    $_SESSION = array();
+                    if (ini_get("session.use_cookies")) {
+                        $params = session_get_cookie_params();
+                        setcookie(session_name(), '', time() - 42000,
+                            $params["path"], $params["domain"],
+                            $params["secure"], $params["httponly"]
+                        );
                     }
-                    destroySession();
-                    echo 
-                    "<script>
-                        alert(\"Your session has expired.\");
-                        window.location.replace(\"http://wisepro.com/testing6/login.php\");
-                    </script>";
+                    session_destroy();
                 }
+                destroySession();
+                echo 
+                "<script>
+                    alert(\"Your session has expired.\");
+                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
+                </script>";
+            }
         ?>
         <meta charset="UTF-8" />
         <title>Change Password</title>
