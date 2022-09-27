@@ -64,24 +64,44 @@
 
                 require __DIR__ . '/vendor/autoload.php';
 
-                $google2fa = new \PragmaRX\Google2FA\Google2FA();
+                $google2fa = new \PragmaRX\Google2FA\Google2FA();                
                 $secret_key = $google2fa->generateSecretKey();
 
                 $username = $_SESSION['username'];
-
                 include("database.php");
+                $stmt = $DBConnect->prepare("SELECT user_email FROM users WHERE username = ?");
+                $stmt->bind_param("s", $username); 
+                $stmt->execute();
+                $stmt->store_result();
+                $stmt->bind_result($retrieved_user_email);
+                $stmt->fetch();
+
+                $g2faUrl = $google2fa->getQRCodeUrl(
+                    $username,
+                    $retrieved_user_email,
+                    $secret_key
+                );
+
+                $renderer = new \BaconQrCode\Renderer\ImageRenderer(new \BaconQrCode\Renderer\RendererStyle\RendererStyle(400), new \BaconQrCode\Renderer\Image\ImagickImageBackEnd());
+                $writer = new BaconQrCode\Writer($renderer);
+                $qrcode_image = base64_encode($writer->writeString($g2faUrl));
+
                 $stmt = $DBConnect->prepare("UPDATE users SET secret_key = ? WHERE username = ?");
                 $stmt->bind_param("ss", $secret_key, $username);
                 if ($stmt->execute()) {
                     $_SESSION['setup_mfa_disabled'] = 1;
                     echo 
                     "<p>MFA activation was successful.</p>
-                    <p>Please enter the following number into your phone: $secret_key</p>
+                    <p>You may enter the code below to your phone or use the QR Code.</p>
+                    <p>Code: $secret_key</p>
+                    <p>QR Code:</p>
+                    <img src=\"data:image/png;base64, $qrcode_image\"/>
                     <p>Please <a href=\"?change_secret_key=true\">Click Here</a> to return to the home page or logout to exit this page.</p>";
                 }
                 else {
                     echo "<p>MFA activation was unsuccessful.</p>";
                 }
+                
             }
         ?>
         <form method="post" action="#">
