@@ -73,10 +73,11 @@
                         $google2fa = new \PragmaRX\Google2FA\Google2FA();
                         
                         $username = $_SESSION['username'];
-                        
+
+                        $decryption_key = "random_key";
                         include("database.php");
-                        $stmt = $DBConnect->prepare("SELECT secret_key FROM users WHERE username = ?");
-                        $stmt->bind_param("s", $username); 
+                        $stmt = $DBConnect->prepare("SELECT AES_DECRYPT(secret_key, ?) FROM users WHERE username = ?");
+                        $stmt->bind_param("ss", $decryption_key, $username); 
                         $stmt->execute();
                         $stmt->store_result();
                         $stmt->bind_result($retrieved_secret_key);
@@ -89,6 +90,7 @@
                             $_SESSION['login_status'] = 1;
                             $_SESSION['login_time'] = time();
                             unset($_SESSION['login']);
+                            unset($_SESSION['mfa_time']);
                             header('Location: home.php');
                             exit();
                         }
@@ -114,7 +116,7 @@
                 }
             ?>
             <form method="post" action="#">
-                <input type="number" name="mfa_code" placeholder="000111" min="000000" max="999999" required <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?> /><br /><br />
+                <input type="number" name="mfa_code" placeholder="000000" min="000000" max="999999" required <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?> /><br /><br />
                 <input type="submit" name="mfa_code_submit" value="Submit MFA Code" <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?> />
             </form>
         </div>
