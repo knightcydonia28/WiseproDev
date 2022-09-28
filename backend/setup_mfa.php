@@ -85,9 +85,10 @@
                 $renderer = new \BaconQrCode\Renderer\ImageRenderer(new \BaconQrCode\Renderer\RendererStyle\RendererStyle(400), new \BaconQrCode\Renderer\Image\ImagickImageBackEnd());
                 $writer = new BaconQrCode\Writer($renderer);
                 $qrcode_image = base64_encode($writer->writeString($g2faUrl));
-
-                $stmt = $DBConnect->prepare("UPDATE users SET secret_key = ? WHERE username = ?");
-                $stmt->bind_param("ss", $secret_key, $username);
+                
+                $encryption_key = "random_key";
+                $stmt = $DBConnect->prepare("UPDATE users SET secret_key = AES_ENCRYPT(?, ?) WHERE username = ?");
+                $stmt->bind_param("sss", $secret_key, $encryption_key, $username);
                 if ($stmt->execute()) {
                     $_SESSION['setup_mfa_disabled'] = 1;
                     echo 
