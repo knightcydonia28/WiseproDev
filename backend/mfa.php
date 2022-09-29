@@ -9,7 +9,7 @@
 <html lang="en">
     <head>
         <?php
-            if (time() - $_SESSION['mfa_time'] > 60) {
+            if (time() - $_SESSION['mfa_time'] > 300) {
                 function destroySession() {
                     $_SESSION = array();
                     if (ini_get("session.use_cookies")) {
