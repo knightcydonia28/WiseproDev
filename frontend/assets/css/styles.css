@@ -417,10 +417,10 @@ a.dtbtn:hover {
 .slider_text_inner h1 span{
 	color: #0c5adb;
 }
-.slider_text_inner h5  {
+.slider_text_inner h5  { /* TOP HEADER OF SLIDER TEXT */
     font-size: 20px;
     text-transform: uppercase;
-    color: #fff;
+    color: rgb(255, 0, 0);
     font-weight: 600;
     letter-spacing: 0;
     margin: 0 0 24px;
