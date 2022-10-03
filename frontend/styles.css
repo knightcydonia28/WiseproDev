@@ -310,7 +310,7 @@ a.dtbtn:hover {
 --<	Techno Slider Area Css -->
 ======================================================*/
 .slider1 {
-    background-image: url(assets/images/slider/slider-1.png);
+    background-image: url(assets/images/new/dark-bg.jpg);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -409,7 +409,7 @@ a.dtbtn:hover {
     font-size: 65px;
     text-transform: none;
     font-weight: 800;
-    color: #283478;
+    color: #ffffff;
     margin: 0;
     margin: 0;
     line-height: 1.1;
