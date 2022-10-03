@@ -73,6 +73,14 @@ Version: 0.1
 .logo {
  
 }
+
+/* Logo Imgs of Certifications */
+.single_brand_thumb img {
+    max-width: 100%;
+    height: auto;
+}
+
+
 /* techno Menu Css*/
 .techno_menu {
     text-align: center;
@@ -310,25 +318,25 @@ a.dtbtn:hover {
 --<	Techno Slider Area Css -->
 ======================================================*/
 .slider1 {
-    background-image: url(assets/images/new/dark-bg.jpg);
+    background-image: url(assets/images/new/service01-dark.png);
     background-size: cover;
-    background-position: center center;
+    background-position: top;
     background-repeat: no-repeat;
-    height: 900px;
+    height: 700px;
 }
 .slider2 {
-    background-image: url(assets/images/slider/slider-2.png);
+    background-image: url(assets/images/new/service02-dark.png);
     background-size: cover;
-    background-position: center center;
+    background-position: center top 25%;
     background-repeat: no-repeat;
-    height: 900px;
+    height: 700px;
 }
 .slider3 {
-    background-image: url(assets/images/slider/slider-3.png);
+    background-image: url(assets/images/new/service03-dark.png);
     background-size: cover;
-    background-position: center center;
+    background-position: top;
     background-repeat: no-repeat;
-    height: 900px;
+    height: 700px;
 }
 .slider4 {
     background-image: url(assets/images/slider/slider-5.jpg);
