@@ -322,21 +322,21 @@ a.dtbtn:hover {
     background-size: cover;
     background-position: top;
     background-repeat: no-repeat;
-    height: 700px;
+    height: 500px;
 }
 .slider2 {
     background-image: url(assets/images/new/service02-dark.png);
     background-size: cover;
     background-position: center top 25%;
     background-repeat: no-repeat;
-    height: 700px;
+    height: 500px;
 }
 .slider3 {
     background-image: url(assets/images/new/service03-dark.png);
     background-size: cover;
     background-position: top;
     background-repeat: no-repeat;
-    height: 700px;
+    height: 500px;
 }
 .slider4 {
     background-image: url(assets/images/slider/slider-5.jpg);
