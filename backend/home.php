@@ -12,8 +12,9 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    $_SESSION['home'] = 1;
+    setcookie("home", 1);
     setcookie("search_user", "", time() - 3600);
+    setcookie("choose_timesheet", "", time() - 3600);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +62,7 @@
                 }
                 if ($_SESSION['user_role'] == "recruiter") {
                     echo 
-                    "<li><a href=\"post_job.php\">Post Job</a></li>
+                    "<li><a href=\"create_job.php\">Create Job</a></li>
                     <li><a href=\"search_job.php\">Search Job</a></li>
                     <li><a href=\"timesheet.php\">Timesheet</a></li>";
                 }
