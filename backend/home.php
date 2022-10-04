@@ -12,7 +12,8 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    unset($_SESSION['search_user']);
+    $_SESSION['home'] = 1;
+    setcookie("search_user", "", time() - 3600);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,15 +62,15 @@
                 if ($_SESSION['user_role'] == "recruiter") {
                     echo 
                     "<li><a href=\"post_job.php\">Post Job</a></li>
-                    <li><a href=\"search_job.php\">Search & Edit Job</a></li>
+                    <li><a href=\"search_job.php\">Search Job</a></li>
                     <li><a href=\"timesheet.php\">Timesheet</a></li>";
                 }
                 if ($_SESSION['user_role'] == "administrator") {
                     echo 
                     "<li><a href=\"create_user.php\">Create User</a></li>
-                    <li><a href=\"search_user.php\">Search & Edit User</a></li>
-                    <li><a href=\"post_job.php\">Post Job</a></li>
-                    <li><a href=\"search_job.php\">Search & Edit Job</a></li>
+                    <li><a href=\"search_user.php\">Search User</a></li>
+                    <li><a href=\"create_job.php\">Create Job</a></li>
+                    <li><a href=\"search_job.php\">Search Job</a></li>
                     <li><a href=\"timesheet.php\">Timesheet</a></li>";
                 }
             ?>
