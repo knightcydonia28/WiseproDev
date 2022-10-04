@@ -12,12 +12,12 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    if (!isset($_COOKIE['search_user']) && !isset($_SESSION['home'])) {
+    if (!isset($_COOKIE['search_user']) && !isset($_COOKIE['home'])) {
         header('Location: home.php');
         exit();
     }
-    $_SESSION['choose_timesheet'] = 1;
-    $GLOBALS['username'] = isset($_SESSION['home']) ? $_SESSION['username'] : $_COOKIE['username'];
+    setcookie("choose_timesheet", 1);
+    $GLOBALS['username'] = isset($_COOKIE['home']) ? $_SESSION['username'] : $_COOKIE['username'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
