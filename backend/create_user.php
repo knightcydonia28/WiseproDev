@@ -52,6 +52,10 @@
             .error {
                 color: #FF0000;
             }
+            body {
+                background-color: red;
+            }
+
         </style>
     </head>
     <body>
