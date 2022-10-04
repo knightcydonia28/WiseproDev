@@ -16,8 +16,9 @@
         header('Location: home.php');
         exit();
     }
-    unset($_SESSION['home']);
-    setcookie("search_user", "", time() - 3600);
+    setcookie("search_user", 1);
+    setcookie("home", "", time() - 3600);
+    setcookie("choose_timesheet", "", time() - 3600);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -189,6 +190,7 @@
                                     <option value=\"\" selected disabled>Select Action</option>
                                     <option value=\"http://wisepro.com/testing6/view_user.php\">View User</option>
                                     <option value=\"http://wisepro.com/testing6/edit_user.php\">Edit User</option>
+                                    <option value=\"http://wisepro.com/testing6/view_employment.php\">View Employment</option>
                                     <option value=\"http://wisepro.com/testing6/add_employment.php\">Add Employment</option>
                                     <option value=\"http://wisepro.com/testing6/choose_timesheet.php\">Choose Timesheet</option>
                                     <option value=\"http://wisepro.com/testing6/timesheet.php\">Timesheet</option>
