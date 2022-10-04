@@ -50,13 +50,17 @@ Version: 0.1
     transition: .5s;
     margin-bottom: 0;
     z-index: 999;
-    position: relative;
+    position: fixed;
+    width: 100%;
 }
+
 .techno_nav_manu.transparent_menu {
     background: transparent;
     margin-bottom: -87px;
     position: relative;
 }
+
+
 .sticky {
     left: 0;
     margin: auto;
@@ -66,7 +70,7 @@ Version: 0.1
     -webkit-box-shadow: 0 2px 5px -2px rgba(0, 0, 0, 0.1);
     box-shadow: 0 2px 5px -2px rgba(0, 0, 0, 0.1);
     background: #00247e !important;
-	transition:.5s;
+	transition:.1s;
 }
 
 /* logo Css*/
@@ -421,6 +425,7 @@ a.dtbtn:hover {
     margin: 0;
     margin: 0;
     line-height: 1.1;
+    text-shadow: 5px 5px 15px black;
 }
 .slider_text_inner h1 span{
 	color: #0c5adb;
@@ -428,12 +433,21 @@ a.dtbtn:hover {
 .slider_text_inner h5  { /* TOP HEADER OF SLIDER TEXT */
     font-size: 20px;
     text-transform: uppercase;
-    color: rgb(255, 0, 0);
+    color: rgb(255, 255, 255);
     font-weight: 600;
     letter-spacing: 0;
     margin: 0 0 24px;
     letter-spacing: 1px;
 }
+
+
+.slider_text_inner h5 span {
+    border-bottom-style: solid;
+    font-size: 20px;
+    font-weight: 800;
+    text-shadow: 5px 5px 15px black;
+}
+
 
 .slider_text_inner p {
     width: 70%;
@@ -1476,11 +1490,18 @@ a.em-active-button:hover {
 .section_main_title h1 span{
 	color:#0c5adb;
 }
+
+
+.section_main_title h6 span{
+	color:#0c5adb;
+}
+
+
 .section_content_text p {
     font-size: 18px;
 }
 .text_center .section_content_text p {
-    width: 75%;
+    width: 100%;
     margin: auto;
     font-size: 19px;
 }
