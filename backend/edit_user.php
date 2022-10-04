@@ -528,13 +528,13 @@
                 <option value="">&nbsp;</option>
                 <option value="active" <?php if ($_COOKIE["user_status"] == "active") {echo "selected";} ?>>Active</option>
                 <option value="inactive" <?php if ($_COOKIE["user_status"] == "inactive") {echo "selected";} ?>>Inactive</option>
-            </select><br /><br />
+            </select><span class="error"> * <?php echo $user_status_error; ?></span><br /><br />
             <label for="secret_key">Secret Key:</label>
             <select id="secret_key" name="secret_key" required>
                 <option value="">&nbsp;</option>
                 <option value="0" <?php if ($_COOKIE["secret_key"] == 0) {echo "selected";} ?>>0</option>
                 <option value="1" <?php if ($_COOKIE["secret_key"] == 1) {echo "selected";} ?>>1</option>
-            </select><br /><br />
+            </select><span class="error"> * <?php echo $secret_key_error; ?></span><br /><br />
             <input type="submit" name="edit_user_submit" value="Submit Changes" />
         </form>
     <?php
