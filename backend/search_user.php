@@ -16,7 +16,8 @@
         header('Location: home.php');
         exit();
     }
-    unset($_SESSION['search_user']);
+    unset($_SESSION['home']);
+    setcookie("search_user", "", time() - 3600);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,43 +46,36 @@
         <meta charset="UTF-8" />
         <title>Search User</title>
         <script>
-            function enableButton() {
-                document.getElementById("select_user_submit").disabled = false;
+            function getUserInformation(username) {
+                var xhttp;
+                xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState != 4 && this.status != 200) {
+                        console.log(this.readyState);
+                        console.log(this.status);
+                        //Come back to this part.
+                    }
+                };
+                xhttp.open("GET", "get_user_information.php?q="+username, true);
+                xhttp.send();
             }
-            function createCookie(row_array) {
-                var username = row_array[0];
-                var password_expiration = row_array[1];
-                var user_role = row_array[2];
-                var first_name = row_array[3];
-                var middle_name = row_array[4];
-                var last_name = row_array[5];
-                var email = row_array[6];
-                var phone = row_array[7];
-                var birth_date = row_array[8];
-                document.cookie = "username="+username+"";
-                document.cookie = "password_expiration="+password_expiration+"";
-                document.cookie = "user_role="+user_role+"";
-                document.cookie = "first_name="+first_name+"";
-                document.cookie = "middle_name="+middle_name+"";
-                document.cookie = "last_name="+last_name+"";
-                document.cookie = "email="+email+"";
-                document.cookie = "phone="+phone+"";
-                document.cookie = "birth_date="+birth_date+"";
-            }
-            function getRowValues(row_id) {
+            function getUsername(row_id) {
                 var tr = document.getElementById(row_id);
                 var td = tr.getElementsByTagName("td");
-                const row_values = [];
-                for (var i = 0; i<td.length; i++) {
-                    var element = (td[i].innerHTML);
-                    row_values.push(element);
-                }
-                return row_values;
+                var username = (td[1].innerHTML);
+                return username;
             }
         </script>
         <style>
             table, th, td {
                 border:1px solid black;
+            }
+            label {
+                display: inline-block;
+                width: 100px;
+            }
+            .error {
+                color: #FF0000;
             }
         </style>
     </head>
@@ -98,80 +92,83 @@
         ?>
         <h2>Search User</h2>
         <p>Please fill in one or all of the following:</p>
-        <form method="post" action="#">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" /><br /><br />
-            <label for="first_name">First name:</label>
-            <input type="text" id="first_name" name="first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" /><br /><br />
-            <label for="middle_name">Middle name:</label>
-            <input type="text" id="middle_name" name="middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" /><br /><br />
-            <label for="last_name">Last name:</label>
-            <input type="text" id="last_name" name="last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" /><br /><br />
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" /><span class="error"> <?php echo $username_error; ?></span><br /><br />
+            <label for="user_first_name">First Name:</label>
+            <input type="text" id="user_first_name" name="user_first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_first_name_error; ?></span><br /><br />
+            <label for="user_middle_name">Middle Name:</label>
+            <input type="text" id="user_middle_name" name="user_middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_middle_name_error; ?></span><br /><br />
+            <label for="user_last_name">Last Name:</label>
+            <input type="text" id="user_last_name" name="user_last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_last_name_error; ?></span><br /><br />
             <input type="submit" name="search_user_submit" value="Search User" />
         </form> 
-        <?php
-            if (isset($_POST['select_user_submit'])) {
-                $_SESSION['search_user'] = 1;
-                header("Location: edit_user.php");
-                exit();
-            }
+        <?php                        
             if (isset($_POST['search_user_submit'])) {
-                if (empty($_POST['username']) && empty($_POST['first_name']) && empty($_POST['middle_name']) && empty($_POST['last_name'])) {
-                    echo "<p>Please fill in at least one of the input fields.</p>";
+
+                function test_input($data) {
+                    $data = trim($data);
+                    $data = stripslashes($data);
+                    $data = htmlspecialchars($data);
+                    return $data;
+                }
+
+                if (empty($_POST['username']) && empty($_POST['user_first_name']) && empty($_POST['user_middle_name']) && empty($_POST['user_last_name'])) {
+                    echo "<p class=\"error\">Please fill in at least one of the input fields.</p>";
                 }
                 else {
                     if (!empty($_POST['username'])) {
                         if (!ctype_alnum($_POST['username'])) {
-                            echo "<p>Please ensure that your username is alphanumeric.</p>";
+                            $username_error = "Please ensure that your username is alphanumeric";
                         }
                         else {
-                            $username = $_POST['username'];
+                            $username = test_input($_POST['username']);
                         }    
                     }
                     else {
                         $username = NULL;
                     }
-                    if (!empty($_POST['first_name'])) {
-                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['first_name'])) {
-                            echo "<p>Please ensure that your first name has letters, dashes, apostrophes and whitespaces only.</p>";
+                    if (!empty($_POST['user_first_name'])) {
+                        if (!preg_match("/^[a-zA-Z-' ]*$/", $_POST['user_first_name'])) {
+                            $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
                         }
                         else {
-                            $first_name = $_POST['first_name'];
+                            $user_first_name = test_input($_POST['user_first_name']);
                         }      
                     }
                     else {
-                        $first_name = NULL;
+                        $user_first_name = NULL;
                     }
-                    if (!empty($_POST['middle_name'])) {
-                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['middle_name'])) {
-                            echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
+                    if (!empty($_POST['user_middle_name'])) {
+                        if (!preg_match("/^[a-zA-Z-' ]*$/", $_POST['user_middle_name'])) {
+                            $user_middle_name_error = "Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only";
                         }
                         else {
-                            $middle_name = $_POST['middle_name'];
+                            $user_middle_name = test_input($_POST['user_middle_name']);
                         }
                     }
                     else {
-                        $middle_name = NULL;
+                        $user_middle_name = NULL;
                     }
-                    if (!empty($_POST['last_name'])) {
-                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['last_name'])) {
-                            echo "<p>Please ensure that your last name has letters, dashes, apostrophes and whitespaces only.</p>";
+                    if (!empty($_POST['user_last_name'])) {
+                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
+                            $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
                         }
                         else {
-                            $last_name = $_POST['last_name'];
+                            $user_last_name = test_input($_POST['user_last_name']);
                         }
                     }
                     else {
-                        $last_name = NULL;
+                        $user_last_name = NULL;
                     }
                 }
                 
                 include("database.php");
-                $stmt = $DBConnect->prepare("SELECT username, password_expiration, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date FROM users WHERE username LIKE CONCAT(?, '%') OR user_first_name LIKE CONCAT(?, '%') OR user_middle_name LIKE CONCAT(?, '%') OR user_last_name LIKE CONCAT(?, '%')");
-                $stmt->bind_param("ssss", $username, $first_name, $middle_name, $last_name); 
+                $stmt = $DBConnect->prepare("SELECT username, user_first_name, user_middle_name, user_last_name FROM users WHERE username LIKE CONCAT(?, '%') OR user_first_name LIKE CONCAT(?, '%') OR user_middle_name LIKE CONCAT(?, '%') OR user_last_name LIKE CONCAT(?, '%')");
+                $stmt->bind_param("ssss", $username, $user_first_name, $user_middle_name, $user_last_name); 
                 $stmt->execute();
                 $stmt->store_result();
-                $stmt->bind_result($retrieved_username, $retrieved_password_expiration, $retrieved_user_role, $retrieved_first_name, $retrieved_middle_name, $retrieved_last_name, $retrieved_email, $retrieved_phone_number, $retrieved_birth_date);
+                $stmt->bind_result($retrieved_username, $retrieved_user_first_name, $retrieved_user_middle_name, $retrieved_user_last_name);
                 
                 if ($stmt->num_rows > 0) {
                     $table_row_count = 1;
@@ -179,38 +176,32 @@
                     "<br />
                     <table>
                         <tr>
-                            <th>Select</th>
+                            <th>Action</th>
                             <th>Username</th>
-                            <th>Password expiration</th>
-                            <th>User role</th>
-                            <th>First name</th>
-                            <th>Middle name</th>
-                            <th>Last name</th>
-                            <th>Email</th>
-                            <th>Phone number</th>
-                            <th>Birth date</th>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>Last Name</th>
                         </tr>";
                     while($stmt->fetch()) {
                         echo
                         "<tr id=\"$table_row_count\">
-                            <th><input type=\"radio\" name=\"select_user\" onclick=\"createCookie(getRowValues('$table_row_count')); enableButton();\" /></th>
+                            <td><select name=\"action\" id=\"action_$table_row_count\" onclick=\"getUserInformation(getUsername('$table_row_count'))\" onchange=\"document.cookie='search_user=1'; window.location.replace(this.value);\">
+                                    <option value=\"\" selected disabled>Select Action</option>
+                                    <option value=\"http://wisepro.com/testing6/view_user.php\">View User</option>
+                                    <option value=\"http://wisepro.com/testing6/edit_user.php\">Edit User</option>
+                                    <option value=\"http://wisepro.com/testing6/add_employment.php\">Add Employment</option>
+                                    <option value=\"http://wisepro.com/testing6/choose_timesheet.php\">Choose Timesheet</option>
+                                    <option value=\"http://wisepro.com/testing6/timesheet.php\">Timesheet</option>
+                                </select>
+                            </td>
                             <td>$retrieved_username</td>
-                            <td>$retrieved_password_expiration</td>
-                            <td>$retrieved_user_role</td>
-                            <td>$retrieved_first_name</td>
-                            <td>$retrieved_middle_name</td>
-                            <td>$retrieved_last_name</td>
-                            <td>$retrieved_email</td>
-                            <td>$retrieved_phone_number</td>
-                            <td>$retrieved_birth_date</td>
+                            <td>$retrieved_user_first_name</td>
+                            <td>$retrieved_user_middle_name</td>
+                            <td>$retrieved_user_last_name</td>
                         </tr>";
                         $table_row_count++;
                     }
-                    echo "</table>
-                    <br />
-                    <form method=\"post\" action=\"#\">
-                        <input type=\"submit\" id=\"select_user_submit\" name=\"select_user_submit\" value=\"Edit User Information\" disabled />
-                    </form>";
+                    echo "</table>";
                 }
                 else {
                     echo "<p>User(s) not found.</p>";
