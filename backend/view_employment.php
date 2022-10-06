@@ -44,6 +44,10 @@
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
             }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
+            }
         ?>
         <meta charset="UTF-8" />
         <title>View Employment</title>
@@ -61,18 +65,18 @@
                 logout();
             }
             include("database.php");
-            $stmt = $DBConnect->prepare("SELECT employments.username, clients.client_name, vendors.vendor_name, employments.job_position, employments.employment_type, employments.employment_start_date, employments.employment_status, employments.employment_end_date FROM employments INNER JOIN clients ON employments.client_id = clients.client_id LEFT OUTER JOIN vendors ON employments.vendor_id = vendors.vendor_id WHERE employments.username = ? ORDER BY employments.employment_start_date DESC");
+            $stmt = $DBConnect->prepare("SELECT clients.client_name, vendors.vendor_name, employments.job_position, employments.employment_type, employments.employment_start_date, employments.employment_status, employments.employment_end_date FROM employments INNER JOIN clients ON employments.client_id = clients.client_id LEFT OUTER JOIN vendors ON employments.vendor_id = vendors.vendor_id WHERE employments.username = ? ORDER BY employments.employment_start_date DESC");
             $stmt->bind_param("s", $_COOKIE["username"]); 
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($retrieved_username, $retrieved_client_name, $retrieved_vendor_name, $retrieved_job_position, $retrieved_employment_type, $retrieved_employment_start_date, $retrieved_employment_status, $retrieved_employment_end_date);
+            $stmt->bind_result($retrieved_client_name, $retrieved_vendor_name, $retrieved_job_position, $retrieved_employment_type, $retrieved_employment_start_date, $retrieved_employment_status, $retrieved_employment_end_date);
             
             if ($stmt->num_rows > 0) {
                 $employment_count = 1;
+                echo "<p>Username: ".$_COOKIE["username"]."</p>";
                 while($stmt->fetch()) {           
                     echo
                     "<p><u>Employment Number: $employment_count</u></p>
-                    <p>Username: $retrieved_username</p>
                     <p>Client: $retrieved_client_name</p>
                     <p>Vendor: $retrieved_vendor_name</p>
                     <p>Job Position: $retrieved_job_position</p>

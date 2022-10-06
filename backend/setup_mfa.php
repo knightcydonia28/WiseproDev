@@ -36,6 +36,10 @@
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
             }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
+            }
         ?>
         <meta charset="UTF-8" />
         <title>Setup MFA</title>

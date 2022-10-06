@@ -17,6 +17,8 @@
         exit();
     }
     setcookie("search_user", "", time() - 3600);
+    setcookie("choose_timesheet", "", time() - 3600);
+    unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,6 +43,10 @@
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
             }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
+            }
         ?>
         <meta charset="UTF-8" />
         <title>Create User</title>
@@ -53,7 +59,7 @@
                 color: #FF0000;
             }
             body {
-                background-color: red;
+
             }
 
         </style>
@@ -155,6 +161,8 @@
                                                             $hashed_temporary_password = password_hash($shortened_temporary_password, PASSWORD_DEFAULT);
                                                         
                                                             if (empty($_POST['user_middle_name'])) {
+                                                                //Come back to encrypting the birth date.
+                                                                $encryption_key = "random_key";
                                                                 include("database.php");
                                                                 $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_last_name, user_email, user_phone, user_birth_date, user_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                                                                 $password_expiration = 0;
@@ -243,7 +251,7 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $_POST['username'] ?>" required /><span class="error"> * <?php echo $username_error; ?></span><br /><br />
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $username ?>" required /><span class="error"> * <?php echo $username_error; ?></span><br /><br />
             <label for="user_role">User Role:</label>
             <select id="user_role" name="user_role" required>
                 <option value="" <?php if (!isset($_POST['create_user_submit'])) {echo "selected";} ?> disabled>Select User Role</option>

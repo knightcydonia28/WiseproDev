@@ -42,6 +42,10 @@
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
             }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
+            }
         ?>
         <meta charset="UTF-8" />
         <title>Create Job</title>
@@ -126,7 +130,6 @@
                 }
 
                 if (empty($_POST['vendor_name'])) {
-                    $vendor_name = NULL;
                     if (!is_numeric($_POST['vendor_rate'])) {
                         $vendor_rate_error = "Please ensure that vendor rate is numeric";
                     }
@@ -153,7 +156,7 @@
                                         }
                                         else {
                                             $job_location = test_input($_POST['job_location_alternative']);
-                                            $job_description = $_POST['job_location_alternative'];
+                                            $job_description = $_POST['job_description'];
                                             if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
                                                 $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
                                             }
@@ -175,40 +178,47 @@
                                                         else {
                                                             $job_status = test_input($_POST['job_status']);
                                                             include("database.php");
-                                                            $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
-                                                            $stmt->bind_param("s", $vendor_name); 
+                                                            $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                            $stmt->bind_param("s", $client_name); 
                                                             $stmt->execute();
                                                             $stmt->store_result();
+                                                            $stmt->bind_result($retrieved_client_id);
                                                             if ($stmt->num_rows > 0) {
-                                                                //vendor name will not be inserted.
+                                                                $stmt->fetch();
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                $stmt->bind_param("s", $client_name); 
-                                                                $stmt->execute();
-                                                                $stmt->store_result();
-                                                                if ($stmt->num_rows > 0) {
-                                                                    //client name will not be inserted.
-                                                                    //query begins here.
+                                                                $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                $stmt->bind_param("dissssssss", $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                if ($stmt->execute()) {
+                                                                    echo "<p>Job was successfully created and posted.</p>";
                                                                 }
                                                                 else {
-                                                                    //client name will be inserted.
-                                                                    //query begins here.
+                                                                    echo "<p>Job was not successfully created and posted.</p>";
                                                                 }
                                                             }
                                                             else {
-                                                                //vendor name will be inserted.
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                $stmt->bind_param("s", $client_name); 
-                                                                $stmt->execute();
-                                                                $stmt->store_result();
-                                                                if ($stmt->num_rows > 0) {
-                                                                    //client name will not be inserted.
-                                                                    //query begins here.
+                                                                $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                $stmt->bind_param("s", $client_name);
+                                                                if ($stmt->execute()) {
+                                                                    include("database.php");
+                                                                    $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                    $stmt->bind_param("s", $client_name); 
+                                                                    $stmt->execute();
+                                                                    $stmt->store_result();
+                                                                    $stmt->bind_result($retrieved_client_id);
+                                                                    $stmt->fetch();
+
+                                                                    $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                    $stmt->bind_param("dissssssss", $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                    if ($stmt->execute()) {
+                                                                        echo "<p>Job was successfully created and posted.</p>";
+                                                                    }
+                                                                    else {
+                                                                        echo "<p>Job was not successfully created and posted.</p>";
+                                                                    }
                                                                 }
                                                                 else {
-                                                                    //client name will be inserted.
-                                                                    //query begins here.
+                                                                    echo "<p>Job was not successfully created and posted.</p>";
                                                                 }
                                                             }
                                                         }
@@ -219,74 +229,9 @@
                                     }
                                     else {
                                         if (isset($_POST['job_location_alternative'])) {
-                                            if ($_POST['job_location_alternative'] == "Remote") {
-                                                $job_location = test_input($_POST['job_location_alternative']);
-                                                $job_description = $_POST['job_location_alternative'];
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                    $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $preferred_skills = test_input($_POST['preferred_skills']);
-                                                    if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                        $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                    }
-                                                    else {
-                                                        $required_skills = test_input($_POST['required_skills']);
-                                                        $job_posted_date = test_input($_POST['job_posted_date']);
-                                                        if (!validateDate($job_posted_date)) {
-                                                            $job_posted_date_error = "Please enter a valid job posted date"; 
-                                                        }
-                                                        else {
-                                                            if ($_POST['job_status'] != "active") {
-                                                                $job_status_error = "Please ensure that the status of the job is active upon creation";
-                                                            }
-                                                            else {
-                                                                $job_status = test_input($_POST['job_status']);
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
-                                                                $stmt->bind_param("s", $vendor_name); 
-                                                                $stmt->execute();
-                                                                $stmt->store_result();
-                                                                if ($stmt->num_rows > 0) {
-                                                                    //vendor name will not be inserted.
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
-                                                                    }
-                                                                    else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    //vendor name will be inserted.
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
-                                                                    }
-                                                                    else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
                                             if ($_POST['job_location_alternative'] == "Hybrid") {
-                                                $job_location = $_POST['job_location']."; ".$_POST['job_location_alternative'];
-                                                $job_description = $_POST['job_location_alternative'];
+                                                $job_location = test_input($_POST['job_location'])."; ".test_input($_POST['job_location_alternative']);
+                                                $job_description = $_POST['job_description'];
                                                 if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
                                                     $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
                                                 }
@@ -308,40 +253,47 @@
                                                             else {
                                                                 $job_status = test_input($_POST['job_status']);
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
-                                                                $stmt->bind_param("s", $vendor_name); 
+                                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                $stmt->bind_param("s", $client_name); 
                                                                 $stmt->execute();
                                                                 $stmt->store_result();
+                                                                $stmt->bind_result($retrieved_client_id);
                                                                 if ($stmt->num_rows > 0) {
-                                                                    //vendor name will not be inserted.
+                                                                    $stmt->fetch();
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
+                                                                    $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                    $stmt->bind_param("dissssssss", $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                    if ($stmt->execute()) {
+                                                                        echo "<p>Job was successfully created and posted.</p>";
                                                                     }
                                                                     else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
+                                                                        echo "<p>Job was not successfully created and posted.</p>";
                                                                     }
                                                                 }
                                                                 else {
-                                                                    //vendor name will be inserted.
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
+                                                                    $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                    $stmt->bind_param("s", $client_name);
+                                                                    if ($stmt->execute()) {
+                                                                        include("database.php");
+                                                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                        $stmt->bind_param("s", $client_name); 
+                                                                        $stmt->execute();
+                                                                        $stmt->store_result();
+                                                                        $stmt->bind_result($retrieved_client_id);
+                                                                        $stmt->fetch();
+    
+                                                                        $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                        $stmt->bind_param("dissssssss", $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                        if ($stmt->execute()) {
+                                                                            echo "<p>Job was successfully created and posted.</p>";
+                                                                        }
+                                                                        else {
+                                                                            echo "<p>Job was not successfully created and posted.</p>";
+                                                                        }
                                                                     }
                                                                     else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
+                                                                        echo "<p>Job was not successfully created and posted.</p>";
                                                                     }
                                                                 }
                                                             }
@@ -356,7 +308,7 @@
                                             }
                                             else {
                                                 $job_location = test_input($_POST['job_location']);
-                                                $job_description = $_POST['job_location_alternative'];
+                                                $job_description = $_POST['job_description'];
                                                 if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
                                                     $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
                                                 }
@@ -378,40 +330,47 @@
                                                             else {
                                                                 $job_status = test_input($_POST['job_status']);
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
-                                                                $stmt->bind_param("s", $vendor_name); 
+                                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                $stmt->bind_param("s", $client_name); 
                                                                 $stmt->execute();
                                                                 $stmt->store_result();
+                                                                $stmt->bind_result($retrieved_client_id);
                                                                 if ($stmt->num_rows > 0) {
-                                                                    //vendor name will not be inserted.
+                                                                    $stmt->fetch();
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
+                                                                    $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                    $stmt->bind_param("dissssssss", $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                    if ($stmt->execute()) {
+                                                                        echo "<p>Job was successfully created and posted.</p>";
                                                                     }
                                                                     else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
+                                                                        echo "<p>Job was not successfully created and posted.</p>";
                                                                     }
                                                                 }
                                                                 else {
-                                                                    //vendor name will be inserted.
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
+                                                                    $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                    $stmt->bind_param("s", $client_name);
+                                                                    if ($stmt->execute()) {
+                                                                        include("database.php");
+                                                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                        $stmt->bind_param("s", $client_name); 
+                                                                        $stmt->execute();
+                                                                        $stmt->store_result();
+                                                                        $stmt->bind_result($retrieved_client_id);
+                                                                        $stmt->fetch();
+    
+                                                                        $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                        $stmt->bind_param("dissssssss", $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                        if ($stmt->execute()) {
+                                                                            echo "<p>Job was successfully created and posted.</p>";
+                                                                        }
+                                                                        else {
+                                                                            echo "<p>Job was not successfully created and posted.</p>";
+                                                                        }
                                                                     }
                                                                     else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
+                                                                        echo "<p>Job was not successfully created and posted.</p>";
                                                                     }
                                                                 }
                                                             }
@@ -458,7 +417,7 @@
                                             }
                                             else {
                                                 $job_location = test_input($_POST['job_location_alternative']);
-                                                $job_description = $_POST['job_location_alternative'];
+                                                $job_description = $_POST['job_description'];
                                                 if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
                                                     $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
                                                 }
@@ -480,40 +439,116 @@
                                                             else {
                                                                 $job_status = test_input($_POST['job_status']);
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
+                                                                $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
                                                                 $stmt->bind_param("s", $vendor_name); 
                                                                 $stmt->execute();
                                                                 $stmt->store_result();
+                                                                $stmt->bind_result($retrieved_vendor_id);
                                                                 if ($stmt->num_rows > 0) {
-                                                                    //vendor name will not be inserted.
+                                                                    $stmt->fetch();
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
+                                                                    $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
                                                                     $stmt->bind_param("s", $client_name); 
                                                                     $stmt->execute();
                                                                     $stmt->store_result();
+                                                                    $stmt->bind_result($retrieved_client_id);
                                                                     if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
+                                                                        $stmt->fetch();
+                                                                        include("database.php");
+                                                                        $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                        $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                        if ($stmt->execute()) {
+                                                                            echo "<p>Job was successfully created and posted.</p>";
+                                                                        }
+                                                                        else {
+                                                                            echo "<p>Job was not successfully created and posted.</p>";
+                                                                        }
                                                                     }
                                                                     else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
+                                                                        include("database.php");
+                                                                        $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                        $stmt->bind_param("s", $client_name);
+                                                                        if ($stmt->execute()) {
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                            $stmt->bind_param("s", $client_name); 
+                                                                            $stmt->execute();
+                                                                            $stmt->store_result();
+                                                                            $stmt->bind_result($retrieved_client_id);
+                                                                            $stmt->fetch();
+        
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                            $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                            if ($stmt->execute()) {
+                                                                                echo "<p>Job was successfully created and posted.</p>";
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            echo "<p>Job was not successfully created and posted.</p>";
+                                                                        }
                                                                     }
                                                                 }
                                                                 else {
-                                                                    //vendor name will be inserted.
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                    $stmt->bind_param("s", $client_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //client name will not be inserted.
-                                                                        //query begins here.
+                                                                    $stmt = $DBConnect->prepare("INSERT INTO vendors (vendor_name) VALUES (?)");
+                                                                    $stmt->bind_param("s", $vendor_name);
+                                                                    if ($stmt->execute()) {
+                                                                        include("database.php");
+                                                                        $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
+                                                                        $stmt->bind_param("s", $vendor_name); 
+                                                                        $stmt->execute();
+                                                                        $stmt->store_result();
+                                                                        $stmt->bind_result($retrieved_vendor_id);
+                                                                        $stmt->fetch();
+
+                                                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                        $stmt->bind_param("s", $client_name); 
+                                                                        $stmt->execute();
+                                                                        $stmt->store_result();
+                                                                        $stmt->bind_result($retrieved_client_id);
+                                                                        if ($stmt->num_rows > 0) {
+                                                                            $stmt->fetch();
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                            $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                            if ($stmt->execute()) {
+                                                                                echo "<p>Job was successfully created and posted.</p>";
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                            $stmt->bind_param("s", $client_name);
+                                                                            if ($stmt->execute()) {
+                                                                                include("database.php");
+                                                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                                $stmt->bind_param("s", $client_name); 
+                                                                                $stmt->execute();
+                                                                                $stmt->store_result();
+                                                                                $stmt->bind_result($retrieved_client_id);
+                                                                                $stmt->fetch();
+
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                if ($stmt->execute()) {
+                                                                                    echo "<p>Job was successfully created and posted.</p>";
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
+                                                                        }
                                                                     }
                                                                     else {
-                                                                        //client name will be inserted.
-                                                                        //query begins here.
+                                                                        echo "<p>Job was not successfully created and posted.</p>";
                                                                     }
                                                                 }
                                                             }
@@ -524,74 +559,9 @@
                                         }
                                         else {
                                             if (isset($_POST['job_location_alternative'])) {
-                                                if ($_POST['job_location_alternative'] == "Remote") {
-                                                    $job_location = test_input($_POST['job_location_alternative']);
-                                                    $job_description = $_POST['job_location_alternative'];
-                                                    if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                        $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                                    }
-                                                    else {
-                                                        $preferred_skills = test_input($_POST['preferred_skills']);
-                                                        if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                            $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                        }
-                                                        else {
-                                                            $required_skills = test_input($_POST['required_skills']);
-                                                            $job_posted_date = test_input($_POST['job_posted_date']);
-                                                            if (!validateDate($job_posted_date)) {
-                                                                $job_posted_date_error = "Please enter a valid job posted date"; 
-                                                            }
-                                                            else {
-                                                                if ($_POST['job_status'] != "active") {
-                                                                    $job_status_error = "Please ensure that the status of the job is active upon creation";
-                                                                }
-                                                                else {
-                                                                    $job_status = test_input($_POST['job_status']);
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
-                                                                    $stmt->bind_param("s", $vendor_name); 
-                                                                    $stmt->execute();
-                                                                    $stmt->store_result();
-                                                                    if ($stmt->num_rows > 0) {
-                                                                        //vendor name will not be inserted.
-                                                                        include("database.php");
-                                                                        $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                        $stmt->bind_param("s", $client_name); 
-                                                                        $stmt->execute();
-                                                                        $stmt->store_result();
-                                                                        if ($stmt->num_rows > 0) {
-                                                                            //client name will not be inserted.
-                                                                            //query begins here.
-                                                                        }
-                                                                        else {
-                                                                            //client name will be inserted.
-                                                                            //query begins here.
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        //vendor name will be inserted.
-                                                                        include("database.php");
-                                                                        $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                        $stmt->bind_param("s", $client_name); 
-                                                                        $stmt->execute();
-                                                                        $stmt->store_result();
-                                                                        if ($stmt->num_rows > 0) {
-                                                                            //client name will not be inserted.
-                                                                            //query begins here.
-                                                                        }
-                                                                        else {
-                                                                            //client name will be inserted.
-                                                                            //query begins here.
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
                                                 if ($_POST['job_location_alternative'] == "Hybrid") {
                                                     $job_location = $_POST['job_location']."; ".$_POST['job_location_alternative'];
-                                                    $job_description = $_POST['job_location_alternative'];
+                                                    $job_description = $_POST['job_description'];
                                                     if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
                                                         $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
                                                     }
@@ -613,40 +583,116 @@
                                                                 else {
                                                                     $job_status = test_input($_POST['job_status']);
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
+                                                                    $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
                                                                     $stmt->bind_param("s", $vendor_name); 
                                                                     $stmt->execute();
                                                                     $stmt->store_result();
+                                                                    $stmt->bind_result($retrieved_vendor_id);
                                                                     if ($stmt->num_rows > 0) {
-                                                                        //vendor name will not be inserted.
+                                                                        $stmt->fetch();
                                                                         include("database.php");
-                                                                        $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
+                                                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
                                                                         $stmt->bind_param("s", $client_name); 
                                                                         $stmt->execute();
                                                                         $stmt->store_result();
+                                                                        $stmt->bind_result($retrieved_client_id);
                                                                         if ($stmt->num_rows > 0) {
-                                                                            //client name will not be inserted.
-                                                                            //query begins here.
+                                                                            $stmt->fetch();
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                            $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                            if ($stmt->execute()) {
+                                                                                echo "<p>Job was successfully created and posted.</p>";
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
                                                                         }
                                                                         else {
-                                                                            //client name will be inserted.
-                                                                            //query begins here.
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                            $stmt->bind_param("s", $client_name);
+                                                                            if ($stmt->execute()) {
+                                                                                include("database.php");
+                                                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                                $stmt->bind_param("s", $client_name); 
+                                                                                $stmt->execute();
+                                                                                $stmt->store_result();
+                                                                                $stmt->bind_result($retrieved_client_id);
+                                                                                $stmt->fetch();
+            
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                if ($stmt->execute()) {
+                                                                                    echo "<p>Job was successfully created and posted.</p>";
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
                                                                         }
                                                                     }
                                                                     else {
-                                                                        //vendor name will be inserted.
                                                                         include("database.php");
-                                                                        $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                        $stmt->bind_param("s", $client_name); 
-                                                                        $stmt->execute();
-                                                                        $stmt->store_result();
-                                                                        if ($stmt->num_rows > 0) {
-                                                                            //client name will not be inserted.
-                                                                            //query begins here.
+                                                                        $stmt = $DBConnect->prepare("INSERT INTO vendors (vendor_name) VALUES (?)");
+                                                                        $stmt->bind_param("s", $vendor_name);
+                                                                        if ($stmt->execute()) {
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
+                                                                            $stmt->bind_param("s", $vendor_name); 
+                                                                            $stmt->execute();
+                                                                            $stmt->store_result();
+                                                                            $stmt->bind_result($retrieved_vendor_id);
+                                                                            $stmt->fetch();
+    
+                                                                            $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                            $stmt->bind_param("s", $client_name); 
+                                                                            $stmt->execute();
+                                                                            $stmt->store_result();
+                                                                            $stmt->bind_result($retrieved_client_id);
+                                                                            if ($stmt->num_rows > 0) {
+                                                                                $stmt->fetch();
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                if ($stmt->execute()) {
+                                                                                    echo "<p>Job was successfully created and posted.</p>";
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                include("database.php");
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                                $stmt->bind_param("s", $client_name);
+                                                                                if ($stmt->execute()) {
+                                                                                    include("database.php");
+                                                                                    $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                                    $stmt->bind_param("s", $client_name); 
+                                                                                    $stmt->execute();
+                                                                                    $stmt->store_result();
+                                                                                    $stmt->bind_result($retrieved_client_id);
+                                                                                    $stmt->fetch();
+    
+                                                                                    $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                    $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                    if ($stmt->execute()) {
+                                                                                        echo "<p>Job was successfully created and posted.</p>";
+                                                                                    }
+                                                                                    else {
+                                                                                        echo "<p>Job was not successfully created and posted.</p>";
+                                                                                    }
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
                                                                         }
                                                                         else {
-                                                                            //client name will be inserted.
-                                                                            //query begins here.
+                                                                            echo "<p>Job was not successfully created and posted.</p>";
                                                                         }
                                                                     }
                                                                 }
@@ -661,7 +707,7 @@
                                                 }
                                                 else {
                                                     $job_location = test_input($_POST['job_location']);
-                                                    $job_description = $_POST['job_location_alternative'];
+                                                    $job_description = $_POST['job_description'];
                                                     if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
                                                         $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
                                                     }
@@ -683,40 +729,116 @@
                                                                 else {
                                                                     $job_status = test_input($_POST['job_status']);
                                                                     include("database.php");
-                                                                    $stmt = $DBConnect->prepare("SELECT vendor_name FROM vendors WHERE vendor_name = ?");
+                                                                    $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
                                                                     $stmt->bind_param("s", $vendor_name); 
                                                                     $stmt->execute();
                                                                     $stmt->store_result();
+                                                                    $stmt->bind_result($retrieved_vendor_id);
                                                                     if ($stmt->num_rows > 0) {
-                                                                        //vendor name will not be inserted.
+                                                                        $stmt->fetch();
                                                                         include("database.php");
-                                                                        $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
+                                                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
                                                                         $stmt->bind_param("s", $client_name); 
                                                                         $stmt->execute();
                                                                         $stmt->store_result();
+                                                                        $stmt->bind_result($retrieved_client_id);
                                                                         if ($stmt->num_rows > 0) {
-                                                                            //client name will not be inserted.
-                                                                            //query begins here.
+                                                                            $stmt->fetch();
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                            $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                            if ($stmt->execute()) {
+                                                                                echo "<p>Job was successfully created and posted.</p>";
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
                                                                         }
                                                                         else {
-                                                                            //client name will be inserted.
-                                                                            //query begins here.
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                            $stmt->bind_param("s", $client_name);
+                                                                            if ($stmt->execute()) {
+                                                                                include("database.php");
+                                                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                                $stmt->bind_param("s", $client_name); 
+                                                                                $stmt->execute();
+                                                                                $stmt->store_result();
+                                                                                $stmt->bind_result($retrieved_client_id);
+                                                                                $stmt->fetch();
+            
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                if ($stmt->execute()) {
+                                                                                    echo "<p>Job was successfully created and posted.</p>";
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                echo "<p>Job was not successfully created and posted.</p>";
+                                                                            }
                                                                         }
                                                                     }
                                                                     else {
-                                                                        //vendor name will be inserted.
                                                                         include("database.php");
-                                                                        $stmt = $DBConnect->prepare("SELECT client_name FROM clients WHERE client_name = ?");
-                                                                        $stmt->bind_param("s", $client_name); 
-                                                                        $stmt->execute();
-                                                                        $stmt->store_result();
-                                                                        if ($stmt->num_rows > 0) {
-                                                                            //client name will not be inserted.
-                                                                            //query begins here.
+                                                                        $stmt = $DBConnect->prepare("INSERT INTO vendors (vendor_name) VALUES (?)");
+                                                                        $stmt->bind_param("s", $vendor_name);
+                                                                        if ($stmt->execute()) {
+                                                                            include("database.php");
+                                                                            $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
+                                                                            $stmt->bind_param("s", $vendor_name); 
+                                                                            $stmt->execute();
+                                                                            $stmt->store_result();
+                                                                            $stmt->bind_result($retrieved_vendor_id);
+                                                                            $stmt->fetch();
+    
+                                                                            $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                            $stmt->bind_param("s", $client_name); 
+                                                                            $stmt->execute();
+                                                                            $stmt->store_result();
+                                                                            $stmt->bind_result($retrieved_client_id);
+                                                                            if ($stmt->num_rows > 0) {
+                                                                                $stmt->fetch();
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                if ($stmt->execute()) {
+                                                                                    echo "<p>Job was successfully created and posted.</p>";
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                include("database.php");
+                                                                                $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                                                                                $stmt->bind_param("s", $client_name);
+                                                                                if ($stmt->execute()) {
+                                                                                    include("database.php");
+                                                                                    $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                                                                                    $stmt->bind_param("s", $client_name); 
+                                                                                    $stmt->execute();
+                                                                                    $stmt->store_result();
+                                                                                    $stmt->bind_result($retrieved_client_id);
+                                                                                    $stmt->fetch();
+    
+                                                                                    $stmt = $DBConnect->prepare("INSERT INTO jobs (vendor_id, vendor_rate, client_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date, job_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                                                                    $stmt->bind_param("idissssssss", $retrieved_vendor_id, $vendor_rate, $retrieved_client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
+                                                                                    if ($stmt->execute()) {
+                                                                                        echo "<p>Job was successfully created and posted.</p>";
+                                                                                    }
+                                                                                    else {
+                                                                                        echo "<p>Job was not successfully created and posted.</p>";
+                                                                                    }
+                                                                                }
+                                                                                else {
+                                                                                    echo "<p>Job was not successfully created and posted.</p>";
+                                                                                }
+                                                                            }
                                                                         }
                                                                         else {
-                                                                            //client name will be inserted.
-                                                                            //query begins here.
+                                                                            echo "<p>Job was not successfully created and posted.</p>";
                                                                         }
                                                                     }
                                                                 }
@@ -736,7 +858,7 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="vendor_name">Vendor:</label>
-            <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only"><span class="error"> <?php echo $vendor_name_error; ?></span>
+            <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $vendor_name ?>"><span class="error"> <?php echo $vendor_name_error; ?></span>
             <datalist id="vendors">
                 <?php
                     include("database.php");
@@ -750,9 +872,9 @@
                 ?>
             </datalist><br /><br />
             <label for="vendor_rate">Vendor Rate:</label>
-            <input type="number" id="vendor_rate" name="vendor_rate" placeholder="000.00" min="0" max="999" step="0.01" required /><span class="error"> * <?php echo $vendor_rate_error; ?></span><br /><br />  
+            <input type="number" id="vendor_rate" name="vendor_rate" placeholder="000.00" min="0" max="999" step="0.01" value="<?php echo $vendor_rate ?>" required /><span class="error"> * <?php echo $vendor_rate_error; ?></span><br /><br />  
             <label for="client_name">Client:</label>
-            <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" required><span class="error"> * <?php echo $client_name_error; ?></span>
+            <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $client_name ?>" required><span class="error"> * <?php echo $client_name_error; ?></span>
             <datalist id="clients">
                 <?php
                     include("database.php");
@@ -763,33 +885,46 @@
                     while($stmt->fetch()) {
                         echo "<option value=\"$retrieved_client_name\"></option>";
                     }
+                ?>
+            </datalist><br /><br />
+            <label for="job_title">Job Title:</label>
+            <input list="job_titles" name="job_title" id="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only" value="<?php echo $job_title ?>" required /><span class="error"> * <?php echo $job_title_error; ?></span>
+            <datalist id="job_titles">
+                <?php
+                    include("database.php");
+                    $stmt = $DBConnect->prepare("SELECT job_title FROM jobs");
+                    $stmt->execute();
+                    $stmt->store_result();
+                    $stmt->bind_result($retrieved_job_title);
+                    while($stmt->fetch()) {
+                        echo "<option value=\"$retrieved_job_title\"></option>";
+                    }
                     $stmt->close();
                     $DBConnect->close();
                 ?>
             </datalist><br /><br />
-            <label for="job_title">Job Title:</label>
-            <input type="text" id="job_title" name="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only" value="" required /><span class="error"> * <?php echo $job_title_error; ?></span><br /><br />
             <label for="job_type">Job Type:</label>
             <select id="job_type" name="job_type" required>
                 <option value="" <?php if (!isset($_POST['create_job_submit'])) {echo "selected";} ?> disabled>Select Job Type</option>
-                <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
+                <option value="full-time" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "full-time") {echo "selected";} ?>>Full-time</option>
+                <option value="part-time" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "part-time") {echo "selected";} ?>>Part-time</option>
+                <option value="contract" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "contract") {echo "selected";} ?>>Contract</option>
+                <option value="internship" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "internship") {echo "selected";} ?>>Internship</option>
             </select><span class="error"> * <?php echo $job_type_error; ?></span><br /><br />
+            <?php $job_location_pieces = explode(";", $job_location); ?>
             <label for="job_location">Job Location:</label>
-            <input list="usa_cities_and_states" name="job_location" id="job_location" placeholder="job location" pattern="^[a-zA-Z,\s]*$" title="Please ensure that job location has letters, commas and whitespaces only" required>&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_remote" value="Remote" onclick="preventTwoChecks(this)">Remote&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_hybrid" value="Hybrid" onclick="preventOneCheck(this)">Hybrid
+            <input list="usa_cities_and_states" name="job_location" id="job_location" placeholder="job location" pattern="^[a-zA-Z,\s]*$" title="Please ensure that job location has letters, commas and whitespaces only" value="<?php echo $job_location_pieces[0]; ?>" required>&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_remote" value="Remote" onclick="preventTwoChecks(this)" <?php if (isset($_POST['create_job_submit']) && isset($job_location) && $job_location == "Remote") {echo "checked";} ?>>Remote&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_hybrid" value="Hybrid" onclick="preventOneCheck(this)" <?php if (isset($_POST['create_job_submit']) && isset($job_location) && $job_location_pieces[1] == " Hybrid") {echo "checked";} ?>>Hybrid
             <datalist id="usa_cities_and_states">
                 <?php
                     include("usa_cities_and_states.php");
                 ?>
             </datalist><span class="error"> * <?php echo $job_location_error; ?></span><br /><br />
             <p><label for="job_description">Job Description:</label></p>
-            <textarea id="job_description" name="job_description" placeholder="job description" rows="30" cols="50" required></textarea><span class="error"> *</span><br /><br />
+            <textarea id="job_description" name="job_description" placeholder="job description" rows="30" cols="50" required><?php echo $job_description ?></textarea><span class="error"> *</span><br /><br />
             <label for="preferred_skills">Preferred Skills:</label>
-            <input type="text" id="preferred_skills" name="preferred_skills" placeholder="preferred skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that preferred skills have letters, commas and whitespaces only" required/><span class="error"> * <?php echo $preferred_skills_error; ?></span><br /><br />
+            <input type="text" id="preferred_skills" name="preferred_skills" placeholder="preferred skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that preferred skills have letters, commas and whitespaces only" value="<?php echo $preferred_skills ?>" required/><span class="error"> * <?php echo $preferred_skills_error; ?></span><br /><br />
             <label for="job_type">Required Skills:</label>
-            <input type="text" id="required_skills" name="required_skills" placeholder="required skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that required skills have letters, commas and whitespaces only" required/><span class="error"> * <?php echo $required_skills_error; ?></span><br /><br />
+            <input type="text" id="required_skills" name="required_skills" placeholder="required skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that required skills have letters, commas and whitespaces only" value="<?php echo $required_skills ?>" required/><span class="error"> * <?php echo $required_skills_error; ?></span><br /><br />
             <?php $job_posted_date = date("Y-m-d"); ?>
             <input type="hidden" id="job_posted_date" name="job_posted_date" value="<?php echo $job_posted_date; ?>"><span class="error"> <?php echo $job_posted_error; ?></span>
             <input type="hidden" id="job_status" name="job_status" value="<?php echo "active"; ?>"><span class="error"> <?php echo $job_status_error; ?></span>

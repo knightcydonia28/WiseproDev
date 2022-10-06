@@ -42,6 +42,10 @@
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
             }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
+            }
         ?>
         <meta charset="UTF-8" />
         <title>Choose Timesheet</title>
@@ -63,7 +67,7 @@
                 else {
                     $client_id = test_input($_POST['client_id']);
                     echo $client_id;
-                    //$_SESSION['client_id'] = $client_id;
+                    //$_SESSION['choose_timesheet'] = 1;
                     //header('Location: timesheet.php');
                     //exit();
                 }
@@ -80,13 +84,25 @@
                     $stmt->execute();
                     $stmt->store_result();
                     $stmt->bind_result($retrieved_client_id, $retrieved_client_name);
-                    while($stmt->fetch()) {
-                        echo "<option value=\"$retrieved_client_id\">$retrieved_client_name</option>";
+                    if ($stmt->num_rows > 0) {
+                        while($stmt->fetch()) {
+                            echo "<option value=\"$retrieved_client_id\">$retrieved_client_name</option>";
+                        }
+                    }
+                    else {
+                        $_SESSION['disable_choose_timesheet'] = 1;
                     }
                 ?>
-                </select><br /><br />
-                <input type="submit" name="select_client_submit" value="Select Client" />
+            </select><br /><br />
+            <input type="submit" name="select_client_submit" value="Select Client" <?php if (isset($_SESSION['disable_choose_timesheet'])) {echo "disabled";} ?>/>
         </form>
+        <?php
+            if (isset($_SESSION['disable_choose_timesheet'])) {
+                echo 
+                "<p>Employment(s) not found.</p>
+                <p>Note: Employment(s) necessary to access and use timesheet.</p>";
+            }
+        ?>
     </body>
 </html>
 

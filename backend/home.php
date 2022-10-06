@@ -15,6 +15,7 @@
     setcookie("home", 1);
     setcookie("search_user", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
+    unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,6 +39,10 @@
                     alert(\"Your session has expired.\");
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
+            }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
             }
         ?>
         <meta charset="UTF-8" />

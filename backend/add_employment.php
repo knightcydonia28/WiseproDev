@@ -44,6 +44,10 @@
                     window.location.replace(\"http://wisepro.com/testing6/login.php\");
                 </script>";
             }
+            if (time() - $_SESSION['login_time'] < 900) {
+                $added_time = time() - $_SESSION['login_time'];
+                $_SESSION['login_time'] += $added_time;
+            }
         ?>
         <meta charset="UTF-8" />
         <title>Add Employment</title>
@@ -314,7 +318,7 @@
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required /><br /><br />
             <label for="client_name">Client:</label>
-            <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" required><span class="error"> * <?php echo $client_name_error; ?></span>
+            <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $client_name; ?>" required><span class="error"> * <?php echo $client_name_error; ?></span>
                 <datalist id="clients">
                     <?php
                         include("database.php");
@@ -328,7 +332,7 @@
                     ?>
                 </datalist><br /><br />
             <label for="vendor_name">Vendor:</label>
-            <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only"><span class="error"> <?php echo $vendor_name_error; ?></span>
+            <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $vendor_name; ?>"><span class="error"> <?php echo $vendor_name_error; ?></span>
                 <datalist id="vendors">
                     <?php
                         include("database.php");
@@ -339,24 +343,44 @@
                         while($stmt->fetch()) {
                             echo "<option value=\"$retrieved_vendor_name\"></option>";
                         }
+                    ?>
+                </datalist><br /><br />
+            <label for="job_position">Job Position:</label>
+            <input list="job_positions" name="job_position" id="job_position" placeholder="job position" pattern="^[a-zA-Z\s]*$" title="Please ensure that job position has letters and whitespaces only" value="<?php echo $job_position; ?>" required /><span class="error"> * <?php echo $job_position_error; ?></span>
+                <datalist id="job_positions">
+                    <?php
+                        include("database.php");
+                        $stmt = $DBConnect->prepare("SELECT job_position FROM employments");
+                        $stmt->execute();
+                        $stmt->store_result();
+                        $stmt->bind_result($retrieved_job_position);
+                        while($stmt->fetch()) {
+                            echo "<option value=\"$retrieved_job_position\"></option>";
+                        }
                         $stmt->close();
                         $DBConnect->close();
                     ?>
                 </datalist><br /><br />
-            <label for="job_position">Job Position:</label>
-            <input type="text" id="job_position" name="job_position" placeholder="job position" pattern="^[a-zA-Z\s]*$" title="Please ensure that job position has letters and whitespaces only" required /><span class="error"> * <?php echo $job_position_error; ?></span><br /><br />
             <label for="employment_type">Employment Type:</label>
             <select id="employment_type" name="employment_type" required>
                 <option value="" <?php if (!isset($_POST['add_employment_submit'])) {echo "selected";} ?> disabled>Select Employment Type</option>
-                <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
+                <option value="full-time" <?php if (isset($_POST['add_employment_submit']) && isset($employment_type) && $employment_type == "full-time") {echo "selected";} ?>>Full-time</option>
+                <option value="part-time" <?php if (isset($_POST['add_employment_submit']) && isset($employment_type) && $employment_type == "part-time") {echo "selected";} ?>>Part-time</option>
+                <option value="contract" <?php if (isset($_POST['add_employment_submit']) && isset($employment_type) && $employment_type == "contract") {echo "selected";} ?>>Contract</option>
+                <option value="internship" <?php if (isset($_POST['add_employment_submit']) && isset($employment_type) && $employment_type == "internship") {echo "selected";} ?>>Internship</option>
             </select><span class="error"> * <?php echo $employment_type_error; ?></span><br /><br />
             <label for="employment_start_date">Employment Start Date:</label>
             <input type="date" id="employment_start_date" name="employment_start_date" required /><span class="error"> * <?php echo $employment_start_date_error; ?></span><br /><br />
             <input type="hidden" id="employment_status" name="employment_status" value="employed" /><span class="error"> <?php echo $employment_status_error; ?></span>
             <input type="submit" name="add_employment_submit" value="Add Employment" />
         </form>
+        <?php
+            if (isset($_POST['add_employment_submit'])) {
+                echo
+                "<script>
+                    document.getElementById(\"employment_start_date\").value = \""; echo $employment_start_date; echo "\";
+                </script>";
+            }
+        ?>
     </body>
 </html>
