@@ -66,9 +66,9 @@
     </head>
     <body>
     <a href="home.php">Home</a><br /><br />
-        <?php
-            include("logout.php");
-        ?>
+    <?php
+        include("logout.php");
+    ?>
     <a href='?logout=true'>Logout</a>
     <h2>Search Job Posting:</h2>
     <p>Please fill in one, some, or all of the following:</p>

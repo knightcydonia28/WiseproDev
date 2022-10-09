@@ -54,17 +54,12 @@
     </head>
     <body>
         <a href="home.php">Home</a><br /><br />
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" /><br /><br />
-        </form>
+        <?php
+            include("logout.php");
+        ?>
+        <a href='?logout=true'>Logout</a>
         <h2>View User</h2>
         <p>Below is information about the selected user:</p>
-        <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
-        ?>
         <div class="user_information">
             <p>Username: <span><?php echo $_COOKIE["username"]; ?></span></p>
             <p>Password Expiration: <span><?php echo $_COOKIE["password_expiration"]; ?></span></p>

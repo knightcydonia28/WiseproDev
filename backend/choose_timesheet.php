@@ -51,6 +51,11 @@
         <title>Choose Timesheet</title>
     </head>
     <body>
+        <a href="home.php">Home</a><br /><br />
+        <?php
+            include("logout.php");
+        ?>
+        <a href='?logout=true'>Logout</a>
         <h2>Choose Timesheet</h2>
         <p>Please select a client from which the timesheet should be chosen.</p>
         <?php

@@ -87,15 +87,10 @@
     </head>
     <body>
         <a href="home.php">Home</a><br /><br />
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" />
-        </form>
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
+            include("logout.php");
         ?>
+        <a href='?logout=true'>Logout</a>
         <h2>Search User</h2>
         <p>Please fill in one or all of the following:</p>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">

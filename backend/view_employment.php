@@ -54,16 +54,13 @@
     </head>
     <body>
         <a href="home.php">Home</a><br /><br />
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" /><br /><br />
-        </form>
+        <?php
+            include("logout.php");
+        ?>
+        <a href='?logout=true'>Logout</a>
         <h2>View Employment</h2>
         <p>Below is employment information about the selected user:</p>
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
             include("database.php");
             $stmt = $DBConnect->prepare("SELECT clients.client_name, vendors.vendor_name, employments.job_position, employments.employment_type, employments.employment_start_date, employments.employment_status, employments.employment_end_date FROM employments INNER JOIN clients ON employments.client_id = clients.client_id LEFT OUTER JOIN vendors ON employments.vendor_id = vendors.vendor_id WHERE employments.username = ? ORDER BY employments.employment_start_date DESC");
             $stmt->bind_param("s", $_COOKIE["username"]); 

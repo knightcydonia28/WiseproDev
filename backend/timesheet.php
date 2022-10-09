@@ -317,17 +317,11 @@
                     $date_count++;
                 }
             }
-        ?>
-        
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" />
-        </form>
+        ?>   
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
+            include("logout.php");
         ?>
+        <a href='?logout=true'>Logout</a>
         <h4>Timesheet: Swag Edition v2</h4>
         <p>Please enter your hours below.</p>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">

@@ -51,9 +51,10 @@
         </script>
     </head>
     <body>
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" />
-        </form>
+        <?php
+            include("logout.php");
+        ?>
+        <a href='?logout=true'>Logout</a>
         <h3>Change Password</h3>
         <p>Password Complexity Requirements:</p>
         <ul>
@@ -67,10 +68,6 @@
         </ul>
         <p>Notice: If you have not setup Multi-factor authentication (MFA) for you account, then you will be required to do so after this process.</p>
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
             if(isset($_GET['change_password_expiration'])){
                 function changePasswordExpiration() {
                     unset($_SESSION['change_password_disabled']);

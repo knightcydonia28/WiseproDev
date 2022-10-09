@@ -45,16 +45,13 @@
         <title>Setup MFA</title>
     </head>
     <body>
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" />
-        </form>
+        <?php
+            include("logout.php");
+        ?>
+        <a href='?logout=true'>Logout</a>
         <h3>Setup MFA</h3>
         <p>Please click the "Activate MFA" button to start the process of enabling multi-factor authentication (MFA) with Google Authenticator.</p>
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
             if(isset($_GET['change_secret_key'])) { 
                 function changeSecretKey() {
                     unset($_SESSION['setup_mfa_disabled']);

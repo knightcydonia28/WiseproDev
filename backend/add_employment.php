@@ -63,17 +63,14 @@
     </head>
     <body>
         <a href="home.php">Home</a><br /><br />
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" />
-        </form>
+        <?php
+            include("logout.php");
+        ?>
+        <a href='?logout=true'>Logout</a>
         <h2>Add Employment</h2>
         <p>Please fill the form below to add an employment for the selected user:</p>
         <p><span class="error">* required field</span></p>
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
             if (isset($_POST['add_another_employment_submit'])) {
                 header('Location: add_employment.php');
                 exit();

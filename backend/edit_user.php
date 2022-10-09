@@ -73,17 +73,14 @@
     </head>
     <body>
     <a href="home.php">Home</a><br /><br />
-    <form method="post" action="#">
-        <input type="submit" name="logout" value="Logout" /><br /><br />
-    </form>
+    <?php
+        include("logout.php");
+    ?>
+    <a href='?logout=true'>Logout</a>
     <h2>Edit User</h2>
     <p>Please utilize the form below to make changes to the selected account:</p>
     <p><span class="error">* required field</span></p>
     <?php
-        if (isset($_POST['logout'])) {
-            include("logout.php");
-            logout();
-        }
         if (isset($_POST['edit_user_submit'])) {
             
             function test_input($data) {
