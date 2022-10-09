@@ -92,21 +92,9 @@
         ?>
         <a href='?logout=true'>Logout</a>
         <h2>Search User</h2>
-        <p>Please fill in one or all of the following:</p>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" /><span class="error"> <?php echo $username_error; ?></span><br /><br />
-            <label for="user_first_name">First Name:</label>
-            <input type="text" id="user_first_name" name="user_first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_first_name_error; ?></span><br /><br />
-            <label for="user_middle_name">Middle Name:</label>
-            <input type="text" id="user_middle_name" name="user_middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_middle_name_error; ?></span><br /><br />
-            <label for="user_last_name">Last Name:</label>
-            <input type="text" id="user_last_name" name="user_last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_last_name_error; ?></span><br /><br />
-            <input type="submit" name="search_user_submit" value="Search User" />
-        </form> 
-        <?php                        
+        <p>Please fill in one, some, or all of the following:</p>
+        <?php
             if (isset($_POST['search_user_submit'])) {
-
                 function test_input($data) {
                     $data = trim($data);
                     $data = stripslashes($data);
@@ -163,7 +151,21 @@
                         $user_last_name = NULL;
                     }
                 }
-                
+            }
+        ?>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" /><span class="error"> <?php echo $username_error; ?></span><br /><br />
+            <label for="user_first_name">First Name:</label>
+            <input type="text" id="user_first_name" name="user_first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_first_name_error; ?></span><br /><br />
+            <label for="user_middle_name">Middle Name:</label>
+            <input type="text" id="user_middle_name" name="user_middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_middle_name_error; ?></span><br /><br />
+            <label for="user_last_name">Last Name:</label>
+            <input type="text" id="user_last_name" name="user_last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_last_name_error; ?></span><br /><br />
+            <input type="submit" name="search_user_submit" value="Search User" />
+        </form> 
+        <?php                        
+            if (isset($_POST['search_user_submit'])) {                
                 include("database.php");
                 $stmt = $DBConnect->prepare("SELECT username, user_first_name, user_middle_name, user_last_name FROM users WHERE username LIKE CONCAT(?, '%') OR user_first_name LIKE CONCAT(?, '%') OR user_middle_name LIKE CONCAT(?, '%') OR user_last_name LIKE CONCAT(?, '%')");
                 $stmt->bind_param("ssss", $username, $user_first_name, $user_middle_name, $user_last_name); 
@@ -190,8 +192,8 @@
                                     <option value=\"\" selected disabled>Select Action</option>
                                     <option value=\"http://wisepro.com/testing6/view_user.php\">View User</option>
                                     <option value=\"http://wisepro.com/testing6/edit_user.php\">Edit User</option>
-                                    <option value=\"http://wisepro.com/testing6/view_employment.php\">View Employment</option>
                                     <option value=\"http://wisepro.com/testing6/add_employment.php\">Add Employment</option>
+                                    <option value=\"http://wisepro.com/testing6/view_employment.php\">View Employment</option>
                                     <option value=\"http://wisepro.com/testing6/choose_timesheet.php\">Choose Timesheet</option>
                                     <option value=\"http://wisepro.com/testing6/timesheet.php\">Timesheet</option>
                                 </select>
@@ -214,4 +216,3 @@
         ?>
     </body>
 </html>
-
