@@ -58,18 +58,79 @@
             .error {
                 color: #FF0000;
             }
+            body {
+                background-color:;
+            }
+            .home-button{
+                background-color: #10469A;
+                color: white;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                padding-right: 8px;
+                padding-left: 8px;
+                border-radius: 20px;
+                cursor: pointer;
+                border:solid;
+                display:inline-block;
 
+            }
+            input[type=submit] {
+                background-color: #10469A;
+                color: white;
+                padding: 16px 20px;
+                margin: 8px 0;
+                border: none;
+                cursor: pointer;
+                width: 100%;
+                opacity: 0.9;
+            }
+            input[type=submitt] {
+                background-color: #10469A;
+                color: white;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                padding-right: 8px;
+                padding-left: 8px;
+                border-radius: 20px;
+                cursor: pointer;
+                border:solid;
+                display:inline-block;
+            }
+            .container {
+                margin: 150px;
+                padding: 16px;
+                background-color: white;
+                border:1px solid black;
+                border-radius: 10px;
+                border-width:3px;
+                width: 700px;
+                height: 500px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                text-align:justify;
+            }
+            input[type=text], input[type=email], [type=tel], [type=date] {
+                width: 90%;
+                padding: 15px;
+                margin: 5px 0 22px 0;
+                display: inline-block;
+                border: none;
+                background: #f1f1f1;
+            }
+            input[type=text]:focus, input[type=password]:focus, input[type=tel]:focus, input[type=password]:date {
+                background-color: #ddd;
+                outline: none;
+            }
         </style>
     </head>
     <body>
-        <a href="home.php">Home</a><br /><br />
+        <a href="home.php">
+            <button class="home-button">Home</button>
+        </a>
         <?php
             include("logout.php");
         ?>
         <a href='?logout=true'>Logout</a>
-        <h2>Create User</h2>
-        <p>Please fill the form below to create an account:</p>
-        <p><span class="error">* required field</span></p>
         <?php
             if (isset($_POST['create_another_user_submit'])) {
                 header('Location: create_user.php');
@@ -155,8 +216,6 @@
                                                             $hashed_temporary_password = password_hash($shortened_temporary_password, PASSWORD_DEFAULT);
                                                         
                                                             if (empty($_POST['user_middle_name'])) {
-                                                                //Come back to encrypting the birth date.
-                                                                $encryption_key = "random_key";
                                                                 include("database.php");
                                                                 $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_last_name, user_email, user_phone, user_birth_date, user_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                                                                 $password_expiration = 0;
@@ -243,37 +302,54 @@
                 $DBConnect->close();
             }
         ?>
+        
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $username ?>" required /><span class="error"> * <?php echo $username_error; ?></span><br /><br />
-            <label for="user_role">User Role:</label>
-            <select id="user_role" name="user_role" required>
-                <option value="" <?php if (!isset($_POST['create_user_submit'])) {echo "selected";} ?> disabled>Select User Role</option>
-                <option value="user" <?php if (isset($_POST['create_user_submit']) && isset($user_role) && $user_role == "user") {echo "selected";} ?>>User</option>
-                <option value="recruiter" <?php if (isset($_POST['create_user_submit']) && isset($user_role) && $user_role == "recruiter") {echo "selected";} ?>>Recruiter</option>
-                <option value="administrator" <?php if (isset($_POST['create_user_submit']) && isset($user_role) && $user_role == "administrator") {echo "selected";} ?>>Administrator</option>
-            </select><span class="error"> * <?php echo $user_role_error; ?></span><br /><br />
-            <label for="user_first_name">First Name:</label>
-            <input type="text" id="user_first_name" name="user_first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $user_first_name; ?>" required /><span class="error"> * <?php echo $user_first_name_error; ?></span><br /><br />
-            <label for="user_middle_name">Middle Name:</label>
-            <input type="text" id="user_middle_name" name="user_middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $user_middle_name; ?>" /><span class="error"><?php echo $user_middle_name_error; ?></span><br /><br />
-            <label for="user_last_name">Last Name:</label>
-            <input type="text" id="user_last_name" name="user_last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $user_last_name; ?>" required /><span class="error"> * <?php echo $user_last_name_error; ?></span><br /><br />
-            <label for="user_email">Email:</label>
-            <input type="email" id="user_email" name="user_email" placeholder="yourname@example.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php echo $user_email; ?>" required /><span class="error"> * <?php echo $user_email_error; ?></span><br /><br />
-            <label for="user_phone">Phone Number:</label>
-            <input type="tel" id="user_phone" name="user_phone" placeholder="1112223333" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php echo $user_phone; ?>" required /><span class="error"> * <?php echo $user_phone_error; ?></span><br /><br />
-            <label for="user_birth_date">Birth Date:</label>
-            <?php $minimum_year = date("Y") - 75; $maximum_year = date("Y") - 16; ?>
-            <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01" ?>" required /><span class="error"> * <?php echo $user_birth_date_error; ?></span><br /><br />
-            <input type="hidden" id="user_status" name="user_status" value="active" /><span class="error"> <?php echo $user_status_error; ?></span>
-            <input type="submit" name="create_user_submit" value="Create User" />
+            <div class="container">
+                <h2>Create User</h2>
+                <p>Please fill the form below to create an account:</p>
+                <p><span class="error">* required field</span></p>
+                <hr>
+
+                <label for="username"><b>Username</b>:</label>
+                <input type="text" id="username" name="username" placeholder="Username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $_POST['username']; ?>" required /><span class="error"> * <?php echo $username_error; ?></span><br /><br />
+                
+                <label for="user_role"><b>User Role:</b></label>
+                <select id="user_role" name="user_role" required>
+                    <option value="" <?php if (!isset($_POST['create_user_submit'])) {echo "selected";} ?> disabled>Select User Role</option>
+                    <option value="user" <?php if (isset($_POST['create_user_submit']) && isset($_POST['user_role']) && $_POST['user_role'] == "user") {echo "selected";} ?>>User</option>
+                    <option value="recruiter" <?php if (isset($_POST['create_user_submit']) && isset($_POST['user_role']) && $_POST['user_role'] == "recruiter") {echo "selected";} ?>>Recruiter</option>
+                    <option value="administrator" <?php if (isset($_POST['create_user_submit']) && isset($_POST['user_role']) && $_POST['user_role'] == "administrator") {echo "selected";} ?>>Administrator</option>
+                </select><span class="error"> * <?php echo $user_role_error; ?></span><br /><br />
+                
+                <label for="user_first_name"><b>First Name:</b></label>
+                <input type="text" id="user_first_name" name="user_first_name" placeholder="First Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $_POST['user_first_name']; ?>" required /><span class="error"> * <?php echo $user_first_name_error; ?></span><br /><br />
+                
+                <label for="user_middle_name"><b>Middle Name:</b></label>
+                <input type="text" id="user_middle_name" name="user_middle_name" placeholder="Middle Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $_POST['user_middle_name']; ?>" /><span class="error"><?php echo $user_middle_name_error; ?></span><br /><br />
+                
+                <label for="user_last_name"><b>Last Name:</b></label>
+                <input type="text" id="user_last_name" name="user_last_name" placeholder="Last Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $_POST['user_last_name']; ?>" required /><span class="error"> * <?php echo $user_last_name_error; ?></span><br /><br />
+                
+                <label for="user_email"><b>Email:</b></label>
+                <input type="email" id="user_email" name="user_email" placeholder="yourname@example.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php echo $_POST['user_email']; ?>" required /><span class="error"> * <?php echo $user_email_error; ?></span><br /><br />
+                
+                <label for="user_phone"><b>Phone Number:</b></label>
+                <input type="tel" id="user_phone" name="user_phone" placeholder="0123456789" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php echo $_POST['user_phone']; ?>" required /><span class="error"> * <?php echo $user_phone_error; ?></span><br /><br />
+                
+                <label for="user_birth_date"><b>Birth Date:</b></label>
+                <?php $minimum_year = date("Y") - 75; $maximum_year = date("Y") - 16; ?>
+                <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01" ?>" required /><span class="error"> * <?php echo $user_birth_date_error; ?></span><br /><br />
+                <hr>
+                <input type="hidden" id="user_status" name="user_status" value="active" /><span class="error"> <?php echo $user_status_error; ?></span>
+                <input type="submit" name="create_user_submit" value="Create User" />
+            </div>
         </form>
+        
         <?php
             if (isset($_POST['create_user_submit'])) {
                 echo
                 "<script>
-                    document.getElementById(\"user_birth_date\").value = \""; echo $user_birth_date; echo "\";
+                    document.getElementById(\"user_birth_date\").value = \""; echo $_POST['user_birth_date']; echo "\";
                 </script>";
             }
         ?>
