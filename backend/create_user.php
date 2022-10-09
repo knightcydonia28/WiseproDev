@@ -125,7 +125,7 @@
     </head>
     <body>
         <a href="home.php">
-            <button class="home-button">Home</button>
+            <button class="home-button">Home Page</button>
         </a>
         <?php
             include("logout.php");
