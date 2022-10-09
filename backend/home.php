@@ -50,14 +50,9 @@
     </head>
     <body>
         <?php
-            if (isset($_POST['logout'])) {
-                include("logout.php");
-                logout();
-            }
+            include("logout.php");
         ?>
-        <form method="post" action="#">
-            <input type="submit" name="logout" value="Logout" />
-        </form>
+        <a href='?logout=true'>Logout</a>
         <h4>Home Page</h4>
         <ul>
             <?php
@@ -67,16 +62,16 @@
                 }
                 if ($_SESSION['user_role'] == "recruiter") {
                     echo 
-                    "<li><a href=\"create_job.php\">Create Job</a></li>
-                    <li><a href=\"search_job.php\">Search Job</a></li>
+                    "<li><a href=\"create_job_posting.php\">Create Job Posting</a></li>
+                    <li><a href=\"search_job_posting.php\">Search Job Posting</a></li>
                     <li><a href=\"timesheet.php\">Timesheet</a></li>";
                 }
                 if ($_SESSION['user_role'] == "administrator") {
                     echo 
                     "<li><a href=\"create_user.php\">Create User</a></li>
                     <li><a href=\"search_user.php\">Search User</a></li>
-                    <li><a href=\"create_job.php\">Create Job</a></li>
-                    <li><a href=\"search_job.php\">Search Job</a></li>
+                    <li><a href=\"create_job_posting.php\">Create Job Posting</a></li>
+                    <li><a href=\"search_job_posting.php\">Search Job Posting</a></li>
                     <li><a href=\"timesheet.php\">Timesheet</a></li>";
                 }
             ?>
