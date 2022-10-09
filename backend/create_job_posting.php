@@ -1156,7 +1156,7 @@
             <label for="job_id">Job Id:</label>
             <input type="text" id="job_id" name="job_id" value="new" readonly><br><br>
             <label for="vendor_name">Vendor:</label>
-            <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $vendor_name ?>"><span class="error"> <?php echo $vendor_name_error; ?></span>
+            <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $_POST['vendor_name'] ?>"><span class="error"> <?php echo $vendor_name_error; ?></span>
             <datalist id="vendors">
                 <?php
                     include("database.php");
@@ -1170,9 +1170,9 @@
                 ?>
             </datalist><br /><br />
             <label for="vendor_rate">Vendor Rate:</label>
-            <input type="number" id="vendor_rate" name="vendor_rate" placeholder="000.00" min="0" max="999" step="0.01" value="<?php echo $vendor_rate ?>" /><span class="error"> <?php echo $vendor_rate_error; ?></span><br /><br />  
+            <input type="number" id="vendor_rate" name="vendor_rate" placeholder="000.00" min="0" max="999" step="0.01" value="<?php echo $_POST['vendor_rate'] ?>" /><span class="error"> <?php echo $vendor_rate_error; ?></span><br /><br />  
             <label for="client_name">Client:</label>
-            <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $client_name ?>" required><span class="error"> * <?php echo $client_name_error; ?></span>
+            <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $_POST['client_name'] ?>" required><span class="error"> * <?php echo $client_name_error; ?></span>
             <datalist id="clients">
                 <?php
                     include("database.php");
@@ -1186,7 +1186,7 @@
                 ?>
             </datalist><br /><br />
             <label for="job_title">Job Title:</label>
-            <input list="job_titles" name="job_title" id="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only" value="<?php echo $job_title ?>" required /><span class="error"> * <?php echo $job_title_error; ?></span>
+            <input list="job_titles" name="job_title" id="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only" value="<?php echo $_POST['job_title'] ?>" required /><span class="error"> * <?php echo $job_title_error; ?></span>
             <datalist id="job_titles">
                 <?php
                     include("database.php");
@@ -1204,25 +1204,25 @@
             <label for="job_type">Job Type:</label>
             <select id="job_type" name="job_type" required>
                 <option value="" <?php if (!isset($_POST['create_job_submit'])) {echo "selected";} ?> disabled>Select Job Type</option>
-                <option value="full-time" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "full-time") {echo "selected";} ?>>Full-time</option>
-                <option value="part-time" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "part-time") {echo "selected";} ?>>Part-time</option>
-                <option value="contract" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "contract") {echo "selected";} ?>>Contract</option>
-                <option value="internship" <?php if (isset($_POST['create_job_submit']) && isset($job_type) && $job_type == "internship") {echo "selected";} ?>>Internship</option>
+                <option value="full-time" <?php if (isset($_POST['create_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "full-time") {echo "selected";} ?>>Full-time</option>
+                <option value="part-time" <?php if (isset($_POST['create_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "part-time") {echo "selected";} ?>>Part-time</option>
+                <option value="contract" <?php if (isset($_POST['create_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "contract") {echo "selected";} ?>>Contract</option>
+                <option value="internship" <?php if (isset($_POST['create_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "internship") {echo "selected";} ?>>Internship</option>
             </select><span class="error"> * <?php echo $job_type_error; ?></span><br /><br />
-            <?php $job_location_pieces = explode(";", $job_location); ?>
+            <?php $job_location_pieces = explode(";", $_POST['job_location']); ?>
             <label for="job_location">Job Location:</label>
-            <input list="usa_cities_and_states" name="job_location" id="job_location" placeholder="job location" pattern="^[a-zA-Z,\s]*$" title="Please ensure that job location has letters, commas and whitespaces only" value="<?php echo $job_location_pieces[0]; ?>" required>&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_remote" value="Remote" onclick="preventTwoChecks(this)" <?php if (isset($_POST['create_job_submit']) && isset($job_location) && $job_location == "Remote") {echo "checked";} ?>>Remote&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_hybrid" value="Hybrid" onclick="preventOneCheck(this)" <?php if (isset($_POST['create_job_submit']) && isset($job_location) && $job_location_pieces[1] == " Hybrid") {echo "checked";} ?>>Hybrid
+            <input list="usa_cities_and_states" name="job_location" id="job_location" placeholder="job location" pattern="^[a-zA-Z,\s]*$" title="Please ensure that job location has letters, commas and whitespaces only" value="<?php echo $job_location_pieces[0]; ?>" required>&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_remote" value="Remote" onclick="preventTwoChecks(this)" <?php if (isset($_POST['create_job_submit']) && isset($_POST['job_location']) && $_POST['job_location'] == "Remote") {echo "checked";} ?>>Remote&nbsp;&nbsp;<input type="checkbox" name="job_location_alternative" id="job_location_hybrid" value="Hybrid" onclick="preventOneCheck(this)" <?php if (isset($_POST['create_job_submit']) && isset($_POST['job_location']) && $job_location_pieces[1] == " Hybrid") {echo "checked";} ?>>Hybrid
             <datalist id="usa_cities_and_states">
                 <?php
                     include("usa_cities_and_states.php");
                 ?>
             </datalist><span class="error"> * <?php echo $job_location_error; ?></span><br /><br />
             <p><label for="job_description">Job Description:</label></p>
-            <textarea id="job_description" name="job_description" placeholder="job description" rows="30" cols="50" required><?php echo $job_description ?></textarea><span class="error"> *</span><br /><br />
+            <textarea id="job_description" name="job_description" placeholder="job description" rows="30" cols="50" required><?php echo $_POST['job_description']; ?></textarea><span class="error"> *</span><br /><br />
             <label for="preferred_skills">Preferred Skills:</label>
-            <input type="text" id="preferred_skills" name="preferred_skills" placeholder="preferred skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that preferred skills have letters, commas and whitespaces only" value="<?php echo $preferred_skills ?>" required/><span class="error"> * <?php echo $preferred_skills_error; ?></span><br /><br />
+            <input type="text" id="preferred_skills" name="preferred_skills" placeholder="preferred skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that preferred skills have letters, commas and whitespaces only" value="<?php echo $_POST['preferred_skills']; ?>" required/><span class="error"> * <?php echo $preferred_skills_error; ?></span><br /><br />
             <label for="job_type">Required Skills:</label>
-            <input type="text" id="required_skills" name="required_skills" placeholder="required skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that required skills have letters, commas and whitespaces only" value="<?php echo $required_skills ?>" required/><span class="error"> * <?php echo $required_skills_error; ?></span><br /><br />
+            <input type="text" id="required_skills" name="required_skills" placeholder="required skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that required skills have letters, commas and whitespaces only" value="<?php echo $_POST['required_skills']; ?>" required/><span class="error"> * <?php echo $required_skills_error; ?></span><br /><br />
             <?php $job_posted_date = date("Y-m-d"); ?>
             <input type="hidden" id="job_posted_date" name="job_posted_date" value="<?php echo $job_posted_date; ?>"><span class="error"> <?php echo $job_posted_error; ?></span>
             <input type="hidden" id="job_status" name="job_status" value="<?php echo "active"; ?>"><span class="error"> <?php echo $job_status_error; ?></span>
