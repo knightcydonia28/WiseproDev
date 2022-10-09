@@ -65,7 +65,7 @@
             <p>Password Expiration: <span><?php echo $_COOKIE["password_expiration"]; ?></span></p>
             <p>User Role: <span><?php echo $_COOKIE["user_role"]; ?></span></p>
             <p>First name: <span><?php echo $_COOKIE["user_first_name"]; ?></span></p>
-            <p>Middle Name: <span><?php echo $_COOKIE["user_middle_name"]; ?></span></p>
+            <p>Middle Name: <span><?php if ($_COOKIE["user_middle_name"] != '0') {echo $_COOKIE["user_middle_name"];}; ?></span></p>
             <p>Last Name: <span><?php echo $_COOKIE["user_last_name"]; ?></span></p>
             <p>Email: <span><?php echo $_COOKIE["user_email"]; ?></span></p>
             <p>Phone Number: <span><?php echo $_COOKIE["user_phone"]; ?></span></p>
