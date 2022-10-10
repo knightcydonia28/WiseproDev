@@ -60,23 +60,40 @@
         <a href='?logout=true'>Logout</a>
         <h2>View User</h2>
         <p>Below is information about the selected user:</p>
-        <div class="user_information">
-            <p>Username: <span><?php echo $_COOKIE["username"]; ?></span></p>
-            <p>Password Expiration: <span><?php echo $_COOKIE["password_expiration"]; ?></span></p>
-            <p>User Role: <span><?php echo $_COOKIE["user_role"]; ?></span></p>
-            <p>First name: <span><?php echo $_COOKIE["user_first_name"]; ?></span></p>
-            <p>Middle Name: <span><?php if ($_COOKIE["user_middle_name"] != '0') {echo $_COOKIE["user_middle_name"];}; ?></span></p>
-            <p>Last Name: <span><?php echo $_COOKIE["user_last_name"]; ?></span></p>
-            <p>Email: <span><?php echo $_COOKIE["user_email"]; ?></span></p>
-            <p>Phone Number: <span><?php echo $_COOKIE["user_phone"]; ?></span></p>
+        <?php
+            include("database.php");
+            $stmt = $DBConnect->prepare("SELECT username, password_expiration, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date, user_status, secret_key FROM users WHERE username = ?");
+            $stmt->bind_param("s", $_COOKIE['username']);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($retrieved_username, $retrieved_password_expiration, $retrieved_user_role, $retrieved_user_first_name, $retrieved_user_middle_name, $retrieved_user_last_name, $retrieved_user_email, $retrieved_user_phone, $retrieved_user_birth_date, $retrieved_user_status, $retrieved_secret_key);
+            $stmt->fetch();
+            $stmt->close();
+            $DBConnect->close();
+        ?>
+            <p>Username: <?php echo $_COOKIE["username"]; ?></p>
+            <p>Password Expiration: <?php echo $retrieved_password_expiration; ?></p>
+            <p>User Role: <?php echo $retrieved_user_role; ?></p>
+            <p>First name: <?php echo $retrieved_user_first_name; ?></p>
+            <p>Middle Name: <?php echo $retrieved_user_middle_name; ?></p>
+            <p>Last Name: <?php echo $retrieved_user_last_name; ?></p>
+            <p>Email: <?php echo $retrieved_user_email; ?></p>
+            <p>Phone Number: <?php echo $retrieved_user_phone; ?></p>
             <?php
-                $user_birth_date = $_COOKIE["user_birth_date"];
+                $user_birth_date = $retrieved_user_birth_date;
                 $array = explode("-", $user_birth_date);
                 $formatted_user_birth_date = $array[1]."/".$array[2]."/".$array[0];
             ?>
-            <p>Birth Date: <span id ="user_birth_date"><?php echo $formatted_user_birth_date; ?></span></p>
-            <p>User Status: <span><?php echo $_COOKIE["user_status"]; ?></span></p>
-            <p>Secret Key: <span><?php echo $_COOKIE["secret_key"]; ?></span></p>
-        </div> 
+            <p>Birth Date: <?php echo $formatted_user_birth_date; ?></p>
+            <p>User Status: <?php echo $retrieved_user_status; ?></p>
+            <?php
+                if ($retrieved_secret_key == NULL) {
+                    $retrieved_secret_key = 0;
+                }
+                else {
+                    $retrieved_secret_key = 1;
+                }
+            ?>
+            <p>Secret Key: <?php echo $retrieved_secret_key; ?></p>
     </body>
 </html>

@@ -19,6 +19,7 @@
     setcookie("search_job_posting", 1);
     setcookie("home", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
+    setcookie("choose_employment", "", time() - 3600);
     unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
@@ -51,6 +52,14 @@
         ?>
         <meta charset="UTF-8" />
         <title>Search Job Posting</title>
+        <script>
+            function getJobID(row_id) {
+                var tr = document.getElementById(row_id);
+                var td = tr.getElementsByTagName("td");
+                var job_id = (td[1].innerHTML);
+                document.cookie = "job_id="+job_id; 
+            }
+        </script>
         <style>
             table, th, td {
                 border:1px solid black;
@@ -299,10 +308,12 @@
             $stmt->store_result();
             $stmt->bind_result($retrieved_job_id, $retrieved_vendor_name, $retrieved_client_name, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_posted_date, $retrieved_job_status);
             if ($stmt->num_rows > 0) {
+                $table_row_count = 1;
                 echo
                 "<br />
                 <table>
                     <tr>
+                        <th>Action</th>
                         <th>Job Id</th>
                         <th>Vendor Name</th>
                         <th>Client Name</th>
@@ -313,17 +324,26 @@
                         <th>Job Status</th>
                     </tr>";
                 while($stmt->fetch()) {
+                    $job_posted_date = $retrieved_job_posted_date;
+                    $array = explode("-", $job_posted_date);
+                    $formatted_job_posted_date = $array[1]."/".$array[2]."/".$array[0];
                     echo
-                    "<tr>
+                    "<tr id=\"$table_row_count\">
+                        <td><select name=\"action\" id=\"action_$table_row_count\" onclick=\"getJobID('$table_row_count')\" onchange=\"document.cookie='search_job_posting=1'; window.location.replace(this.value);\">
+                            <option value=\"\" selected disabled>Select Action</option>
+                            <option value=\"http://wisepro.com/testing6/view_job_posting.php\">View Job Posting</option>
+                            </select>
+                        </td>
                         <td>$retrieved_job_id</td>
                         <td>$retrieved_vendor_name</td>
                         <td>$retrieved_client_name</td>
                         <td>$retrieved_job_title</td>
                         <td>$retrieved_job_type</td>
                         <td>$retrieved_job_location</td>
-                        <td>$retrieved_job_posted_date</td>
+                        <td>$formatted_job_posted_date</td>
                         <td>$retrieved_job_status</td>
                     </tr>";
+                    $table_row_count++;
                 }
                 echo "</table>";
             }

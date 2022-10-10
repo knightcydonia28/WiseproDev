@@ -82,10 +82,17 @@
                     $formatted_retrieved_employment_start_date = $array[1]."/".$array[2]."/".$array[0];
                     echo
                     "<p>Employment Start Date: $formatted_retrieved_employment_start_date</p>
-                    <p>Employment Status: $retrieved_employment_status</p>
-                    <p>Employment End Date: $retrieved_employment_end_date</p>";
+                    <p>Employment Status: $retrieved_employment_status</p>";
+                    if ($retrieved_employment_end_date != NULL) {
+                        $array = explode("-", $retrieved_employment_end_date);
+                        $formatted_retrieved_employment_end_date = $array[1]."/".$array[2]."/".$array[0];
+                    }
+                    echo
+                    "<p>Employment End Date: $formatted_retrieved_employment_end_date</p>";
                     $employment_count++;
                 }
+                $stmt->close();
+                $DBConnect->close();
             }
             else {
                 echo "<p>Employment(s) not found.</p>";
