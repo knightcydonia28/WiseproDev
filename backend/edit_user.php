@@ -455,85 +455,67 @@
                     }
                 }
             }
-            include("database.php");
-            $stmt = $DBConnect->prepare("SELECT username, password_expiration, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date, user_status, secret_key FROM users WHERE username = ?");
-            $stmt->bind_param("s", $username); 
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($retrieved_username, $retrieved_password_expiration, $retrieved_user_role, $retrieved_user_first_name, $retrieved_user_middle_name, $retrieved_user_last_name, $retrieved_user_email, $retrieved_user_phone, $retrieved_user_birth_date, $retrieved_user_status, $retrieved_secret_key);
-            $stmt->fetch();
-            
-            if ($retrieved_secret_key == NULL) {
-                $retrieved_secret_key = 0;
-            }
-            else {
-                $retrieved_secret_key = 1;
-            }
-            setcookie("password_expiration", $retrieved_password_expiration);
-            setcookie("user_role", $retrieved_user_role);
-            setcookie("user_first_name", $retrieved_user_first_name);
-            if ($retrieved_user_middle_name == NULL) {
-                setcookie("user_middle_name", 0);
-            }
-            else {
-                setcookie("user_middle_name", $retrieved_user_middle_name);
-            }
-            setcookie("user_last_name", $retrieved_user_last_name);
-            setcookie("user_email", $retrieved_user_email);
-            setcookie("user_phone", $retrieved_user_phone);
-            setcookie("user_birth_date", $retrieved_user_birth_date);
-            setcookie("user_status", $retrieved_user_status);
-            if ($retrieved_secret_key == NULL) {
-                $retrieved_secret_key = 0;
-            }
-            else {
-                $retrieved_secret_key = 1;
-            }
-            setcookie("secret_key", $retrieved_secret_key);
         }
+        include("database.php");
+        $stmt = $DBConnect->prepare("SELECT username, password_expiration, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date, user_status, secret_key FROM users WHERE username = ?");
+        $stmt->bind_param("s", $_COOKIE["username"]); 
+        $stmt->execute();
+        $stmt->store_result();
+        $stmt->bind_result($retrieved_username, $retrieved_password_expiration, $retrieved_user_role, $retrieved_user_first_name, $retrieved_user_middle_name, $retrieved_user_last_name, $retrieved_user_email, $retrieved_user_phone, $retrieved_user_birth_date, $retrieved_user_status, $retrieved_secret_key);
+        $stmt->fetch();
+        $stmt->close();
+        $DBConnect->close();
     ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $_COOKIE["username"];} else {echo $retrieved_username;} ?>" readonly required /><span class="error"> * <?php echo $username_error; ?></span><br /><br />
+            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $_COOKIE["username"]; ?>" readonly required /><span class="error"> * <?php echo $username_error; ?></span><br /><br />
             <label for="password_expiration">Password Expiration:</label>
             <select id="password_expiration" name="password_expiration" required>
                 <option value="">&nbsp;</option>
-                <option value="0" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["password_expiration"] == 0) {echo "selected";}} else {if ($retrieved_password_expiration == 0) {echo "selected";}} ?>>0</option>
-                <option value="1" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["password_expiration"] == 1) {echo "selected";}} else {if ($retrieved_password_expiration == 1) {echo "selected";}} ?>>1</option>
+                <option value="0" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_password_expiration == 0) {echo "selected";}} else {if ($_POST['password_expiration'] == 0) {echo "selected";}} ?>>0</option>
+                <option value="1" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_password_expiration == 1) {echo "selected";}} else {if ($_POST['password_expiration'] == 1) {echo "selected";}} ?>>1</option>
             </select><span class="error"> * <?php echo $password_expiration_error; ?></span><br /><br />
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" />&nbsp;&nbsp;<input type="checkbox" onclick="passwordVisibility('password')" />Show Password <br /><br />
             <label for="user_role">User Role:</label>
             <select id="user_role" name="user_role" required>
                 <option value="">&nbsp;</option>
-                <option value="user" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["user_role"] == "user") {echo "selected";}} else {if ($retrieved_user_role == "user") {echo "selected";}} ?>>User</option>
-                <option value="recruiter" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["user_role"] == "recruiter") {echo "selected";}} else {if ($retrieved_user_role == "recruiter") {echo "selected";}} ?>>Recruiter</option>
-                <option value="administrator" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["user_role"] == "administrator") {echo "selected";}} else {if ($retrieved_user_role == "administrator") {echo "selected";}} ?>>Administrator</option>
+                <option value="user" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_user_role == "user") {echo "selected";}} else {if ($_POST['user_role'] == "user") {echo "selected";}} ?>>User</option>
+                <option value="recruiter" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_user_role == "recruiter") {echo "selected";}} else {if ($_POST['user_role'] == "recruiter") {echo "selected";}} ?>>Recruiter</option>
+                <option value="administrator" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_user_role == "administrator") {echo "selected";}} else {if ($_POST['user_role'] == "administrator") {echo "selected";}} ?>>Administrator</option>
             </select><span class="error"> * <?php echo $user_role_error; ?></span><br /><br />
             <label for="user_first_name">First name:</label>
-            <input type="text" id="user_first_name" name="user_first_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $_COOKIE["user_first_name"];} else {echo $retrieved_user_first_name;} ?>" required /><span class="error"> * <?php echo $user_first_name_error; ?></span><br /><br />
+            <input type="text" id="user_first_name" name="user_first_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $retrieved_user_first_name;} else {echo $_POST['user_first_name'];} ?>" required /><span class="error"> * <?php echo $user_first_name_error; ?></span><br /><br />
             <label for="user_middle_name">Middle Name:</label>
-            <input type="text" id="user_middle_name" name="user_middle_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["user_middle_name"] != '0') {echo $_COOKIE["user_middle_name"];}} else {if ($retrieved_user_middle_name != NULL) {echo $retrieved_user_middle_name;}} ?>" /><span class="error"> <?php echo $user_middle_name_error; ?></span><br /><br />
+            <input type="text" id="user_middle_name" name="user_middle_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $retrieved_user_middle_name;} else {echo $_POST['user_middle_name'];}?>" /><span class="error"> <?php echo $user_middle_name_error; ?></span><br /><br />
             <label for="user_last_name">Last Name:</label>
-            <input type="text" id="user_last_name" name="user_last_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $_COOKIE["user_last_name"];} else {echo $retrieved_user_last_name;} ?>" required /><span class="error"> * <?php echo $user_last_name_error; ?></span><br /><br />
+            <input type="text" id="user_last_name" name="user_last_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $retrieved_user_last_name;} else {echo $_POST['user_last_name'];} ?>" required /><span class="error"> * <?php echo $user_last_name_error; ?></span><br /><br />
             <label for="user_email">Email:</label>
-            <input type="email" id="user_email" name="user_email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $_COOKIE["user_email"];} else {echo $retrieved_user_email;} ?>" required /><span class="error"> * <?php echo $user_email_error; ?></span><br /><br />
+            <input type="email" id="user_email" name="user_email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $retrieved_user_email;} else {echo $_POST['user_email'];} ?>" required /><span class="error"> * <?php echo $user_email_error; ?></span><br /><br />
             <label for="phone">Phone Number:</label>
-            <input type="tel" id="user_phone" name="user_phone" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $_COOKIE["user_phone"];} else {echo $retrieved_user_phone;} ?>" required /><span class="error"> * <?php echo $user_phone_error; ?></span><br /><br />
+            <input type="tel" id="user_phone" name="user_phone" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php if (!isset($_POST['edit_user_submit'])) {echo $retrieved_user_phone;} else {echo $_POST['user_phone'];} ?>" required /><span class="error"> * <?php echo $user_phone_error; ?></span><br /><br />
             <label for="user_birth_date">Birth Date:</label>
             <?php $minimum_year = date("Y") - 75; $maximum_year = date("Y") - 16; ?>
             <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01"; ?>" required /><span class="error"> * <?php echo $user_birth_date_error; ?></span><br /><br />
             <label for="user_status">User Status:</label>
             <select id="user_status" name="user_status" required>
                 <option value="">&nbsp;</option>
-                <option value="active" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["user_status"] == "active") {echo "selected";}} else {if ($retrieved_user_status == "active") {echo "selected";}} ?>>Active</option>
-                <option value="inactive" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["user_status"] == "inactive") {echo "selected";}} else {if ($retrieved_user_status == "inactive") {echo "selected";}} ?>>Inactive</option>
+                <option value="active" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_user_status == "active") {echo "selected";}} else {if ($_POST['user_status'] == "active") {echo "selected";}} ?>>Active</option>
+                <option value="inactive" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_user_status == "inactive") {echo "selected";}} else {if ($_POST['user_status'] == "inactive") {echo "selected";}} ?>>Inactive</option>
             </select><span class="error"> * <?php echo $user_status_error; ?></span><br /><br />
             <label for="secret_key">Secret Key:</label>
+            <?php
+                if ($retrieved_secret_key == NULL) {
+                    $retrieved_secret_key = 0;
+                }
+                else {
+                    $retrieved_secret_key = 1;
+                }
+            ?>
             <select id="secret_key" name="secret_key" required>
                 <option value="">&nbsp;</option>
-                <option value="0" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["secret_key"] == 0) {echo "selected";}} else {if ($retrieved_secret_key == 0) {echo "selected";}} ?>>0</option>
-                <option value="1" <?php if (!isset($_POST['edit_user_submit'])) {if ($_COOKIE["secret_key"] == 1) {echo "selected";}} else {if ($retrieved_secret_key == 1) {echo "selected";}} ?>>1</option>
+                <option value="0" <?php if (!isset($_POST['edit_user_submit'])) {if ($secret_key == 0) {echo "selected";}} else {if ($_POST['secret_key'] == 0) {echo "selected";}} ?>>0</option>
+                <option value="1" <?php if (!isset($_POST['edit_user_submit'])) {if ($secret_key == 1) {echo "selected";}} else {if ($_POST['secret_key'] == 1) {echo "selected";}} ?>>1</option>
             </select><span class="error"> * <?php echo $secret_key_error; ?></span><br /><br />
             <input type="submit" name="edit_user_submit" value="Submit Changes" />
         </form>
@@ -541,17 +523,15 @@
         if (isset($_POST['edit_user_submit'])) {
             echo 
             "<script>
-                document.getElementById('user_birth_date').value = \"".$retrieved_user_birth_date."\";
+                document.getElementById('user_birth_date').value = \"".$_POST["user_birth_date"]."\";
             </script>";
         }
         else {
             echo
             "<script>
-                document.getElementById('user_birth_date').value = \"".$_COOKIE["user_birth_date"]."\";
+                document.getElementById('user_birth_date').value = \"".$retrieved_user_birth_date."\";
             </script>";
         }
-        $stmt->close();
-        $DBConnect->close();
     ?>
     </body>
 </html>

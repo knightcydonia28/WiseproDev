@@ -19,6 +19,7 @@
     setcookie("search_user", 1);
     setcookie("home", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
+    setcookie("choose_employment", "", time() - 3600);
     unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
@@ -52,24 +53,11 @@
         <meta charset="UTF-8" />
         <title>Search User</title>
         <script>
-            function getUserInformation(username) {
-                var xhttp;
-                xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function() {
-                    if (this.readyState != 4 && this.status != 200) {
-                        console.log(this.readyState);
-                        console.log(this.status);
-                        //Come back to this part.
-                    }
-                };
-                xhttp.open("GET", "get_user_information.php?q="+username, true);
-                xhttp.send();
-            }
             function getUsername(row_id) {
                 var tr = document.getElementById(row_id);
                 var td = tr.getElementsByTagName("td");
                 var username = (td[1].innerHTML);
-                return username;
+                document.cookie = "username="+username; 
             }
         </script>
         <style>
@@ -188,12 +176,13 @@
                     while($stmt->fetch()) {
                         echo
                         "<tr id=\"$table_row_count\">
-                            <td><select name=\"action\" id=\"action_$table_row_count\" onclick=\"getUserInformation(getUsername('$table_row_count'))\" onchange=\"document.cookie='search_user=1'; window.location.replace(this.value);\">
+                            <td><select name=\"action\" id=\"action_$table_row_count\" onclick=\"getUsername('$table_row_count')\" onchange=\"document.cookie='search_user=1'; window.location.replace(this.value);\">
                                     <option value=\"\" selected disabled>Select Action</option>
                                     <option value=\"http://wisepro.com/testing6/view_user.php\">View User</option>
                                     <option value=\"http://wisepro.com/testing6/edit_user.php\">Edit User</option>
                                     <option value=\"http://wisepro.com/testing6/add_employment.php\">Add Employment</option>
                                     <option value=\"http://wisepro.com/testing6/view_employment.php\">View Employment</option>
+                                    <option value=\"http://wisepro.com/testing6/choose_employment.php\">Edit Employment</option>
                                     <option value=\"http://wisepro.com/testing6/choose_timesheet.php\">Choose Timesheet</option>
                                     <option value=\"http://wisepro.com/testing6/timesheet.php\">Timesheet</option>
                                 </select>
@@ -216,3 +205,4 @@
         ?>
     </body>
 </html>
+

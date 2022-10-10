@@ -14,7 +14,9 @@
     }
     setcookie("home", 1);
     setcookie("search_user", "", time() - 3600);
+    setcookie("search_job_posting", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
+    setcookie("choose_employment", "", time() - 3600);
     unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
