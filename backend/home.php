@@ -74,7 +74,7 @@
                     <li><a href=\"search_user.php\">Search User</a></li>
                     <li><a href=\"create_job_posting.php\">Create Job Posting</a></li>
                     <li><a href=\"search_job_posting.php\">Search Job Posting</a></li>
-                    <li><a href=\"timesheet.php\">Timesheet</a></li>";
+                    <li><a href=\"choose_timesheet.php\">Timesheet</a></li>";
                 }
             ?>
         </ul>
