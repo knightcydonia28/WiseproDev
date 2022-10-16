@@ -183,8 +183,7 @@
                                     <option value=\"http://wisepro.com/testing6/add_employment.php\">Add Employment</option>
                                     <option value=\"http://wisepro.com/testing6/view_employment.php\">View Employment</option>
                                     <option value=\"http://wisepro.com/testing6/choose_employment.php\">Edit Employment</option>
-                                    <option value=\"http://wisepro.com/testing6/choose_timesheet.php\">Choose Timesheet</option>
-                                    <option value=\"http://wisepro.com/testing6/timesheet.php\">Timesheet</option>
+                                    <option value=\"http://wisepro.com/testing6/choose_timesheet.php\">Timesheet</option>
                                 </select>
                             </td>
                             <td>$retrieved_username</td>
