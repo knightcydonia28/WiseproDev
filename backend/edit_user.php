@@ -96,26 +96,107 @@
             
             if (empty($_POST['password'])) {
                 if (empty($_POST['user_middle_name'])) {
-                    if (!ctype_alnum($_POST['username'])) {
-                        $username_error = "Please ensure that your username is alphanumeric";
+                    if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
+                        $password_expiration_error = "Please select an appropriate value for the password expiration";
                     }
                     else {
-                        $username = test_input($_POST['username']); 
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $password_expiration_error = "Please select an appropriate value for the password expiration";
+                        $password_expiration = test_input($_POST['password_expiration']);
+                        if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
+                            $user_role_error = "Please select an appropriate user role";
                         }
                         else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $user_role_error = "Please select an appropriate user role";
+                            $user_role = test_input($_POST['user_role']);
+                            if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
+                                $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
                             }
                             else {
-                                $user_role = test_input($_POST['user_role']);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                                $user_first_name = test_input($_POST['user_first_name']);
+                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
+                                    $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
                                 }
                                 else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
+                                    $user_last_name = test_input($_POST['user_last_name']);
+                                    $user_email = test_input($_POST['user_email']);
+                                    if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+                                        $user_email_error = "Please enter a valid email address (e.g., yourname@example.com)"; 
+                                    }
+                                    else {
+                                        if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
+                                            $user_phone_error = "Please enter a 10 digit phone number (without special characters including whitespaces)";
+                                        }
+                                        else {
+                                            $user_phone = test_input($_POST['user_phone']);
+                                            $user_birth_date = test_input($_POST['user_birth_date']);
+                                            if (!validateDate($user_birth_date)) {
+                                                $user_birth_date_error = "Please enter a valid birth date"; 
+                                            }
+                                            else {
+                                                if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
+                                                    $user_status_error = "Please select an appropriate user status";
+                                                }
+                                                else {
+                                                    $user_status = test_input($_POST['user_status']);
+                                                    if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
+                                                        $secret_key_error = "Please select an appropriate value for the secret key";
+                                                    }
+                                                    else {
+                                                        $secret_key = test_input($_POST['secret_key']);
+                                                        if ($secret_key == 0) {
+                                                            $secret_key = NULL;
+                                                            $user_middle_name = NULL;                                      
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
+                                                            $stmt->bind_param("issssssssis", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
+                                                            if ($stmt->execute()) {
+                                                                echo "<p>Changes have been made successfully.</p>"; 
+                                                            }
+                                                            else {
+                                                                echo "<p>Changes have not been made successfully.</p>"; 
+                                                            }
+                                                        }
+                                                        else {
+                                                            $user_middle_name = NULL;                                        
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ? WHERE username = ?");
+                                                            $stmt->bind_param("isssssssss", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
+                                                            if ($stmt->execute()) {
+                                                                echo "<p>Changes have been made successfully.</p>"; 
+                                                            }
+                                                            else {
+                                                                echo "<p>Changes have not been made successfully.</p>"; 
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }  
+                }
+                else {
+                    if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
+                        $password_expiration_error = "Please select an appropriate value for the password expiration";
+                    }
+                    else {
+                        $password_expiration = test_input($_POST['password_expiration']);
+                        if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
+                            $user_role_error = "Please select an appropriate user role";
+                        }
+                        else {
+                            $user_role = test_input($_POST['user_role']);
+                            if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
+                                $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                            }
+                            else {
+                                $user_first_name = test_input($_POST['user_first_name']);
+                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_middle_name'])) {
+                                    echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
+                                }
+                                else {
+                                    $user_middle_name = $_POST['user_middle_name'];
                                     if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
                                         $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
                                     }
@@ -137,7 +218,7 @@
                                                 }
                                                 else {
                                                     if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                        $user_status_error = "Please select an appropriate user status";
+                                                    $user_status_error = "Please select an appropriate user status";
                                                     }
                                                     else {
                                                         $user_status = test_input($_POST['user_status']);
@@ -148,10 +229,9 @@
                                                             $secret_key = test_input($_POST['secret_key']);
                                                             if ($secret_key == 0) {
                                                                 $secret_key = NULL;
-                                                                $user_middle_name = NULL;                                          
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                $stmt->bind_param("issssssssis", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $username);
+                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ?, secret_key = ? WHERE username = ?");
+                                                                $stmt->bind_param("issssssssis", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
                                                                 if ($stmt->execute()) {
                                                                     echo "<p>Changes have been made successfully.</p>"; 
                                                                 }
@@ -160,10 +240,9 @@
                                                                 }
                                                             }
                                                             else {
-                                                                $user_middle_name = NULL;                                          
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ? WHERE username = ?");
-                                                                $stmt->bind_param("isssssssss", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $username);
+                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ? WHERE username = ?");
+                                                                $stmt->bind_param("isssssssss", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
                                                                 if ($stmt->execute()) {
                                                                     echo "<p>Changes have been made successfully.</p>"; 
                                                                 }
@@ -179,125 +258,115 @@
                                     }
                                 }
                             }
-                        }  
-                    }
-                }
-                else {
-                    if (!ctype_alnum($_POST['username'])) {
-                        $username_error = "Please ensure that your username is alphanumeric";
-                    }
-                    else {
-                        $username = test_input($_POST['username']);
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $password_expiration_error = "Please select an appropriate value for the password expiration";
                         }
-                        else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $user_role_error = "Please select an appropriate user role";
-                            }
-                            else {
-                                $user_role = test_input($_POST['user_role']);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
-                                }
-                                else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_middle_name'])) {
-                                        echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
-                                    }
-                                    else {
-                                        $user_middle_name = $_POST['user_middle_name'];
-                                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
-                                            $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
-                                        }
-                                        else {
-                                            $user_last_name = test_input($_POST['user_last_name']);
-                                            $user_email = test_input($_POST['user_email']);
-                                            if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                                $user_email_error = "Please enter a valid email address (e.g., yourname@example.com)"; 
-                                            }
-                                            else {
-                                                if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                    $user_phone_error = "Please enter a 10 digit phone number (without special characters including whitespaces)";
-                                                }
-                                                else {
-                                                    $user_phone = test_input($_POST['user_phone']);
-                                                    $user_birth_date = test_input($_POST['user_birth_date']);
-                                                    if (!validateDate($user_birth_date)) {
-                                                        $user_birth_date_error = "Please enter a valid birth date"; 
-                                                    }
-                                                    else {
-                                                        if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                        $user_status_error = "Please select an appropriate user status";
-                                                        }
-                                                        else {
-                                                            $user_status = test_input($_POST['user_status']);
-                                                            if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
-                                                                $secret_key_error = "Please select an appropriate value for the secret key";
-                                                            }
-                                                            else {
-                                                                $secret_key = test_input($_POST['secret_key']);
-                                                                if ($secret_key == 0) {
-                                                                    $secret_key = NULL;
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                    $stmt->bind_param("issssssssis", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $username);
-                                                                    if ($stmt->execute()) {
-                                                                        echo "<p>Changes have been made successfully.</p>"; 
-                                                                    }
-                                                                    else {
-                                                                        echo "<p>Changes have not been made successfully.</p>"; 
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ? WHERE username = ?");
-                                                                    $stmt->bind_param("isssssssss", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $username);
-                                                                    if ($stmt->execute()) {
-                                                                        echo "<p>Changes have been made successfully.</p>"; 
-                                                                    }
-                                                                    else {
-                                                                        echo "<p>Changes have not been made successfully.</p>"; 
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }  
-                    }
+                    }  
                 }
             }
             else {
                 if (empty($_POST['user_middle_name'])) {
-                    if (!ctype_alnum($_POST['username'])) {
-                        $username_error = "Please ensure that your username is alphanumeric";
+                    if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
+                        $password_expiration_error = "Please select an appropriate value for the password expiration";
                     }
                     else {
-                        $username = test_input($_POST['username']);
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $password_expiration_error = "Please select an appropriate value for the password expiration";
+                        $password_expiration = test_input($_POST['password_expiration']);
+                        if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
+                            $user_role_error = "Please select an appropriate user role";
                         }
                         else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $user_role_error = "Please select an appropriate user role";
+                            $user_role = test_input($_POST['user_role']);
+                            $password = $_POST['password'];
+                            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                            if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
+                                $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
                             }
                             else {
-                                $user_role = test_input($_POST['user_role']);
-                                $password = $_POST['password'];
-                                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                                $user_first_name = test_input($_POST['user_first_name']);
+                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
+                                    $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
                                 }
                                 else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
+                                    $user_last_name = test_input($_POST['user_last_name']);
+                                    $user_email = test_input($_POST['user_email']);
+                                    if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+                                        $user_email_error = "Please enter a valid email address (e.g., yourname@example.com)"; 
+                                    }
+                                    else {
+                                        if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
+                                            $user_phone_error = "Please enter a 10 digit phone number (without special characters including whitespaces)";
+                                        }
+                                        else {
+                                            $user_phone = test_input($_POST['user_phone']);                                      
+                                            $user_birth_date = test_input($_POST['user_birth_date']);
+                                            if (!validateDate($user_birth_date)) {
+                                                $user_birth_date_error = "Please enter a valid birth date"; 
+                                            }
+                                            else {
+                                                if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
+                                                    $user_status_error = "Please select an appropriate user status";
+                                                }
+                                                else {
+                                                    $user_status = test_input($_POST['user_status']);
+                                                    if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
+                                                        $secret_key_error = "Please select an appropriate value for the secret key";
+                                                    }
+                                                    else {
+                                                        $secret_key = test_input($_POST['secret_key']);
+                                                        if ($secret_key == 0) {
+                                                            $secret_key = NULL;
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
+                                                            $stmt->bind_param("issssssssis", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
+                                                            if ($stmt->execute()) {
+                                                                echo "<p>Changes have been made successfully.</p>"; 
+                                                            }
+                                                            else {
+                                                                echo "<p>Changes have not been made successfully.</p>"; 
+                                                            }
+                                                        }
+                                                        else {
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ? WHERE username = ?");
+                                                            $stmt->bind_param("isssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
+                                                            if ($stmt->execute()) {
+                                                                echo "<p>Changes have been made successfully.</p>"; 
+                                                            }
+                                                            else {
+                                                                echo "<p>Changes have not been made successfully.</p>"; 
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else {                 
+                    if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
+                        $password_expiration_error = "Please select an appropriate value for the password expiration";
+                    }
+                    else {
+                        $password_expiration = test_input($_POST['password_expiration']);
+                        if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
+                            $user_role_error = "Please select an appropriate user role";
+                        }
+                        else {
+                            $user_role = test_input($_POST['user_role']);
+                            $password = $_POST['password'];
+                            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                            if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
+                                $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                            }
+                            else {
+                                $user_first_name = test_input($_POST['user_first_name']);
+                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_middle_name'])) {
+                                    echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
+                                }
+                                else {
+                                    $user_middle_name = $_POST['user_middle_name'];
                                     if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
                                         $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
                                     }
@@ -312,14 +381,14 @@
                                                 $user_phone_error = "Please enter a 10 digit phone number (without special characters including whitespaces)";
                                             }
                                             else {
-                                                $user_phone = test_input($_POST['user_phone']);                                      
+                                                $user_phone = test_input($_POST['user_phone']);
                                                 $user_birth_date = test_input($_POST['user_birth_date']);
                                                 if (!validateDate($user_birth_date)) {
                                                     $user_birth_date_error = "Please enter a valid birth date"; 
                                                 }
                                                 else {
                                                     if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                        $user_status_error = "Please select an appropriate user status";
+                                                    $user_status_error = "Please select an appropriate user status";
                                                     }
                                                     else {
                                                         $user_status = test_input($_POST['user_status']);
@@ -331,8 +400,8 @@
                                                             if ($secret_key == 0) {
                                                                 $secret_key = NULL;
                                                                 include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                $stmt->bind_param("issssssssis", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $username);
+                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ?, secret_key = ? WHERE username = ?");
+                                                                $stmt->bind_param("isssssssssis", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
                                                                 if ($stmt->execute()) {
                                                                     echo "<p>Changes have been made successfully.</p>"; 
                                                                 }
@@ -341,101 +410,9 @@
                                                                 }
                                                             }
                                                             else {
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ? WHERE username = ?");
-                                                                $stmt->bind_param("isssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $username);
-                                                                if ($stmt->execute()) {
-                                                                    echo "<p>Changes have been made successfully.</p>"; 
-                                                                }
-                                                                else {
-                                                                    echo "<p>Changes have not been made successfully.</p>"; 
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    if (!ctype_alnum($_POST['username'])) {
-                        $username_error = "Please ensure that your username is alphanumeric";
-                    }
-                    else {
-                        $username = test_input($_POST['username']);                   
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $password_expiration_error = "Please select an appropriate value for the password expiration";
-                        }
-                        else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $user_role_error = "Please select an appropriate user role";
-                            }
-                            else {
-                                $user_role = test_input($_POST['user_role']);
-                                $password = $_POST['password'];
-                                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
-                                }
-                                else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_middle_name'])) {
-                                        echo "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
-                                    }
-                                    else {
-                                        $user_middle_name = $_POST['user_middle_name'];
-                                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
-                                            $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
-                                        }
-                                        else {
-                                            $user_last_name = test_input($_POST['user_last_name']);
-                                            $user_email = test_input($_POST['user_email']);
-                                            if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                                $user_email_error = "Please enter a valid email address (e.g., yourname@example.com)"; 
-                                            }
-                                            else {
-                                                if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                    $user_phone_error = "Please enter a 10 digit phone number (without special characters including whitespaces)";
-                                                }
-                                                else {
-                                                    $user_phone = test_input($_POST['user_phone']);
-                                                    $user_birth_date = test_input($_POST['user_birth_date']);
-                                                    if (!validateDate($user_birth_date)) {
-                                                        $user_birth_date_error = "Please enter a valid birth date"; 
-                                                    }
-                                                    else {
-                                                        if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                        $user_status_error = "Please select an appropriate user status";
-                                                        }
-                                                        else {
-                                                            $user_status = test_input($_POST['user_status']);
-                                                            if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
-                                                                $secret_key_error = "Please select an appropriate value for the secret key";
-                                                            }
-                                                            else {
-                                                                $secret_key = test_input($_POST['secret_key']);
-                                                                if ($secret_key == 0) {
-                                                                    $secret_key = NULL;
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                    $stmt->bind_param("isssssssssis", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $username);
-                                                                    if ($stmt->execute()) {
-                                                                        echo "<p>Changes have been made successfully.</p>"; 
-                                                                    }
-                                                                    else {
-                                                                        echo "<p>Changes have not been made successfully.</p>"; 
-                                                                    }
-                                                                }
-                                                                else {}
                                                                 include("database.php");
                                                                 $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ? WHERE username = ?");
-                                                                $stmt->bind_param("issssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $username);
+                                                                $stmt->bind_param("issssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
                                                                 if ($stmt->execute()) {
                                                                     echo "<p>Changes have been made successfully.</p>"; 
                                                                 }
@@ -514,8 +491,8 @@
             ?>
             <select id="secret_key" name="secret_key" required>
                 <option value="">&nbsp;</option>
-                <option value="0" <?php if (!isset($_POST['edit_user_submit'])) {if ($secret_key == 0) {echo "selected";}} else {if ($_POST['secret_key'] == 0) {echo "selected";}} ?>>0</option>
-                <option value="1" <?php if (!isset($_POST['edit_user_submit'])) {if ($secret_key == 1) {echo "selected";}} else {if ($_POST['secret_key'] == 1) {echo "selected";}} ?>>1</option>
+                <option value="0" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_secret_key == 0) {echo "selected";}} else {if ($_POST['secret_key'] == 0) {echo "selected";}} ?>>0</option>
+                <option value="1" <?php if (!isset($_POST['edit_user_submit'])) {if ($retrieved_secret_key == 1) {echo "selected";}} else {if ($_POST['secret_key'] == 1) {echo "selected";}} ?>>1</option>
             </select><span class="error"> * <?php echo $secret_key_error; ?></span><br /><br />
             <input type="submit" name="edit_user_submit" value="Submit Changes" />
         </form>
