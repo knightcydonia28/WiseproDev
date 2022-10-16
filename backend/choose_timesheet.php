@@ -71,10 +71,9 @@
                 }
                 else {
                     $client_id = test_input($_POST['client_id']);
-                    echo $client_id;
-                    //$_SESSION['choose_timesheet'] = 1;
-                    //header('Location: timesheet.php');
-                    //exit();
+                    setcookie("client_id", $client_id);
+                    header('Location: timesheet.php');
+                    exit();
                 }
             }
         ?>
