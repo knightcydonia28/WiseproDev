@@ -88,6 +88,13 @@
         ?>
         <p>Job Posted Date: <?php echo $formatted_job_posted_date; ?></p>
         <p>Job Status: <?php echo $retrieved_job_status; ?></p>
-        <p>Job Expired Date: <?php echo $retrieved_job_expired_date; ?></p>
+        <?php
+            if ($retrieved_job_expired_date != NULL) {
+                $job_expired_date = $retrieved_job_expired_date;
+                $array = explode("-", $job_expired_date);
+                $formatted_job_expired_date = $array[1]."/".$array[2]."/".$array[0];
+            }
+        ?>
+        <p>Job Expired Date: <?php echo $formatted_job_expired_date; ?></p>
     </body>
 </html>
