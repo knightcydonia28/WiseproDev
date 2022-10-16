@@ -71,10 +71,6 @@
         <p>Please fill the form below to add an employment for the selected user:</p>
         <p><span class="error">* required field</span></p>
         <?php
-            if (isset($_POST['add_another_employment_submit'])) {
-                header('Location: add_employment.php');
-                exit();
-            }
             if (isset($_POST['add_employment_submit'])) {
                 
                 function test_input($data) {
