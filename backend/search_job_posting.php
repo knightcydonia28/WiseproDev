@@ -297,6 +297,8 @@
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
         </select><span class="error"> <?php echo $job_status_error; ?></span><br /><br />
+        <label for="job_expired_date">Job Expired Date:</label><br /><br />
+        <!---Implement Month and Year dropdown for this section.--->
         <input type="submit" name="search_job_posting_submit" value="Search Job Posting" />
     </form>
     <?php
@@ -332,6 +334,7 @@
                         <td><select name=\"action\" id=\"action_$table_row_count\" onclick=\"getJobID('$table_row_count')\" onchange=\"document.cookie='search_job_posting=1'; window.location.replace(this.value);\">
                             <option value=\"\" selected disabled>Select Action</option>
                             <option value=\"http://wisepro.com/testing6/view_job_posting.php\">View Job Posting</option>
+                            <option value=\"http://wisepro.com/testing6/edit_job_posting.php\">Edit Job Posting</option>
                             </select>
                         </td>
                         <td>$retrieved_job_id</td>
