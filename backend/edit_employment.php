@@ -60,9 +60,11 @@
                 var value = document.getElementById("employment_status").value;
                 if (value == "unemployed") {
                     document.getElementById("employment_end_date").disabled = false;
+                    document.getElementById("employment_end_date_asterisk").innerHTML = " *";
                 }
                 else {
                     document.getElementById("employment_end_date").disabled = true;
+                    document.getElementById("employment_end_date_asterisk").innerHTML = "";
                 }
             }
         </script>
@@ -207,8 +209,8 @@
                 <option value="unemployed" <?php if (isset($_POST['edit_employment_submit']) && isset($_POST['employment_status']) && $_POST['employment_status'] == "unemployed") {echo "selected";} else {if ($retrieved_employment_status == "unemployed") {echo "selected";}} ?>>Unemployed</option>
             </select><span class="error"> * <?php echo $employment_status_error; ?></span><br /><br />
             <label for="employment_end_date">Employment End Date:</label>
-            <input type="date" id="employment_end_date" name="employment_end_date" required /><span class="error"> <?php echo $employment_end_date_error; ?></span><br /><br />
-            <input type="submit" name="edit_employment_submit" value="Edit Employment" />
+            <input type="date" id="employment_end_date" name="employment_end_date" required /><span id="employment_end_date_asterisk" class="error"> <?php echo $employment_end_date_error; ?></span><br /><br />
+            <input type="submit" name="edit_employment_submit" value="Submit Changes" />
         </form>
         <?php
             if (!isset($_POST['edit_employment_submit'])) {
