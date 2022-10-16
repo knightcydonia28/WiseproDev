@@ -17,7 +17,9 @@
         exit();
     }
     setcookie("search_user", "", time() - 3600);
+    setcookie("search_job_posting", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
+    setcookie("choose_employment", "", time() - 3600);
     unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
@@ -131,11 +133,7 @@
             include("logout.php");
         ?>
         <a href='?logout=true'>Logout</a>
-        <?php
-            if (isset($_POST['create_another_user_submit'])) {
-                header('Location: create_user.php');
-                exit();
-            }            
+        <?php           
             if (isset($_POST['create_user_submit'])) {
                 
                 function test_input($data) {
@@ -236,13 +234,6 @@
                                                                     else {
                                                                         echo "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
                                                                     }
-
-                                                                    echo
-                                                                    "<p>Create another user?</p>
-                                                                    <form method=\"post\" action=\"#\">
-                                                                        <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
-                                                                    </form>
-                                                                    <br />";
                                                                 }
                                                                 else {
                                                                     echo "<p>Account creation was unsuccessful.</p>";
@@ -274,13 +265,6 @@
                                                                         else {
                                                                             echo "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
                                                                         }
-
-                                                                        echo
-                                                                        "<p>Create another user?</p>
-                                                                        <form method=\"post\" action=\"#\">
-                                                                            <input type=\"submit\" name=\"create_another_user_submit\" value=\"Create Another User\" />
-                                                                        </form>
-                                                                        <br />";
                                                                     }
                                                                     else {
                                                                         echo "<p>Account creation was unsuccessful.</p>";
