@@ -228,20 +228,15 @@
                                                         $job_expired_date_error = "Please enter a valid job posted date"; 
                                                     }
                                                     else {
-                                                        if ($_POST['job_status'] != "active") {
-                                                            $job_status_error = "Please ensure that the status of the job is active upon creation";
+                                                        $job_status = test_input($_POST['job_status']);
+                                                        include("database.php");
+                                                        $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
+                                                        $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
+                                                        if ($stmt->execute()) {
+                                                            echo "<p>Changes were made successfully.</p>";
                                                         }
                                                         else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
+                                                            echo "<p>Changes were not made successfully.</p>";
                                                         }
                                                     }
                                                 }
@@ -270,20 +265,15 @@
                                                         $job_expired_date_error = "Please enter a valid job posted date"; 
                                                     }
                                                     else {
-                                                        if ($_POST['job_status'] != "active") {
-                                                            $job_status_error = "Please ensure that the status of the job is active upon creation";
+                                                        $job_status = test_input($_POST['job_status']);
+                                                        include("database.php");
+                                                        $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
+                                                        $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
+                                                        if ($stmt->execute()) {
+                                                            echo "<p>Changes were made successfully.</p>";
                                                         }
                                                         else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
+                                                            echo "<p>Changes were not made successfully.</p>";
                                                         }
                                                     }
                                                 }
@@ -498,20 +488,15 @@
                                                             $job_expired_date_error = "Please enter a valid job posted date"; 
                                                         }
                                                         else {
-                                                            if ($_POST['job_status'] != "active") {
-                                                                $job_status_error = "Please ensure that the status of the job is active upon creation";
+                                                            $job_status = test_input($_POST['job_status']);
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
+                                                            $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
+                                                            if ($stmt->execute()) {
+                                                                echo "<p>Changes were made successfully.</p>";
                                                             }
                                                             else {
-                                                                $job_status = test_input($_POST['job_status']);
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                                $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                                if ($stmt->execute()) {
-                                                                    echo "<p>Changes were made successfully.</p>";
-                                                                }
-                                                                else {
-                                                                    echo "<p>Changes were not made successfully.</p>";
-                                                                }
+                                                                echo "<p>Changes were not made successfully.</p>";
                                                             }
                                                         }
                                                     }
@@ -540,20 +525,15 @@
                                                             $job_expired_date_error = "Please enter a valid job posted date"; 
                                                         }
                                                         else {
-                                                            if ($_POST['job_status'] != "active") {
-                                                                $job_status_error = "Please ensure that the status of the job is active upon creation";
+                                                            $job_status = test_input($_POST['job_status']);
+                                                            include("database.php");
+                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
+                                                            $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
+                                                            if ($stmt->execute()) {
+                                                                echo "<p>Changes were made successfully.</p>";
                                                             }
                                                             else {
-                                                                $job_status = test_input($_POST['job_status']);
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                                $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                                if ($stmt->execute()) {
-                                                                    echo "<p>Changes were made successfully.</p>";
-                                                                }
-                                                                else {
-                                                                    echo "<p>Changes were not made successfully.</p>";
-                                                                }
+                                                                echo "<p>Changes were not made successfully.</p>";
                                                             }
                                                         }
                                                     }
