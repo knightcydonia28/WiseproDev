@@ -94,7 +94,7 @@ CUSTOM CSS CONTENT:
 
 /* techno Menu Css*/
 .techno_menu {
-    text-align: center;
+    text-align: right;
 }
 .techno_menu ul {
     text-align: right;
@@ -105,6 +105,12 @@ CUSTOM CSS CONTENT:
  display: inline-block;
  position: relative;
 }
+
+.techno_menu > ul > li {
+    display: inline-block;
+    position: relative;
+   }
+
 .techno_menu > ul > li > a {
     display: block;
     -webkit-transition: .5s;
@@ -117,17 +123,26 @@ CUSTOM CSS CONTENT:
     margin: 30px 10px;
     font-size: 17px;
 }
-.white .techno_menu > ul > li > a {
+
+.techno_menu > ul > li > a {
     color: #283478;
 }
+
+.techno_menu > ul > li > a:hover {
+    color: #0c5adb;
+    transition: 0.3s;
+}
+
 .techno_menu ul li:last-child a {
- margin-right: 0px;
+    margin-right: 0px;
 }
 .techno_menu>ul>li.current>a {
- color: #00247E;
+    color: #00247E;
 }
-.white .techno_menu>ul>li.current>a {
+
+.techno_menu>ul>li.current>a {
  color: #fff;
+ background-color: black;
 }
 
 
@@ -246,7 +261,7 @@ a.dtbtn {
     display: inline-block;
     font-size: 17px;
     margin-bottom: 0;
-    padding: 10px 30px;
+    padding: 10px 15px;
     text-align: center;
     text-transform: capitalize;
     -webkit-transition: all 0.3s ease 0s;
@@ -1485,8 +1500,10 @@ a.em-active-button:hover {
 .section_title.text_center {
 	text-align:center;
 }
+
 .section_main_title h1,
 .section_main_title h2 {
+    color: #000;
     font-weight: 800;
 	margin:0;
 }
@@ -1498,11 +1515,9 @@ a.em-active-button:hover {
 	color:#0c5adb;
 }
 
-
 .section_main_title h6 span{
 	color:#0c5adb;
 }
-
 
 .section_content_text p {
     font-size: 18px;
@@ -1590,6 +1605,24 @@ a.em-active-button:hover {
             transform: translateX(88px);
   }
 }
+
+.whyWisePro {
+    color: white !important;
+    display: inline-block;
+    width: 500px;
+    border: solid #0c5adb 5px;
+    background-color: #0c5adb;
+    border-radius: 5px;
+
+    font-family: 'Muli', sans-serif;
+    font-style: normal;
+    line-height: 1.2;	
+    font-weight: 700;
+    -webkit-transition: .5s;
+    transition: .5s;
+	font-size: 36px;
+}
+
 
 /*====================================================
 --<	Techno Flipbox Top Feature Area Css -->
