@@ -16,6 +16,7 @@ body {
     line-height: 27px;
     text-align: left;
 	font-family: 'Muli', sans-serif;
+    scroll-behaviour:smooth;
 }
 
 p {
