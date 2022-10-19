@@ -69,7 +69,6 @@ CUSTOM CSS CONTENT:
     position: relative;
 }
 
-
 .sticky {
     left: 0;
     margin: auto;
@@ -109,7 +108,7 @@ CUSTOM CSS CONTENT:
 .techno_menu > ul > li {
     display: inline-block;
     position: relative;
-   }
+}
 
 .techno_menu > ul > li > a {
     display: block;
@@ -1336,8 +1335,6 @@ a.em-active-button:hover {
 
 
 
-
-
 /*
 <!-- ============================================================== -->
 <!-- Techno - Breatcome Area Css -->
@@ -1365,8 +1362,6 @@ a.em-active-button:hover {
 .tp-bullets.vor_bullet .tp-bullet span{
     display: none;
 }
-
-
 
 
 
@@ -1419,6 +1414,7 @@ a.em-active-button:hover {
 .breatcome_content ul li a:hover {
     opacity:1;
 }
+
 /*====================================================
 --<	Techno Dark Slider Area Css -->
 ======================================================*/
@@ -1621,6 +1617,11 @@ a.em-active-button:hover {
     -webkit-transition: .5s;
     transition: .5s;
 	font-size: 36px;
+}
+
+.techLogo {
+    width: 100%;
+    height: auto;
 }
 
 
@@ -6198,8 +6199,7 @@ to{-webkit-transform:rotate(360deg) translate(-10px) rotate(-360deg);-moz-transf
     border-radius: 100%;
 }
 .team_style_two_thumb img {
-    width: 100%;
-    border-radius: 100%;
+    width: 90%;
 }
 .team_style_two_content {
     position: absolute;
@@ -6908,12 +6908,15 @@ to{-webkit-transform:rotate(360deg) translate(-10px) rotate(-360deg);-moz-transf
   
   .panel {
     padding: 0 18px;
-    background-color: white;
+    background-color: #eff2f7;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-out;
   }
 
+  .techlogoHover {
+
+  }
 
  ul li::marker{
     content: "-";
