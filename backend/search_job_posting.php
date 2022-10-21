@@ -90,7 +90,7 @@
                 return $data;
             }
 
-            if (empty($_POST['vendor_name']) && empty($_POST['client_name']) && empty($_POST['job_title']) && empty($_POST['job_type']) && empty($_POST['job_location']) && empty($_POST['month']) && empty($_POST['year']) && empty($_POST['job_status'])) {
+            if (empty($_POST['vendor_name']) && empty($_POST['client_name']) && empty($_POST['job_title']) && empty($_POST['job_type']) && empty($_POST['job_location']) && empty($_POST['job_posted_date_month']) && empty($_POST['job_posted_date_year']) && empty($_POST['job_status']) && empty($_POST['job_expired_date_month']) && empty($_POST['job_expired_date_year'])) {
                 echo "<p class=\"error\">Please fill in at least one of the input fields.</p>";
             }
             else {
@@ -163,27 +163,27 @@
                 else {
                     $job_location = NULL;
                 }
-                if (!empty($_POST['month'])) {
-                    if (!is_numeric($_POST['month'])) {
-                        $month_error = "Please ensure that month is numeric";
+                if (!empty($_POST['job_posted_date_month'])) {
+                    if (!is_numeric($_POST['job_posted_date_month'])) {
+                        $job_posted_date_month_error = "Please ensure that month is numeric";
                     }
                     else {
-                        $month = test_input($_POST['month']);
+                        $job_posted_date_month = test_input($_POST['job_posted_date_month']);
                     }    
                 }
                 else {
-                    $month = NULL;
+                    $job_posted_date_month = NULL;
                 }
-                if (!empty($_POST['year'])) {
-                    if (!is_numeric($_POST['year'])) {
-                        $year_error = "Please ensure that year is numeric";
+                if (!empty($_POST['job_posted_date_year'])) {
+                    if (!is_numeric($_POST['job_posted_date_year'])) {
+                        $job_posted_date_year_error = "Please ensure that year is numeric";
                     }
                     else {
-                        $year = test_input($_POST['year']);
+                        $job_posted_date_year = test_input($_POST['job_posted_date_year']);
                     }    
                 }
                 else {
-                    $year = NULL;
+                    $job_posted_date_year = NULL;
                 }
                 if (!empty($_POST['job_status'])) {
                     if ($_POST['job_status'] != "active" && $_POST['job_status'] != "inactive") {
@@ -195,6 +195,28 @@
                 }
                 else {
                     $job_status = NULL;
+                }
+                if (!empty($_POST['job_expired_date_month'])) {
+                    if (!is_numeric($_POST['job_expired_date_month'])) {
+                        $job_expired_date_month_error = "Please ensure that month is numeric";
+                    }
+                    else {
+                        $job_expired_date_month = test_input($_POST['job_expired_date_month']);
+                    }    
+                }
+                else {
+                    $job_expired_date_month = NULL;
+                }
+                if (!empty($_POST['job_expired_date_year'])) {
+                    if (!is_numeric($_POST['job_expired_date_year'])) {
+                        $job_expired_date_year_error = "Please ensure that year is numeric";
+                    }
+                    else {
+                        $job_expired_date_year = test_input($_POST['job_expired_date_year']);
+                    }    
+                }
+                else {
+                    $job_expired_date_year = NULL;
                 }
             }
         }
@@ -265,7 +287,7 @@
                 ?>
             </datalist><br /><br />
         <label for="job_posted_date">Job Posted Date:</label>
-        <select id="month" name="month">
+        <select id="job_posted_date_month" name="job_posted_date_month">
             <option value="" selected disabled>Select Month</option>
             <option value="01">January</option>
             <option value="02">February</option>
@@ -281,7 +303,7 @@
             <option value="12">December</option>
         </select>
         &nbsp;&nbsp;
-        <select id="year" name="year">
+        <select id="job_posted_date_year" name="job_posted_date_year">
             <option value="" selected disabled>Select Year</option>
             <?php
                 $years_array = array(2022);
@@ -290,25 +312,50 @@
                     echo "<option value=\"$count\">$count</option>";
                 }
             ?>
-        </select><span class="error"> <?php echo $month_error, $year_error; ?></span><br /><br />
+        </select><span class="error"> <?php echo $job_posted_date_month_error, $job_posted_date_year_error; ?></span><br /><br />
         <label for="job_status">Job Status:</label>
         <select id="job_status" name="job_status">
             <option value="" selected disabled>Select Job Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
         </select><span class="error"> <?php echo $job_status_error; ?></span><br /><br />
-        <label for="job_expired_date">Job Expired Date:</label><br /><br />
-        <!---Implement Month and Year dropdown for this section.--->
+        <label for="job_expired_date">Job Expired Date:</label>
+        <select id="job_expired_date_month" name="job_expired_date_month">
+            <option value="" selected disabled>Select Month</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+        &nbsp;&nbsp;
+        <select id="job_expired_date_year" name="job_expired_date_year">
+            <option value="" selected disabled>Select Year</option>
+            <?php
+                $years_array = array(2022);
+                $current_year = date('Y');
+                for ($count = $current_year; $count >= $years_array[0]; $count--) {
+                    echo "<option value=\"$count\">$count</option>";
+                }
+            ?>
+        </select><span class="error"> <?php echo $job_expired_date_month_error, $job_expired_date_year_error; ?></span><br /><br />
         <input type="submit" name="search_job_posting_submit" value="Search Job Posting" />
     </form>
     <?php
         if (isset($_POST['search_job_posting_submit'])) {
             include("database.php");
-            $stmt = $DBConnect->prepare("SELECT jobs.job_id, vendors.vendor_name, clients.client_name, jobs.job_title, jobs.job_type, jobs.job_location, jobs.job_posted_date, jobs.job_status FROM jobs INNER JOIN clients ON jobs.client_id = clients.client_id LEFT OUTER JOIN vendors ON jobs.vendor_id = vendors.vendor_id WHERE jobs.vendor_id = ? OR jobs.client_id = ? OR jobs.job_title LIKE CONCAT(?, '%') OR jobs.job_type LIKE CONCAT(?, '%') OR jobs.job_location LIKE CONCAT(?, '%') OR MONTH(job_posted_date) = ? OR YEAR(job_posted_date) = ? OR jobs.job_status LIKE CONCAT(?, '%')");
-            $stmt->bind_param("iisssiis", $retrieved_vendor_id, $retrieved_client_id, $job_title, $job_type, $job_location, $month, $year, $job_status);
+            $stmt = $DBConnect->prepare("SELECT jobs.job_id, vendors.vendor_name, clients.client_name, jobs.job_title, jobs.job_type, jobs.job_location, jobs.job_posted_date, jobs.job_status, jobs.job_expired_date FROM jobs INNER JOIN clients ON jobs.client_id = clients.client_id LEFT OUTER JOIN vendors ON jobs.vendor_id = vendors.vendor_id WHERE jobs.vendor_id = ? OR jobs.client_id = ? OR jobs.job_title LIKE CONCAT(?, '%') OR jobs.job_type LIKE CONCAT(?, '%') OR jobs.job_location LIKE CONCAT(?, '%') OR MONTH(job_posted_date) = ? OR YEAR(job_posted_date) = ? OR jobs.job_status LIKE CONCAT(?, '%') OR MONTH(job_expired_date) = ? OR YEAR(job_expired_date) = ?");
+            $stmt->bind_param("iisssiisss", $retrieved_vendor_id, $retrieved_client_id, $job_title, $job_type, $job_location, $job_posted_date_month, $job_posted_date_year, $job_status, $job_expired_date_month, $job_expired_date_year);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($retrieved_job_id, $retrieved_vendor_name, $retrieved_client_name, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_posted_date, $retrieved_job_status);
+            $stmt->bind_result($retrieved_job_id, $retrieved_vendor_name, $retrieved_client_name, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_posted_date, $retrieved_job_status, $retrieved_job_expired_date);
             if ($stmt->num_rows > 0) {
                 $table_row_count = 1;
                 echo
@@ -324,6 +371,7 @@
                         <th>Job Location</th>
                         <th>Job Posted Date</th>
                         <th>Job Status</th>
+                        <th>Job Expired Date</th>
                     </tr>";
                 while($stmt->fetch()) {
                     $job_posted_date = $retrieved_job_posted_date;
@@ -345,6 +393,7 @@
                         <td>$retrieved_job_location</td>
                         <td>$formatted_job_posted_date</td>
                         <td>$retrieved_job_status</td>
+                        <td>$retrieved_job_expired_date</td>
                     </tr>";
                     $table_row_count++;
                 }
