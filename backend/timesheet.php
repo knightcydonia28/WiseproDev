@@ -12,10 +12,6 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    if ($_SESSION['user_role'] != "administrator") {
-        header('Location: home.php');
-        exit();
-    }
     if (!isset($_COOKIE['choose_timesheet'])) {
         header('Location: home.php');
         exit();
@@ -245,21 +241,21 @@
 
                 //Updates the hour value of an already existing date (if located in the database)
                 function update_hours($formatted_date, $hours_array, $DBConnect, $hours, $first_day_of_week, $last_day_of_week, $day_types_array, $notes_array){
-                    echo " update: $hours $day_types_array $notes_array $formatted_date ".$GLOBALS['username']." ".$_SESSION['client_id']."<br>";
+                    echo " update: $hours $day_types_array $notes_array $formatted_date ".$GLOBALS['username']." ".$_COOKIE['client_id']."<br>";
                     $stmt = $DBConnect->prepare("UPDATE timesheets SET hours=?, day_type=?, notes=? WHERE work_date=? AND username =? AND client_id=?");
-                    $stmt->bind_param("ssssss", $hours,  $day_types_array, $notes_array, $formatted_date, $GLOBALS['username'], $_SESSION['client_id']);
+                    $stmt->bind_param("ssssss", $hours,  $day_types_array, $notes_array, $formatted_date, $GLOBALS['username'], $_COOKIE['client_id']);
                     $stmt->execute();
                 }
 
                 //Adds a new row to the database including the work day, hours of that day, and week start/end info
                 function add_hours($formatted_date, $hours_array, $DBConnect, $hours, $first_day_of_week, $last_day_of_week, $day_types_array, $notes_array){
                     include("database.php"); //temporary values, DELETE WHEN NEEDED
-                    echo "add: ".$GLOBALS["username"]."$formatted_date".$_SESSION['client_id']."$vendor_id $day_types_array $hours $notes_array $first_day_of_week $last_day_of_week $timesheet_status <br>";
+                    echo "add: ".$GLOBALS["username"]."$formatted_date".$_COOKIE['client_id']."$vendor_id $day_types_array $hours $notes_array $first_day_of_week $last_day_of_week $timesheet_status <br>";
                     $vendor_id = NULL;
                     $timesheet_status = 0;
                     $sql = "INSERT INTO timesheets (username, work_date, client_id, vendor_id, day_type, hours, notes, first_day_week, last_day_week, timesheet_status) VALUES (?,?,?,?,?,?,?,?,?,?)";
                     $stmt = $DBConnect->prepare($sql);
-                    $stmt->bind_param("ssssssssss", $GLOBALS['username'], $formatted_date, $_SESSION['client_id'], $vendor_id, $day_types_array, $hours, $notes_array, $first_day_of_week, $last_day_of_week, $timesheet_status);
+                    $stmt->bind_param("ssssssssss", $GLOBALS['username'], $formatted_date, $_COOKIE['client_id'], $vendor_id, $day_types_array, $hours, $notes_array, $first_day_of_week, $last_day_of_week, $timesheet_status);
                     $stmt->execute();
                 }
                                     
@@ -281,7 +277,7 @@
                     //Checks database if the current date is already within the table
                     include("database.php");
                     $stmt = $DBConnect->prepare("SELECT COUNT(work_date) AS COUNT FROM timesheets WHERE work_date = ? AND client_id = ?");
-                    $stmt->bind_param("ss", $formatted_date, $_SESSION['client_id']);
+                    $stmt->bind_param("ss", $formatted_date, $_COOKIE['client_id']);
                     $stmt->execute();
                     $stmt->store_result();
                     $stmt->bind_result($retrieved_work_date_count);
@@ -334,7 +330,7 @@
             include("database.php");
             $stmt = $DBConnect->prepare("SELECT users.user_first_name,users.user_middle_name,users.user_last_name, clients.client_name 
             FROM ((clients INNER JOIN employments ON clients.client_id = employments.client_id) INNER JOIN users ON employments.username= users.username) WHERE employments.username = ? AND employments.client_id = ?");
-            $stmt->bind_param("ss", $GLOBALS['username'], $_SESSION['client_id']);
+            $stmt->bind_param("ss", $GLOBALS['username'], $_COOKIE['client_id']);
             $stmt->execute();
             $stmt->store_result();
             $stmt->bind_result($user_first_name, $user_middle_name, $user_last_name, $retrieved_client_name);
@@ -344,7 +340,6 @@
         <p>Please enter your hours below.</p>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <div class="timesheet_date">
-
                 <?php
                     //Queries for the users employment start date
                     include("database.php");
@@ -356,14 +351,14 @@
                     $stmt->fetch();
                     $start_date_array = explode("-", $employment_start_date);
                 ?>
-                    <select name="year" required>
+                <select name="year" required>
                     <option value="">&nbsp;</option>
                     <?php
-                        //This code will print out the current year with the 3 previous years.
-                        $current_year = date("Y");
-                        for ($year = $start_date_array[0]; $year <= $current_year; $year++) {
-                            echo "<option value=\"$year\" "; if ($year==$current_year) {echo "selected";} echo ">$year</option>"; 
-                        }
+                    //This code will print out the current year with the 3 previous years.
+                    $current_year = date("Y");
+                    for ($year = $start_date_array[0]; $year <= $current_year; $year++) {
+                        echo "<option value=\"$year\" "; if ($year==$current_year) {echo "selected";} echo ">$year</option>"; 
+                    }
                     ?>
                 </select>
                 <select name="month" required>
@@ -390,7 +385,7 @@
                 $formatted_date = date_format($date,"Y-m-d");
                 include("database.php");
                 $stmt = $DBConnect->prepare("SELECT day_type, hours, notes, timesheet_status FROM timesheets WHERE username = ? AND work_date = ? AND client_id = ?");
-                $stmt->bind_param("sss", $GLOBALS['username'], $formatted_date, $_SESSION['client_id']);
+                $stmt->bind_param("sss", $GLOBALS['username'], $formatted_date, $_COOKIE['client_id']);
                 $stmt->execute();
                 $stmt->store_result();
                 $stmt->bind_result($retrieved_day_type, $retrieved_hours, $retrieved_notes, $retrieved_timesheet_status);
@@ -453,8 +448,6 @@
                 $stmt->store_result();
                 $stmt->bind_result($retrieved_user_first_name, $retrieved_user_middle_name, $retrieved_user_last_name, $retrieved_client_name);
                 $stmt->fetch();
-                $stmt->close();
-                $DBConnect->close();
 
                 //Here, the form with the table is going to be printed.
                 echo 
@@ -462,8 +455,12 @@
                 <p><b>Timesheet Period:</b> $month/$year</p>
                 <p><b>Timesheet Status:</b></p>
                 <p><b>Full Name:</b> ".ucfirst(strtolower($retrieved_user_first_name))," ", ucfirst(strtolower($retrieved_user_middle_name))," ", ucfirst(strtolower($retrieved_user_last_name))."</p>
-                <p><b>Client:</b> $retrieved_client_name</p>
-                </div>
+                <p><b>Client:</b> $retrieved_client_name</p>"; 
+                if ($_SESSION['user_role'] == "administrator") {
+                    echo "<p><a href=\"administer_timesheet.php\">Administer Timesheet</a></p>";
+                }
+                echo
+                "</div>
                 <br />
                 <form method='post' action='#'>
                     <div class='timesheet_table'>
