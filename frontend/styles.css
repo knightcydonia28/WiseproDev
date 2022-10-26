@@ -37,18 +37,26 @@ Version: 0.1
 25. techno Team Details Area Css
 
 =================================
-
 CUSTOM CSS CONTENT:
 ---------------
-26. Accordian Css
-
-
+Full page wrapper CSS
+Accordian CSS
 =======================*/
 
 
 
 
+/*============================
+ Full page wrapper CSS
+==============================*/
+#page-container {
+    position: relative;
+    min-height: 100%;
+}
 
+#content-wrap {
+   
+  }
 
 
 /*============================
@@ -5830,6 +5838,7 @@ to{-webkit-transform:rotate(360deg) translate(-10px) rotate(-360deg);-moz-transf
 .style_three .menu-quick-link-container ul li a:before {
     background: #0c5adb;
 }
+
 /*====================================================
 --<	Techno Footer Bottom Area Css -->
 ======================================================*/
@@ -5859,6 +5868,12 @@ to{-webkit-transform:rotate(360deg) translate(-10px) rotate(-360deg);-moz-transf
 	width: 1px;
 	background: #fff;
 	transform: skew(-20deg);
+}
+
+.footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
 }
 
 /*====================================================
