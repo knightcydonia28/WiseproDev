@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Employment Form</title>
+        <title>Job Lists</title>
         <style>
             .job_box {
                 border-style: solid;
