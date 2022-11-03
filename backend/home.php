@@ -47,7 +47,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Home</title>
     </head>
     <body>
@@ -60,13 +60,13 @@
             <?php
                 if ($_SESSION['user_role'] == "user") {
                     echo 
-                    "<li><a href=\"timesheet.php\">Timesheet</a></li>";
+                    "<li><a href=\"choose_timesheet.php\">Timesheet</a></li>";
                 }
                 if ($_SESSION['user_role'] == "recruiter") {
                     echo 
                     "<li><a href=\"create_job_posting.php\">Create Job Posting</a></li>
                     <li><a href=\"search_job_posting.php\">Search Job Posting</a></li>
-                    <li><a href=\"timesheet.php\">Timesheet</a></li>";
+                    <li><a href=\"choose_timesheet.php\">Timesheet</a></li>";
                 }
                 if ($_SESSION['user_role'] == "administrator") {
                     echo 

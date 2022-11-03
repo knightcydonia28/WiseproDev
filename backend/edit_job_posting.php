@@ -12,7 +12,7 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    if ($_SESSION['user_role'] != "administrator") {
+    if ($_SESSION['user_role'] != "administrator" && $_SESSION['user_role'] != "recruiter") {
         header('Location: home.php');
         exit();
     }
@@ -50,7 +50,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Edit Job Posting</title>
         <script>
             function preventTwoChecks(checkbox) {
@@ -84,7 +84,7 @@
                     document.getElementById("job_location_remote").disabled = false;
                 }
             }
-            function firstReview () {
+            function adjustCheckboxes () {
                 var checkbox_id = document.getElementById("job_location_remote");
                 if (checkbox_id.checked) {
                     document.getElementById("job_location").disabled = true;
@@ -94,8 +94,6 @@
                     document.getElementById("job_location").disabled = false;
                     document.getElementById("job_location_hybrid").disabled = false;
                 }
-            }
-            function secondReview () {
                 var checkbox_id = document.getElementById("job_location_hybrid");
                 if (checkbox_id.checked) {
                     document.getElementById("job_location_remote").disabled = true;
@@ -122,8 +120,8 @@
             }
         </style>
     </head>
-    <body onload="firstReview(); secondReview();">
-        <a href="home.php">Home</a><br /><br />
+    <body onload="adjustCheckboxes();">
+        <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>
@@ -190,7 +188,7 @@
                                                 $required_skills = test_input($_POST['required_skills']);
                                                 $job_expired_date = test_input($_POST['job_expired_date']);
                                                 if (!validateDate($job_expired_date)) {
-                                                    $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                    $job_expired_date_error = "Please enter a valid job expired date"; 
                                                 }
                                                 else {
                                                     $job_status = test_input($_POST['job_status']);
@@ -225,7 +223,7 @@
                                                     $required_skills = test_input($_POST['required_skills']);
                                                     $job_expired_date = test_input($_POST['job_expired_date']);
                                                     if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
                                                     }
                                                     else {
                                                         $job_status = test_input($_POST['job_status']);
@@ -262,7 +260,7 @@
                                                     $required_skills = test_input($_POST['required_skills']);
                                                     $job_expired_date = test_input($_POST['job_expired_date']);
                                                     if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
                                                     }
                                                     else {
                                                         $job_status = test_input($_POST['job_status']);
@@ -344,7 +342,7 @@
                                                     $required_skills = test_input($_POST['required_skills']);
                                                     $job_expired_date = NULL;
                                                     if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
                                                     }
                                                     else {
                                                         if ($_POST['job_status'] != "active") {
@@ -386,7 +384,7 @@
                                                     $required_skills = test_input($_POST['required_skills']);
                                                     $job_expired_date = NULL;
                                                     if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
                                                     }
                                                     else {
                                                         if ($_POST['job_status'] != "active") {
@@ -450,7 +448,7 @@
                                                     $required_skills = test_input($_POST['required_skills']);
                                                     $job_expired_date = test_input($_POST['job_expired_date']);
                                                     if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
                                                     }
                                                     else {
                                                         $job_status = test_input($_POST['job_status']);
@@ -485,7 +483,7 @@
                                                         $required_skills = test_input($_POST['required_skills']);
                                                         $job_expired_date = test_input($_POST['job_expired_date']);
                                                         if (!validateDate($job_expired_date)) {
-                                                            $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                            $job_expired_date_error = "Please enter a valid job expired date"; 
                                                         }
                                                         else {
                                                             $job_status = test_input($_POST['job_status']);
@@ -522,7 +520,7 @@
                                                         $required_skills = test_input($_POST['required_skills']);
                                                         $job_expired_date = test_input($_POST['job_expired_date']);
                                                         if (!validateDate($job_expired_date)) {
-                                                            $job_expired_date_error = "Please enter a valid job posted date"; 
+                                                            $job_expired_date_error = "Please enter a valid job expired date"; 
                                                         }
                                                         else {
                                                             $job_status = test_input($_POST['job_status']);
@@ -679,13 +677,13 @@
             <label for="job_id">Job Id:</label>
             <input type="text" id="job_id" name="job_id" value="<?php echo $retrieved_job_id; ?>" readonly><br><br>
             <label for="vendor_name">Vendor:</label>
-            <input type="text" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $retrieved_vendor_name; ?>" readonly><br /><br />
+            <input type="text" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $retrieved_vendor_name; ?>" readonly><br><br>
             <label for="vendor_rate">Vendor Rate:</label>
-            <input type="number" id="vendor_rate" name="vendor_rate" placeholder="000.00" min="0" max="999" step="0.01" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['vendor_rate'];} else {echo $retrieved_vendor_rate;} ?>" <?php if ($retrieved_vendor_name == NULL) {echo "disabled";} ?>/><span class="error"> <?php echo $vendor_rate_error; ?></span><br /><br />  
+            <input type="number" id="vendor_rate" name="vendor_rate" placeholder="000.00" min="0" max="999" step="0.01" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['vendor_rate'];} else {echo $retrieved_vendor_rate;} ?>" <?php if ($retrieved_vendor_name == NULL) {echo "disabled";} ?>><span class="error"> <?php echo $vendor_rate_error; ?></span><br><br>  
             <label for="client_name">Client:</label>
-            <input type="text" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $retrieved_client_name; ?>" readonly><br /><br />
+            <input type="text" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $retrieved_client_name; ?>" readonly><br><br>
             <label for="job_title">Job Title:</label>
-            <input list="job_titles" name="job_title" id="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['job_title'];} else {echo $retrieved_job_title;} ?>" required /><span class="error"> * <?php echo $job_title_error; ?></span>
+            <input list="job_titles" name="job_title" id="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['job_title'];} else {echo $retrieved_job_title;} ?>" required><span class="error"> * <?php echo $job_title_error; ?></span>
             <datalist id="job_titles">
                 <?php
                     include("database.php");
@@ -699,7 +697,7 @@
                     $stmt->close();
                     $DBConnect->close();
                 ?>
-            </datalist><br /><br />
+            </datalist><br><br>
             <label for="job_type">Job Type:</label>
             <select id="job_type" name="job_type" required>
                 <option value="">&nbsp;</option>
@@ -707,7 +705,7 @@
                 <option value="part-time" <?php if (isset($_POST['edit_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "part-time") {echo "selected";} else {if ($retrieved_job_type == "part-time") {echo "selected";}} ?>>Part-time</option>
                 <option value="contract" <?php if (isset($_POST['edit_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "contract") {echo "selected";} else {if ($retrieved_job_type == "contract") {echo "selected";}} ?>>Contract</option>
                 <option value="internship" <?php if (isset($_POST['edit_job_submit']) && isset($_POST['job_type']) && $_POST['job_type'] == "internship") {echo "selected";} else {if ($retrieved_job_type == "internship") {echo "selected";}} ?>>Internship</option>
-            </select><span class="error"> * <?php echo $job_type_error; ?></span><br /><br />
+            </select><span class="error"> * <?php echo $job_type_error; ?></span><br><br>
             <?php 
                 if (isset($_POST['edit_job_submit'])) {
                     $job_location_pieces = explode(";", $_POST['job_location']);
@@ -722,22 +720,22 @@
                 <?php
                     include("usa_cities_and_states.php");
                 ?>
-            </datalist><span class="error"> * <?php echo $job_location_error; ?></span><br /><br />
+            </datalist><span class="error"> * <?php echo $job_location_error; ?></span><br><br>
             <p><label for="job_description">Job Description:</label></p>
-            <textarea id="job_description" name="job_description" placeholder="job description" rows="30" cols="50" required><?php if (isset($_POST['edit_job_submit'])) {echo $_POST['job_description'];} else {echo $retrieved_job_description;} ?></textarea><span class="error"> *</span><br /><br />
+            <textarea id="job_description" name="job_description" placeholder="job description" rows="30" cols="50" required><?php if (isset($_POST['edit_job_submit'])) {echo $_POST['job_description'];} else {echo $retrieved_job_description;} ?></textarea><span class="error"> *</span><br><br>
             <label for="preferred_skills">Preferred Skills:</label>
-            <input type="text" id="preferred_skills" name="preferred_skills" placeholder="preferred skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that preferred skills have letters, commas and whitespaces only" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['preferred_skills'];} else {echo $retrieved_preferred_skills;} ?>" required/><span class="error"> * <?php echo $preferred_skills_error; ?></span><br /><br />
+            <input type="text" id="preferred_skills" name="preferred_skills" placeholder="preferred skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that preferred skills have letters, commas and whitespaces only" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['preferred_skills'];} else {echo $retrieved_preferred_skills;} ?>" required><span class="error"> * <?php echo $preferred_skills_error; ?></span><br><br>
             <label for="job_type">Required Skills:</label>
-            <input type="text" id="required_skills" name="required_skills" placeholder="required skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that required skills have letters, commas and whitespaces only" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['required_skills'];} else {echo $retrieved_required_skills;} ?>" required/><span class="error"> * <?php echo $required_skills_error; ?></span><br /><br />
+            <input type="text" id="required_skills" name="required_skills" placeholder="required skills" pattern="^[a-zA-Z,\s]*$" title="Please ensure that required skills have letters, commas and whitespaces only" value="<?php if (isset($_POST['edit_job_submit'])) {echo $_POST['required_skills'];} else {echo $retrieved_required_skills;} ?>" required><span class="error"> * <?php echo $required_skills_error; ?></span><br><br>
             <label for="job_status">Job Status:</label>
             <select id="job_status" name="job_status" required>
                 <option value="">&nbsp;</option>
                 <option value="active" <?php if (isset($_POST['edit_job_submit']) && isset($_POST['job_status']) && $_POST['job_status'] == "active") {echo "selected";} else {if ($retrieved_job_status == "active") {echo "selected";}} ?>>Active</option>
                 <option value="inactive" <?php if (isset($_POST['edit_job_submit']) && isset($_POST['job_status']) && $_POST['job_status'] == "inactive") {echo "selected";} else {if ($retrieved_job_status == "inactive") {echo "selected";}} ?>>Inactive</option>
-            </select><span class="error"> * <?php echo $job_status_error; ?></span><br /><br />
+            </select><span class="error"> * <?php echo $job_status_error; ?></span><br><br>
             <?php $job_expired_date = date("Y-m-d"); ?>
             <input type="hidden" id="job_expired_date" name="job_expired_date" value="<?php echo $job_expired_date; ?>"><span class="error"> <?php echo $job_expired_date_error; ?></span>
-            <input type="submit" name="edit_job_submit" value="Submit Changes" />
+            <input type="submit" name="edit_job_submit" value="Submit Changes">
         </form>
     </body>
 </html>

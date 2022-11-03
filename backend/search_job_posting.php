@@ -12,7 +12,7 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    if ($_SESSION['user_role'] != "administrator") {
+    if ($_SESSION['user_role'] != "administrator" && $_SESSION['user_role'] != "recruiter") {
         header('Location: home.php');
         exit();
     }
@@ -50,7 +50,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Search Job Posting</title>
         <script>
             function getJobID(row_id) {
@@ -74,7 +74,7 @@
         </style>
     </head>
     <body>
-    <a href="home.php">Home</a><br /><br />
+    <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>
@@ -235,7 +235,7 @@
                     echo "<option value=\"$retrieved_vendor_name\"></option>";
                 }
             ?>
-            </datalist><br /><br />
+            </datalist><br><br>
         <label for="client_name">Client:</label>
         <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only"><span class="error"> <?php echo $client_name_error; ?></span>
             <datalist id="clients">
@@ -249,7 +249,7 @@
                     echo "<option value=\"$retrieved_client_name\"></option>";
                 }
             ?>
-            </datalist><br /><br />
+            </datalist><br><br>
         <label for="job_title">Job Title:</label>
         <input list="job_titles" name="job_title" id="job_title" placeholder="job title" pattern="^[a-zA-Z\s]*$" title="Please ensure that job title has letters and whitespaces only"><span class="error"> <?php echo $job_title_error; ?></span>
             <datalist id="job_titles">
@@ -263,7 +263,7 @@
                     echo "<option value=\"$retrieved_job_title\"></option>";
                 }
             ?>
-            </datalist><br /><br />
+            </datalist><br><br>
         <label for="job_type">Job Type:</label>
         <select id="job_type" name="job_type">
                 <option value="" selected disabled>Select Job Type</option>
@@ -271,7 +271,7 @@
                 <option value="part-time">Part-time</option>
                 <option value="contract">Contract</option>
                 <option value="internship">Internship</option>
-        </select><span class="error"> <?php echo $job_type_error; ?></span><br /><br />
+        </select><span class="error"> <?php echo $job_type_error; ?></span><br><br>
         <label for="job_location">Job Location:</label>
         <input list="job_locations" name="job_location" id="job_location" placeholder="job location" pattern="^[a-zA-Z,;\s]*$" title="Please ensure that job location has letters, commas, semicolons, and whitespaces only">
             <datalist id="job_locations">
@@ -285,8 +285,8 @@
                         echo "<option value=\"$retrieved_job_location\"></option>";
                     }
                 ?>
-            </datalist><br /><br />
-        <label for="job_posted_date">Job Posted Date:</label>
+            </datalist><br><br>
+        <label for="job_posted_date_month">Job Posted Date:</label>
         <select id="job_posted_date_month" name="job_posted_date_month">
             <option value="" selected disabled>Select Month</option>
             <option value="01">January</option>
@@ -312,14 +312,14 @@
                     echo "<option value=\"$count\">$count</option>";
                 }
             ?>
-        </select><span class="error"> <?php echo $job_posted_date_month_error, $job_posted_date_year_error; ?></span><br /><br />
+        </select><span class="error"> <?php echo $job_posted_date_month_error, $job_posted_date_year_error; ?></span><br><br>
         <label for="job_status">Job Status:</label>
         <select id="job_status" name="job_status">
             <option value="" selected disabled>Select Job Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
-        </select><span class="error"> <?php echo $job_status_error; ?></span><br /><br />
-        <label for="job_expired_date">Job Expired Date:</label>
+        </select><span class="error"> <?php echo $job_status_error; ?></span><br><br>
+        <label for="job_expired_date_month">Job Expired Date:</label>
         <select id="job_expired_date_month" name="job_expired_date_month">
             <option value="" selected disabled>Select Month</option>
             <option value="01">January</option>
@@ -345,8 +345,8 @@
                     echo "<option value=\"$count\">$count</option>";
                 }
             ?>
-        </select><span class="error"> <?php echo $job_expired_date_month_error, $job_expired_date_year_error; ?></span><br /><br />
-        <input type="submit" name="search_job_posting_submit" value="Search Job Posting" />
+        </select><span class="error"> <?php echo $job_expired_date_month_error, $job_expired_date_year_error; ?></span><br><br>
+        <input type="submit" name="search_job_posting_submit" value="Search Job Posting">
     </form>
     <?php
         if (isset($_POST['search_job_posting_submit'])) {
@@ -359,7 +359,7 @@
             if ($stmt->num_rows > 0) {
                 $table_row_count = 1;
                 echo
-                "<br />
+                "<br>
                 <table>
                     <tr>
                         <th>Action</th>
@@ -402,6 +402,8 @@
             else {
                 echo "<p>Job(s) not found.</p>";
             }
+            $stmt->close();
+            $DBConnect->close();
         }
     ?>
     </body>

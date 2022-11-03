@@ -29,7 +29,7 @@
                 </script>";
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>MFA</title>
         <style>
             .mfa_form {
@@ -40,10 +40,17 @@
                 margin: 0 auto;
                 padding: 20px;
             }
+            input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            input[type=number] {
+                -moz-appearance: textfield;
+            }
         </style>
     </head>
     <body>
-        <br />
+        <br>
         <div class="mfa_form">
             <h2>Multi-factor Authentication</h2>
             <p>Please enter your generated code below.</p>
@@ -116,8 +123,8 @@
                 }
             ?>
             <form method="post" action="#">
-                <input type="number" name="mfa_code" placeholder="000000" min="000000" max="999999" required <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?> /><br /><br />
-                <input type="submit" name="mfa_code_submit" value="Submit MFA Code" <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?> />
+                <input type="number" name="mfa_code" placeholder="000000" min="000000" max="999999" required <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?>><br><br>
+                <input type="submit" name="mfa_code_submit" value="Submit MFA Code" <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?>>
             </form>
         </div>
     </body>

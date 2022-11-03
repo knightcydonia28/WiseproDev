@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Login</title>
         <script>
             function passwordVisibility(input_id) {
@@ -429,12 +429,12 @@
                 $DBConnect->close();
             }     
         ?>
-            <hr />
+            <hr>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <input type="text" name="username" placeholder="username" required /><br /><br />
-                <input type="password" id="password" name="password" placeholder="password" required /><br /><br />
-                <input type="checkbox" onclick="passwordVisibility('password')" />Show Password <br /><br />
-                <input type="submit" name="login" value="Login" />
+                <input type="text" name="username" placeholder="username" required><br><br>
+                <input type="password" id="password" name="password" placeholder="password" required><br><br>
+                <input type="checkbox" onclick="passwordVisibility('password')">Show Password <br><br>
+                <input type="submit" name="login" value="Login">
             </form>
         </div>
     </body>

@@ -16,8 +16,23 @@
         header('Location: home.php');
         exit();
     }
-    setcookie("choose_timesheet", 1);
     $GLOBALS['username'] = isset($_COOKIE['home']) ? $_SESSION['username'] : $_COOKIE['username'];
+    setcookie("choose_timesheet", 1);
+
+    include("database.php");
+    $stmt = $DBConnect->prepare("SELECT COUNT(client_id) AS employment_number, client_id FROM employments WHERE username = ?");
+    $stmt->bind_param("s", $GLOBALS['username']);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($retrieved_employment_number, $retrieved_client_id);
+    $stmt->fetch();
+    if ($retrieved_employment_number == 1) {
+        setcookie("client_id", $retrieved_client_id);
+        header('Location: timesheet.php');
+        exit();
+    }
+    $stmt->close();
+    $DBConnect->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,11 +62,11 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Choose Timesheet</title>
     </head>
     <body>
-        <a href="home.php">Home</a><br /><br />
+        <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>
@@ -79,7 +94,7 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="client_id">Client:</label>
-            <select id="client_id" name="client_id" required>
+            <select id="client_id" name="client_id" required <?php if (isset($_SESSION['disable_choose_timesheet'])) {echo "disabled";} ?>>
                 <option value="" <?php if (!isset($_POST['select_client_submit'])) {echo "selected";} ?> disabled>Select Client</option>
                 <?php
                     include("database.php");
@@ -97,8 +112,8 @@
                         $_SESSION['disable_choose_timesheet'] = 1;
                     }
                 ?>
-            </select><br /><br />
-            <input type="submit" name="select_client_submit" value="Select Client" <?php if (isset($_SESSION['disable_choose_timesheet'])) {echo "disabled";} ?>/>
+            </select><br><br>
+            <input type="submit" name="select_client_submit" value="Select Client" <?php if (isset($_SESSION['disable_choose_timesheet'])) {echo "disabled";} ?>>
         </form>
         <?php
             if (isset($_SESSION['disable_choose_timesheet'])) {

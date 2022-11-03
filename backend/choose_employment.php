@@ -46,7 +46,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Choose Employment</title>
     </head>
     <body>
@@ -95,8 +95,8 @@
                         $_SESSION['disable_choose_employment'] = 1;
                     }
                 ?>
-            </select><br /><br />
-            <input type="submit" name="select_client_submit" value="Select Client" <?php if (isset($_SESSION['disable_choose_employment'])) {echo "disabled";} ?>/>
+            </select><br><br>
+            <input type="submit" name="select_client_submit" value="Select Client" <?php if (isset($_SESSION['disable_choose_employment'])) {echo "disabled";} ?>>
         </form>
         <?php
             if (isset($_SESSION['disable_choose_employment'])) {

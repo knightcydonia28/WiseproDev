@@ -50,7 +50,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Search User</title>
         <script>
             function getUsername(row_id) {
@@ -74,7 +74,7 @@
         </style>
     </head>
     <body>
-        <a href="home.php">Home</a><br /><br />
+        <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>
@@ -143,14 +143,14 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" /><span class="error"> <?php echo $username_error; ?></span><br /><br />
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric"><span class="error"> <?php echo $username_error; ?></span><br><br>
             <label for="user_first_name">First Name:</label>
-            <input type="text" id="user_first_name" name="user_first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_first_name_error; ?></span><br /><br />
+            <input type="text" id="user_first_name" name="user_first_name" placeholder="first name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only"><span class="error"> <?php echo $user_first_name_error; ?></span><br><br>
             <label for="user_middle_name">Middle Name:</label>
-            <input type="text" id="user_middle_name" name="user_middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_middle_name_error; ?></span><br /><br />
+            <input type="text" id="user_middle_name" name="user_middle_name" placeholder="middle name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only"><span class="error"> <?php echo $user_middle_name_error; ?></span><br><br>
             <label for="user_last_name">Last Name:</label>
-            <input type="text" id="user_last_name" name="user_last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" /><span class="error"> <?php echo $user_last_name_error; ?></span><br /><br />
-            <input type="submit" name="search_user_submit" value="Search User" />
+            <input type="text" id="user_last_name" name="user_last_name" placeholder="last name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only"><span class="error"> <?php echo $user_last_name_error; ?></span><br><br>
+            <input type="submit" name="search_user_submit" value="Search User">
         </form> 
         <?php                        
             if (isset($_POST['search_user_submit'])) {                
@@ -164,7 +164,7 @@
                 if ($stmt->num_rows > 0) {
                     $table_row_count = 1;
                     echo
-                    "<br />
+                    "<br>
                     <table>
                         <tr>
                             <th>Action</th>

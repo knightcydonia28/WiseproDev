@@ -49,11 +49,11 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>View Employment</title>
     </head>
     <body>
-        <a href="home.php">Home</a><br /><br />
+        <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>

@@ -49,7 +49,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Add Employment</title>
         <style>
             label {
@@ -62,7 +62,7 @@
         </style>
     </head>
     <body>
-        <a href="home.php">Home</a><br /><br />
+        <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>
@@ -311,7 +311,7 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required /><br /><br />
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><br><br>
             <label for="client_name">Client:</label>
             <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $_POST['client_name']; ?>" required><span class="error"> * <?php echo $client_name_error; ?></span>
                 <datalist id="clients">
@@ -325,7 +325,7 @@
                             echo "<option value=\"$retrieved_client_name\"></option>";
                         }
                     ?>
-                </datalist><br /><br />
+                </datalist><br><br>
             <label for="vendor_name">Vendor:</label>
             <input list="vendors" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $_POST['vendor_name']; ?>"><span class="error"> <?php echo $vendor_name_error; ?></span>
                 <datalist id="vendors">
@@ -339,9 +339,9 @@
                             echo "<option value=\"$retrieved_vendor_name\"></option>";
                         }
                     ?>
-                </datalist><br /><br />
+                </datalist><br><br>
             <label for="job_position">Job Position:</label>
-            <input list="job_positions" name="job_position" id="job_position" placeholder="job position" pattern="^[a-zA-Z\s]*$" title="Please ensure that job position has letters and whitespaces only" value="<?php echo $_POST['job_position']; ?>" required /><span class="error"> * <?php echo $job_position_error; ?></span>
+            <input list="job_positions" name="job_position" id="job_position" placeholder="job position" pattern="^[a-zA-Z\s]*$" title="Please ensure that job position has letters and whitespaces only" value="<?php echo $_POST['job_position']; ?>" required><span class="error"> * <?php echo $job_position_error; ?></span>
                 <datalist id="job_positions">
                     <?php
                         include("database.php");
@@ -355,7 +355,7 @@
                         $stmt->close();
                         $DBConnect->close();
                     ?>
-                </datalist><br /><br />
+                </datalist><br><br>
             <label for="employment_type">Employment Type:</label>
             <select id="employment_type" name="employment_type" required>
                 <option value="" <?php if (!isset($_POST['add_employment_submit'])) {echo "selected";} ?> disabled>Select Employment Type</option>
@@ -363,11 +363,11 @@
                 <option value="part-time" <?php if (isset($_POST['add_employment_submit']) && isset($_POST['employment_type']) && $_POST['employment_type'] == "part-time") {echo "selected";} ?>>Part-time</option>
                 <option value="contract" <?php if (isset($_POST['add_employment_submit']) && isset($_POST['employment_type']) && $_POST['employment_type'] == "contract") {echo "selected";} ?>>Contract</option>
                 <option value="internship" <?php if (isset($_POST['add_employment_submit']) && isset($_POST['employment_type']) && $_POST['employment_type'] == "internship") {echo "selected";} ?>>Internship</option>
-            </select><span class="error"> * <?php echo $employment_type_error; ?></span><br /><br />
+            </select><span class="error"> * <?php echo $employment_type_error; ?></span><br><br>
             <label for="employment_start_date">Employment Start Date:</label>
-            <input type="date" id="employment_start_date" name="employment_start_date" required /><span class="error"> * <?php echo $employment_start_date_error; ?></span><br /><br />
-            <input type="hidden" id="employment_status" name="employment_status" value="employed" /><span class="error"> <?php echo $employment_status_error; ?></span>
-            <input type="submit" name="add_employment_submit" value="Add Employment" />
+            <input type="date" id="employment_start_date" name="employment_start_date" required><span class="error"> * <?php echo $employment_start_date_error; ?></span><br><br>
+            <input type="hidden" id="employment_status" name="employment_status" value="employed"><span class="error"> <?php echo $employment_status_error; ?></span>
+            <input type="submit" name="add_employment_submit" value="Add Employment">
         </form>
         <?php
             if (isset($_POST['add_employment_submit'])) {

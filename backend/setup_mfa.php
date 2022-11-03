@@ -41,7 +41,7 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8" >
         <title>Setup MFA</title>
     </head>
     <body>
@@ -97,7 +97,7 @@
                     <p>You may enter the code below to your phone or use the QR Code.</p>
                     <p>Code: $secret_key</p>
                     <p>QR Code:</p>
-                    <img src=\"data:image/png;base64, $qrcode_image\"/>
+                    <img src=\"data:image/png;base64,$qrcode_image\" alt=\"QR Code for the Secret Key\">
                     <p>Please <a href=\"?change_secret_key=true\">Click Here</a> to return to the home page or logout to exit this page.</p>";
                 }
                 else {
@@ -107,7 +107,7 @@
             }
         ?>
         <form method="post" action="#">
-            <input type="submit" name="submit" value="Activiate MFA" <?php if (isset($_SESSION['setup_mfa_disabled'])) {echo "disabled";} ?>/>
+            <input type="submit" name="submit" value="Activiate MFA" <?php if (isset($_SESSION['setup_mfa_disabled'])) {echo "disabled";} ?>>
         </form>
     </body>
 </html>

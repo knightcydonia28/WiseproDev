@@ -12,7 +12,7 @@
         header('Location: setup_mfa.php');
         exit();
     }
-    if ($_SESSION['user_role'] != "administrator") {
+    if ($_SESSION['user_role'] != "administrator" && $_SESSION['user_role'] != "recruiter") {
         header('Location: home.php');
         exit();
     }
@@ -49,11 +49,11 @@
                 $_SESSION['login_time'] += $added_time;
             }
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>View Job Posting</title>
     </head>
     <body>
-        <a href="home.php">Home</a><br /><br />
+        <a href="home.php">Home</a><br><br>
         <?php
             include("logout.php");
         ?>
@@ -78,7 +78,7 @@
         <p>Job Title: <?php echo $retrieved_job_title; ?></p>
         <p>Job Type: <?php echo $retrieved_job_type; ?></p>
         <p>Job Location: <?php echo $retrieved_job_location; ?></p>
-        <p>Job Description: <br /> <?php echo $retrieved_job_description; ?></p>
+        <p>Job Description: <br> <?php echo $retrieved_job_description; ?></p>
         <p>Preferred Skills: <?php echo $retrieved_preferred_skills; ?></p>
         <p>Required Skills: <?php echo $retrieved_required_skills; ?></p>
         <?php
