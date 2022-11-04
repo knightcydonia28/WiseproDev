@@ -17,6 +17,21 @@
         exit();
     }
     setcookie("choose_employment", 1);
+
+    include("database.php");
+    $stmt = $DBConnect->prepare("SELECT COUNT(client_id) AS employment_number, client_id FROM employments WHERE username = ?");
+    $stmt->bind_param("s", $_COOKIE['username']);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($retrieved_employment_number, $retrieved_client_id);
+    $stmt->fetch();
+    if ($retrieved_employment_number == 1) {
+        setcookie("client_id", $retrieved_client_id);
+        header('Location: edit_employment.php');
+        exit();
+    }
+    $stmt->close();
+    $DBConnect->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,6 +65,8 @@
         <title>Choose Employment</title>
     </head>
     <body>
+        <a href="home.php">Home</a>
+        <br><br>
         <?php
             include("logout.php");
         ?>
