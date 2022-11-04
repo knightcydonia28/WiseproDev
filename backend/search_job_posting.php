@@ -20,6 +20,7 @@
     setcookie("home", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
     setcookie("choose_employment", "", time() - 3600);
+    setcookie("client_id", "", time() - 3600);
     unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
@@ -90,6 +91,11 @@
                 return $data;
             }
 
+            $sql="SELECT jobs.job_id, vendors.vendor_name, clients.client_name, jobs.job_title, jobs.job_type, jobs.job_location, jobs.job_posted_date, jobs.job_status, jobs.job_expired_date FROM jobs INNER JOIN clients ON jobs.client_id = clients.client_id LEFT OUTER JOIN vendors ON jobs.vendor_id = vendors.vendor_id WHERE ";
+            $where=array();
+            $types="";
+            $values=array();
+
             if (empty($_POST['vendor_name']) && empty($_POST['client_name']) && empty($_POST['job_title']) && empty($_POST['job_type']) && empty($_POST['job_location']) && empty($_POST['job_posted_date_month']) && empty($_POST['job_posted_date_year']) && empty($_POST['job_status']) && empty($_POST['job_expired_date_month']) && empty($_POST['job_expired_date_year'])) {
                 echo "<p class=\"error\">Please fill in at least one of the input fields.</p>";
             }
@@ -107,6 +113,9 @@
                         $stmt->store_result();
                         $stmt->bind_result($retrieved_vendor_id);
                         $stmt->fetch();
+                        $where[]="jobs.vendor_id = ?";
+                        $types.="i";
+                        $values[]=$retrieved_vendor_id;
                     }    
                 }
                 else {
@@ -125,6 +134,9 @@
                         $stmt->store_result();
                         $stmt->bind_result($retrieved_client_id);
                         $stmt->fetch();
+                        $where[]="jobs.client_id = ?";
+                        $types.="i";
+                        $values[]=$retrieved_client_id;
                     }    
                 }
                 else {
@@ -136,6 +148,9 @@
                     }
                     else {
                         $job_title = test_input($_POST['job_title']);
+                        $where[]="jobs.job_title = ?";
+                        $types.="s";
+                        $values[]=$job_title;
                     }    
                 }
                 else {
@@ -147,6 +162,9 @@
                     }
                     else {
                         $job_type = test_input($_POST['job_type']);
+                        $where[]="jobs.job_type = ?";
+                        $types.="s";
+                        $values[]=$job_type;
                     }    
                 }
                 else {
@@ -158,6 +176,9 @@
                     }
                     else {
                         $job_location = test_input($_POST['job_location']);
+                        $where[]="jobs.job_location = ?";
+                        $types.="s";
+                        $values[]=$job_location;
                     }    
                 }
                 else {
@@ -169,6 +190,9 @@
                     }
                     else {
                         $job_posted_date_month = test_input($_POST['job_posted_date_month']);
+                        $where[]="MONTH(job_posted_date) = ?";
+                        $types.="i";
+                        $values[]=$job_posted_date_month;
                     }    
                 }
                 else {
@@ -180,6 +204,9 @@
                     }
                     else {
                         $job_posted_date_year = test_input($_POST['job_posted_date_year']);
+                        $where[]="YEAR(job_posted_date) = ?";
+                        $types.="i";
+                        $values[]=$job_posted_date_year;
                     }    
                 }
                 else {
@@ -191,6 +218,9 @@
                     }
                     else {
                         $job_status = test_input($_POST['job_status']);
+                        $where[]="jobs.job_status = ?";
+                        $types.="s";
+                        $values[]=$job_status;
                     }    
                 }
                 else {
@@ -202,6 +232,9 @@
                     }
                     else {
                         $job_expired_date_month = test_input($_POST['job_expired_date_month']);
+                        $where[]="MONTH(job_expired_date) = ?";
+                        $types.="i";
+                        $values[]=$job_expired_date_month;
                     }    
                 }
                 else {
@@ -213,6 +246,9 @@
                     }
                     else {
                         $job_expired_date_year = test_input($_POST['job_expired_date_year']);
+                        $where[]="YEAR(job_expired_date) = ?";
+                        $types.="i";
+                        $values[]=$job_expired_date_year;
                     }    
                 }
                 else {
@@ -350,9 +386,10 @@
     </form>
     <?php
         if (isset($_POST['search_job_posting_submit'])) {
+            $sql.=implode(" AND ",$where);
             include("database.php");
-            $stmt = $DBConnect->prepare("SELECT jobs.job_id, vendors.vendor_name, clients.client_name, jobs.job_title, jobs.job_type, jobs.job_location, jobs.job_posted_date, jobs.job_status, jobs.job_expired_date FROM jobs INNER JOIN clients ON jobs.client_id = clients.client_id LEFT OUTER JOIN vendors ON jobs.vendor_id = vendors.vendor_id WHERE jobs.vendor_id = ? OR jobs.client_id = ? OR jobs.job_title LIKE CONCAT(?, '%') OR jobs.job_type LIKE CONCAT(?, '%') OR jobs.job_location LIKE CONCAT(?, '%') OR MONTH(job_posted_date) = ? OR YEAR(job_posted_date) = ? OR jobs.job_status LIKE CONCAT(?, '%') OR MONTH(job_expired_date) = ? OR YEAR(job_expired_date) = ?");
-            $stmt->bind_param("iisssiisss", $retrieved_vendor_id, $retrieved_client_id, $job_title, $job_type, $job_location, $job_posted_date_month, $job_posted_date_year, $job_status, $job_expired_date_month, $job_expired_date_year);
+            $stmt = $DBConnect->prepare($sql);
+            $stmt->bind_param($types, ...$values);
             $stmt->execute();
             $stmt->store_result();
             $stmt->bind_result($retrieved_job_id, $retrieved_vendor_name, $retrieved_client_name, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_posted_date, $retrieved_job_status, $retrieved_job_expired_date);
