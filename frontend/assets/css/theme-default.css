@@ -220,8 +220,8 @@ a,i, cite, em, var, address, dfn,ol,li,ul{
     text-shadow: none;
 }
 ::selection {
-    background: #4fc1f0;
-    color: #454545;
+    background: #0c5adb;
+    color: #ffffff;
     text-shadow: none;
 }
 
