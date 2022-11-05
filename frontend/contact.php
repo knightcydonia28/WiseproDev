@@ -128,27 +128,29 @@
 				{
 					//echo '<h2>EMAIL FUNCTION START</h2> <br>';
 					
-					$email_to = 'tombaham@yahoo.com';
-					$email_from = 'tombaham@yahoo.com';	
-					$email_subject = 'New Contact Form Submission';
-				
 					//User Form Entity Set
-					$name = $_POST['name'];
-					$email = $_POST['email'];
-					$tel = $_POST['tel'];
+					$name    = $_POST['name'];
+					$email   = $_POST['email'];
+					$tel     = $_POST['tel'];
 					$message = $_POST['message'];
 
+					//Email To's Varables
+					$email_to      = "tombaham@yahoo.com";
+					$email_from    = "tombaham@yahoo.com";	
+					$email_subject = "New Contact Form Submission";
+				
 					//Email Message Formatting
-					$mainbody_message .= '<h1>New Contact Form Submission!</h1>';
-					$mainbody_message .= '<p>Date/Time of Submission: </p>' . date('F j, Y, g:i a');
-					$mainbody_message .= '<h3>Name:</h3>'.$name;
-					$mainbody_message .= '<h3>Submitted Email:</h3>'.$email;
-					$mainbody_message = wordwrap($mainbody_message, 70);
+					$mainbody_message  = "<h2>New Contact Form Submission</h2>";
+					$mainbody_message .= "<h3>Name: <u>" .  $name ."</u></h3>";
+					$mainbody_message .= "<h3>Email Contact: <u>" . $email . "</u></h3>";
+					$mainbody_message .= "<h3>Phone Contact: <u>" . $tel . "</u></h3>";
+					$mainbody_message .= "<h3>Main Message:" . $message . "</u>";
+					$mainbody_message .= "<p>Date/Time of Submission: </p>" . date("F j, Y, g:i a");
+					$mainbody_message = wordwrap($mainbody_message, 140);
 
 					//Email Subject/Header Attributes
-					$headers = array('From: from@example.com', 'Reply-To: replyto@example.com', 'X-Mailer: PHP/' . PHP_VERSION, 'MIME-Version: 1.0', 'Content-Type: text/html; charset=iso-8859-1');
-					$headers = implode("\r\n", $headers);
-					
+					$headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion(), 'MIME-Version' => '1.0', 'Content-Type' => 'text/html; charset=utf8');
+
 					$retval = mail( $email_to, $email_subject, $mainbody_message, $headers);
 					
 					if( $retval == true ) 
