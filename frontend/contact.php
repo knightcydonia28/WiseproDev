@@ -79,7 +79,7 @@
 					<div class="col-md-2">
 						<div class="mt-3" float="right">
 							<div class="donate-btn-header">
-								<a class="dtbtn" href="contact.html">Contact Us</a>
+								<a class="dtbtn" href="contact.php">Contact Us</a>
 						   </div>
 						</div>
 					</div>
@@ -120,57 +120,115 @@
 	<div class="main_contact_area style_three pt-160 pb-90">
 		<div class="container">
 			<div class="row align-items-center">
-				<div class="col-lg-6">
-					<div class="section_title text_left mb-50 mt-3">
-						<div class="section_sub_title uppercase mb-3">
+
+
+			<?php 
+				//IF THE SUBMIT BUTTON IS PRESSED, LOAD BELOW
+				 if (isset($_POST['form_submit'])) 
+				{
+					//echo '<h2>EMAIL FUNCTION START</h2> <br>';
+					
+					$email_to = 'tombaham@yahoo.com';
+					$email_from = 'tombaham@yahoo.com';	
+					$email_subject = 'New Contact Form Submission';
+				
+					//User Form Entity Set
+					$name = $_POST['name'];
+					$email = $_POST['email'];
+					$tel = $_POST['tel'];
+					$message = $_POST['message'];
+
+					//Email Message Formatting
+					$mainbody_message .= '<h1>New Contact Form Submission!</h1>';
+					$mainbody_message .= '<p>Date/Time of Submission: </p>' . date('F j, Y, g:i a');
+					$mainbody_message .= '<h3>Name:</h3>'.$name;
+					$mainbody_message .= '<h3>Submitted Email:</h3>'.$email;
+					$mainbody_message = wordwrap($mainbody_message, 70);
+
+					//Email Subject/Header Attributes
+					$headers = array('From: from@example.com', 'Reply-To: replyto@example.com', 'X-Mailer: PHP/' . PHP_VERSION, 'MIME-Version: 1.0', 'Content-Type: text/html; charset=iso-8859-1');
+					$headers = implode("\r\n", $headers);
+					
+					$retval = mail( $email_to, $email_subject, $mainbody_message, $headers);
+					
+					if( $retval == true ) 
+					{
+						echo '<h2>Message sent successfully!</h2>';
+					}
+					else 
+						{
+							echo '<h2>Message could not be sent</h2>';
+						}
+
+				} 
+				//IF SUBMIT BUTTON IS NOT HIT, LOAD BELOW
+				else {
+					echo "
+					<div class=\"col-lg-6\">
+					<div class=\"section_title text_left mb-50 mt-3\">
+						<div class=\"section_sub_title uppercase mb-3\">
 							<h6>Contact Info</h6>
 						</div>
-						<div class="section_main_title">
+						<div class=\"section_main_title\">
 							<h1>Get in Touch Today!</h1>
 						</div>
 					</div>
-					<div class="contact_address">
-						<div class="contact_address_company mb-3">
+					<div class=\"contact_address\">
+						<div class=\"contact_address_company mb-3\">
 							<ul>
-								<li><i class="fa fa-envelope-o"></i><span><a href="#">PLACEHOLDER_EMAIL</a></span></li>
-								<li><i class="fa fa-mobile"></i><span> (703)-766-8850</span></li>
-								<li><i class="fa fa-map-marker"></i> <span> 11211 Waples Mill Rd, Suite 220 Fairfax, VA 22030. USA</span></li>
+								<li><i class=\"fa fa-envelope-o\"></i><span><a href=\"#\">PLACEHOLDER_EMAIL</a></span></li>
+								<li><i class=\"fa fa-mobile\"></i><span> (703)-766-8850</span></li>
+								<li><i class=\"fa fa-map-marker\"></i> <span> 11211 Waples Mill Rd, Suite 220 Fairfax, VA 22030. USA</span></li>
 							</ul>
 						</div>
 					</div>
-				</div>
-				<div class="col-lg-6">
-					<div class="contact_from">
-						<div class="contact_from_box">
-							<div class="contact_title pb-4">
-								<h3>Send Message </h3>
-							</div>
-							<form id="contact_form" action="mail.php" method="POST">
-								<div class="row">
-									<div class="col-lg-12">
-										<div class="form_box mb-30">
-											<input type="text" name="name" placeholder="Name">
-										</div>
-									</div>
-									<div class="col-lg-12">
-										<div class="form_box mb-30">
-											<input type="email" name="email" placeholder="Email Address">
-										</div>
-									</div>
-									<div class="col-lg-12">
-										<div class="form_box mb-30">
-											<textarea name="message" id="message" cols="30" rows="10" placeholder="Write a Message"></textarea>
-										</div>
-										<div class="quote_btn">
-											<button class="btn" type="submit">Send Message</button>
-										</div>
-									</div>
+					</div>
+					<div class=\"col-lg-6\">
+						<div class=\"contact_from\">
+							<div class=\"contact_from_box\">
+								<div class=\"contact_title pb-4\">
+									<h3>Send Message </h3>
 								</div>
-							</form>
-							<p class="form-message"></p>
+
+
+								<form id=\"contact_form\" action=\"contact.php\" method=\"POST\">
+									<div class=\"row\">
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<input type=\"text\" name=\"name\" placeholder=\"Name\">
+											</div>
+										</div>
+
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<input type=\"email\" name=\"email\" placeholder=\"Email Address\">
+											</div>
+										</div>
+
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<input type=\"tel\" name=\"tel\" placeholder=\"Phone Number\">
+											</div>
+										</div>
+
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<textarea name=\"message\" id=\"message\" cols=\"30\" rows=\"10\" placeholder=\"Write a Message\"></textarea>
+											</div>
+											<div class=\"quote_btn\">
+												<input type=\"submit\" name=\"form_submit\">
+												<!-- <button class=\"btn\" type=\"submit\">Send Message</button> -->
+											</div>
+										</div>
+									</div>
+								</form>
+								<p class=\"form-message\"></p>
+							</div>
 						</div>
 					</div>
-				</div>
+				";
+			}?>
+
 			</div>
 		</div>
 	</div>
