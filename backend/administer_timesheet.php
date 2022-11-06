@@ -153,6 +153,14 @@
             $stmt->store_result();
             $stmt->bind_result($retrieved_user_first_name, $retrieved_user_middle_name, $retrieved_user_last_name, $retrieved_client_name);
             $stmt->fetch();
+
+            $stmt = $DBConnect->prepare("SELECT DISTINCT timesheet_status FROM timesheets WHERE username = ? AND MONTH(work_date) = ? AND YEAR(work_date) = ?");
+            $stmt->bind_param("sii", $GLOBALS['username'], $_SESSION['month'], $_SESSION['year']);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($retrieved_timesheet_status);
+            $stmt->fetch();
+
             $stmt->close();
             $DBConnect->close();
             echo 
@@ -165,8 +173,8 @@
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <select id="selected_decision" name="selected_decision" onchange="displayTextArea()" required>
                 <option value="" selected disabled>Select Decision</option>
-                <option value=2>Approve</option>
-                <option value=3>Reject</option>
+                <option value=2 <?php if($retrieved_timesheet_status == 2) {echo "selected";} ?>>Approve</option>
+                <option value=3 <?php if($retrieved_timesheet_status == 3) {echo "selected";} ?>>Reject</option>
             </select>
             <br>
             <p><label id="reject_reason_label" for="reject_reason" hidden>Rejection Reason (Required):</label></p>
