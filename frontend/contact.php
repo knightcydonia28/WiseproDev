@@ -135,26 +135,54 @@
 					$message = $_POST['message'];
 
 					//Email To's Varables
-					$email_to      = "tombaham@yahoo.com";
-					$email_from    = "tombaham@yahoo.com";	
+					$email_to      = "laxapig213@keshitv.com";
+					$email_from    = "administration@wisepro.com";	
 					$email_subject = "New Contact Form Submission";
+                     
+                    //Thank you message variables
+                    $reply_subject = "Message Successfully Sent";
+                    $reply_message = "
+                    <table cellspacing='0' cellpadding='0' border='0' width=100%>
+                        <tr>
+                            <td align='center' background='wisepro.com/frontend/assets/images/new/abs-bg7.png' style='background-size:100%;background-repeat:no-repeat;'>
+                                <h2>Thank you for contacting us, ".$name."!</h2>
+                                <p>We've received your message, and will respond as soon as we can.</p>
+                                <h3>Message Sent:</h3>
+                                <p>".$message."</p>
+                                <br/>
+                                <img src='http://wisepro.com/frontend/assets/images/logo/logo.png' alt='Wisepro Logo' height=60px style='display:block; margin-left:auto;margin-right:auto;'/>
+                                <p>(703)-766-8850</p>
+                                <p>11211 Waples Mill Rd, Suite 220<br/>Fairfax, VA 22030, USA</p>
+                            </td> 
+                        </tr>
+                    </table>"
+                    ;
 				
 					//Email Message Formatting
 					$mainbody_message  = "<h2>New Contact Form Submission</h2>";
-					$mainbody_message .= "<h3>Name: <u>" .  $name ."</u></h3>";
-					$mainbody_message .= "<h3>Email Contact: <u>" . $email . "</u></h3>";
-					$mainbody_message .= "<h3>Phone Contact: <u>" . $tel . "</u></h3>";
-					$mainbody_message .= "<h3>Main Message:" . $message . "</u>";
-					$mainbody_message .= "<p>Date/Time of Submission: </p>" . date("F j, Y, g:i a");
-					$mainbody_message = wordwrap($mainbody_message, 140);
+					$mainbody_message .= "<h3>Name:</h3>" . "<p>". $name ."</p>";
+					$mainbody_message .= "<h3>Email Contact:</h3>" . "<p>" . $email . "</p>";
+					$mainbody_message .= "<h3>Phone Contact:</h3>" . "<p>" . $tel . "</p>";
+					$mainbody_message .= "<h3>Main Message:</h3>" . "<p>" . $message . "</p>";
+					$mainbody_message .= "<h3>Date/Time of Submission: </h3>" . date("F j, Y, g:i a");
+					$mainbody_message = wordwrap($mainbody_message, 70);
 
 					//Email Subject/Header Attributes
 					$headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion(), 'MIME-Version' => '1.0', 'Content-Type' => 'text/html; charset=utf8');
+                     
+                    
+                    $reply_headers[]= 'From: Wisetek Providers <administration@wisepro.com>';
+                    $reply_headers[]= 'Reply-To: Wisetek Providers <administration@wisepro.com>';
+                    $reply_headers[] = 'X-Mailer: PHP/' . phpversion();
+                    $reply_headers[] = 'MIME-Version: 1.0';
+                    $reply_headers[] = 'Content-type: text/html; charset=utf8';
 
 					$retval = mail( $email_to, $email_subject, $mainbody_message, $headers);
+        
 					
 					if( $retval == true ) 
 					{
+                        mail($email, $reply_subject, $reply_message, implode("\r\n",$reply_headers));
 						echo '<h2>Message sent successfully!</h2>';
 					}
 					else 
