@@ -56,24 +56,26 @@
             <p>Please enter your generated code below.</p>
             <?php
                 if (isset($_POST['mfa_code_submit'])) {
+                    
+                    function test_input($data) {
+                        $data = trim($data);
+                        $data = stripslashes($data);
+                        $data = htmlspecialchars($data);
+                        return $data;
+                    } 
+
                     if (!is_numeric($_POST['mfa_code']) || strlen($_POST['mfa_code']) != 6) {
-                        function destroySession() {
-                            $_SESSION = array();
-                            if (ini_get("session.use_cookies")) {
-                                $params = session_get_cookie_params();
-                                setcookie(session_name(), '', time() - 42000,
-                                    $params["path"], $params["domain"],
-                                    $params["secure"], $params["httponly"]
-                                );
-                            }
-                            session_destroy();
-                        }
-                        destroySession();
-                        echo "<p>Invalid code. Please refresh this page or return to the <a href=\"login.php\">login page</a> to continue.</p>";
-                        $_SESSION['disable_mfa'] = 1;
+                        unset($_SESSION["secret_key"]);
+                        unset($_SESSION["mfa_time"]);
+                        unset($_SESSION["username"]);
+                        unset($_SESSION["password_expiration"]);
+                        unset($_SESSION["user_role"]);
+                        $_SESSION['mfa_error'] = "Invalid code entered.";
+                        header('Location: login.php');
+                        exit();
                     }
                     else {
-                        $mfa_code = $_POST['mfa_code'];
+                        $mfa_code = test_input($_POST['mfa_code']);
                         
                         require __DIR__ . '/vendor/autoload.php';
 
@@ -102,29 +104,23 @@
                             exit();
                         }
                         else {
-                            function destroySession() {
-                                $_SESSION = array();
-                                if (ini_get("session.use_cookies")) {
-                                    $params = session_get_cookie_params();
-                                    setcookie(session_name(), '', time() - 42000,
-                                        $params["path"], $params["domain"],
-                                        $params["secure"], $params["httponly"]
-                                    );
-                                }
-                                session_destroy();
-                            }
-                            destroySession();
-                            echo "<p>Invalid code. Please refresh this page or return to the <a href=\"login.php\">login page</a> to continue.</p>";
-                            $_SESSION['disable_mfa'] = 1;
+                            unset($_SESSION["secret_key"]);
+                            unset($_SESSION["mfa_time"]);
+                            unset($_SESSION["username"]);
+                            unset($_SESSION["password_expiration"]);
+                            unset($_SESSION["user_role"]);
+                            $_SESSION['mfa_error'] = "Invalid code entered.";
+                            header('Location: login.php');
+                            exit();
                         }
                     }
                     $stmt->close();
                     $DBConnect->close();
                 }
             ?>
-            <form method="post" action="#">
-                <input type="number" name="mfa_code" placeholder="000000" min="000000" max="999999" required <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?>><br><br>
-                <input type="submit" name="mfa_code_submit" value="Submit MFA Code" <?php if(isset($_SESSION['disable_mfa'])) {echo "disabled";} ?>>
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <input type="number" name="mfa_code" placeholder="000000" min="000000" max="999999" required><br><br>
+                <input type="submit" name="mfa_code_submit" value="Submit MFA Code">
             </form>
         </div>
     </body>

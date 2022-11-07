@@ -4,8 +4,10 @@
         header('Location: home.php');
         exit();
     }
-    unset($_SESSION['login']);
-    unset($_SESSION['disable_mfa']);
+    if (isset($_SESSION['login'])) {
+        session_regenerate_id();
+        unset($_SESSION['login']);
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,6 +40,10 @@
         <h2>Login</h2>
         <p>Please login to continue</p>
         <?php
+            if (isset($_SESSION["mfa_error"])) {
+                echo $_SESSION["mfa_error"];
+                unset($_SESSION["mfa_error"]);
+            }
             if (isset($_POST['login'])) {
 
                 function test_input($data) {
@@ -427,7 +433,7 @@
                 }
                 $stmt->close();
                 $DBConnect->close();
-            }     
+            }    
         ?>
             <hr>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
