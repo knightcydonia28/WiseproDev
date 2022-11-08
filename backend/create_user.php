@@ -20,6 +20,7 @@
     setcookie("search_job_posting", "", time() - 3600);
     setcookie("choose_timesheet", "", time() - 3600);
     setcookie("choose_employment", "", time() - 3600);
+    setcookie("client_id", "", time() - 3600);
     unset($_SESSION['disable_choose_timesheet']);
 ?>
 <!DOCTYPE html>
@@ -70,7 +71,7 @@
         ?>
         <a href='?logout=true'>Logout</a>
         <?php           
-            if (isset($_POST['create_user_submit'])) {
+            if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 
                 function test_input($data) {
                     $data = trim($data);
@@ -84,7 +85,9 @@
                 }
                 
                 if (!ctype_alnum($_POST['username'])) {
-                    $username_error = "Please ensure that your username is alphanumeric";
+                    $_SESSION["username_error"] = "Please ensure that your username is alphanumeric";
+                    header("Location: create_user.php", true, 303);
+                    exit();
                 }
                 else {
                     $username = test_input($_POST['username']);
@@ -96,51 +99,71 @@
                     $stmt->store_result();
 
                     if ($stmt->num_rows > 0) {
-                        $username_error = "Username is already taken. Please choose another username";
+                        $_SESSION["username_error"] = "Username is already taken. Please choose another username";
+                        header("Location: create_user.php", true, 303);
+                        exit();
                     }
                     else {
                         if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                            $user_role_error = "Please select an appropriate user role";
+                            $_SESSION["user_role_error"] = "Please select an appropriate user role";
+                            header("Location: create_user.php", true, 303);
+                            exit();
                         }
                         else {
                             $user_role = test_input($_POST['user_role']);
                             if (!preg_match("/^[a-zA-Z-' ]*$/", $_POST['user_first_name'])) {
-                                $user_first_name_error = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                                $_SESSION["user_first_name_error"] = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                                header("Location: create_user.php", true, 303);
+                                exit();
                             }
                             else {
                                 $user_first_name = test_input($_POST['user_first_name']);
                                 if (!preg_match("/^[a-zA-Z-' ]*$/", $_POST['user_last_name'])) {
-                                    $user_last_name_error = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
+                                    $_SESSION["user_last_name_error"] = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
+                                    header("Location: create_user.php", true, 303);
+                                    exit();
                                 }
                                 else {
                                     $user_last_name = test_input($_POST['user_last_name']);
                                     $user_email = test_input($_POST['user_email']);
                                     if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                        $user_email_error = "Please enter a valid email address (e.g., yourname@example.com)"; 
+                                        $_SESSION["user_email_error"] = "Please enter a valid email address (e.g., yourname@example.com)";
+                                        header("Location: create_user.php", true, 303);
+                                        exit(); 
                                     }
                                     else {
                                         $user_birth_date = test_input($_POST['user_birth_date']);
                                         if (!validateDate($user_birth_date)) {
-                                            $user_birth_date_error = "Please enter a valid birth date"; 
+                                            $_SESSION["user_birth_date_error"] = "Please enter a valid birth date";
+                                            header("Location: create_user.php", true, 303);
+                                            exit();
                                         }
                                         else {
                                             $minimum_year = date("Y") - 75;
                                             if ($user_birth_date < "$minimum_year-01-01") {
-                                                $user_birth_date_error = "Please ensure that birth date is not earlier than \"01/01/$minimum_year\"";  
+                                                $_SESSION["user_birth_date_error"] = "Please ensure that birth date is not earlier than \"01/01/$minimum_year\"";
+                                                header("Location: create_user.php", true, 303);
+                                                exit();
                                             }
                                             else {
                                                 $maximum_year = date("Y") - 16;
                                                 if ($user_birth_date > "$maximum_year-01-01") {
-                                                    $user_birth_date_error = "Please ensure that birth date is not later than \"01/01/$maximum_year\"";                                          
+                                                    $_SESSION["user_birth_date_error"] = "Please ensure that birth date is not later than \"01/01/$maximum_year\"";
+                                                    header("Location: create_user.php", true, 303);
+                                                    exit();                                          
                                                 }
                                                 else {
                                                     if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                        $user_phone_error = "Please enter a 10 digit phone number (without special characters including whitespace)"; 
+                                                        $_SESSION["user_phone_error"] = "Please enter a 10 digit phone number (without special characters including whitespace)";
+                                                        header("Location: create_user.php", true, 303);
+                                                        exit();
                                                     }
                                                     else {
                                                         $user_phone = test_input($_POST['user_phone']);
                                                         if (($_POST['user_status'] != "active")) {
-                                                            $user_status_error = "Please ensure that the status of the user is active upon creation";
+                                                            $_SESSION["user_status_error"] = "Please ensure that the status of the user is active upon creation";
+                                                            header("Location: create_user.php", true, 303);
+                                                            exit();
                                                         }
                                                         else {
                                                             $user_status = test_input($_POST['user_status']);
@@ -150,14 +173,23 @@
                                                             $hashed_temporary_password = password_hash($shortened_temporary_password, PASSWORD_DEFAULT);
                                                         
                                                             if (empty($_POST['user_middle_name'])) {
+
+                                                                $_SESSION["create_user_username"] = $username;
+                                                                $_SESSION["create_user_user_role"] = $user_role;
+                                                                $_SESSION["user_first_name"] = $user_first_name;
+                                                                $_SESSION["user_last_name"] = $user_last_name;
+                                                                $_SESSION["user_email"] = $user_email;
+                                                                $_SESSION["user_phone"] = $user_phone;
+                                                                $_SESSION["user_birth_date"] = $user_birth_date;
+
                                                                 include("database.php");
                                                                 $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_last_name, user_email, user_phone, user_birth_date, user_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                                                                 $password_expiration = 0;
                                                                 $stmt->bind_param("sissssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status);
-                                                                if ($stmt->execute()) {                                                             
-                                                                    echo 
-                                                                    "<p>Account creation was successful.</p>
-                                                                    <p>Temporary password: $shortened_temporary_password</p>";
+                                                                if ($stmt->execute()) {   
+                                                                    $create_user_confirmation = array();
+                                                                    $create_user_confirmation[] = "<p>Account creation was successful.</p>";                                                       
+                                                                    $create_user_confirmation[] = "<p>Temporary password: $shortened_temporary_password</p>";
                                                                     
                                                                     $to = $user_email;
                                                                     $subject = "Wisepro Account Temporary Password";
@@ -165,30 +197,43 @@
                                                                     $message = wordwrap($message, 70, "\r\n");
                                                                     $headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion());
                                                                     if (mail($to, $subject, $message, $headers)) {
-                                                                        echo "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
+                                                                        $create_user_confirmation[] = "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
                                                                     }
                                                                     else {
-                                                                        echo "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
+                                                                        $create_user_confirmation[] = "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
                                                                     }
+                                                                    $_SESSION["create_user_confirmation"] = $create_user_confirmation;
                                                                 }
                                                                 else {
-                                                                    echo "<p>Account creation was unsuccessful.</p>";
+                                                                    $_SESSION["create_user_error"] = "<p>Account creation was unsuccessful.</p>";
                                                                 }
+                                                                header("Location: create_user.php", true, 303);
+                                                                exit();
                                                             }
                                                             else {
                                                                 if (!preg_match("/^[a-zA-Z-' ]*$/", $_POST['user_middle_name'])) {
-                                                                    $user_middle_name_error = "Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only";
+                                                                    $_SESSION["user_middle_name_error"] = "Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only";
                                                                 }
                                                                 else {
                                                                     $user_middle_name = test_input($_POST['user_middle_name']);
+
+                                                                    $_SESSION["create_user_username"] = $username;
+                                                                    $_SESSION["create_user_user_role"] = $user_role;
+                                                                    $_SESSION["user_first_name"] = $user_first_name;
+                                                                    $_SESSION["user_middle_name"] = $user_middle_name;
+                                                                    $_SESSION["user_last_name"] = $user_last_name;
+                                                                    $_SESSION["user_email"] = $user_email;
+                                                                    $_SESSION["user_phone"] = $user_phone;
+                                                                    $_SESSION["user_birth_date"] = $user_birth_date;
+
                                                                     include("database.php");
                                                                     $stmt = $DBConnect->prepare("INSERT INTO users (username, password_expiration, password, user_role, user_first_name, user_middle_name, user_last_name, user_email, user_phone, user_birth_date, user_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                                                                     $password_expiration = 0;
                                                                     $stmt->bind_param("sisssssssss", $username, $password_expiration, $hashed_temporary_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status);
                                                                     if ($stmt->execute()) {
-                                                                        echo 
-                                                                        "<p>Account creation was successful.</p>
-                                                                        <p>Temporary password: $shortened_temporary_password</p>";
+                                                                        $create_user_confirmation = array();
+                                                                        $create_user_confirmation[] = "<p>Account creation was successful.</p>";                                                       
+                                                                        $create_user_confirmation[] = "<p>Temporary password: $shortened_temporary_password</p>";
                                                                         
                                                                         $to = $user_email;
                                                                         $subject = "Wisepro Account Temporary Password";
@@ -196,15 +241,18 @@
                                                                         $message = wordwrap($message, 70, "\r\n");
                                                                         $headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion());
                                                                         if (mail($to, $subject, $message, $headers)) {
-                                                                            echo "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
+                                                                            $create_user_confirmation[] = "<p>Email to user containing their temporary password was successfully accepted for delivery.</p>";
                                                                         }
                                                                         else {
-                                                                            echo "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
+                                                                            $create_user_confirmation[] = "<p>Email to user containing their temporary password was not accepted for delivery.</p>";
                                                                         }
+                                                                        $_SESSION["create_user_confirmation"] = $create_user_confirmation;
                                                                     }
                                                                     else {
-                                                                        echo "<p>Account creation was unsuccessful.</p>";
+                                                                        $_SESSION["create_user_error"] = "<p>Account creation was unsuccessful.</p>";
                                                                     }
+                                                                    header("Location: create_user.php", true, 303);
+                                                                    exit();
                                                                 }
                                                             }
                                                         }
@@ -221,43 +269,66 @@
                 $stmt->close();
                 $DBConnect->close();
             }
+            elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
+                if (isset($_SESSION["create_user_confirmation"])) {echo $_SESSION["create_user_confirmation"][0], $_SESSION["create_user_confirmation"][1], $_SESSION["create_user_confirmation"][2];}
+                if (isset($_SESSION["create_user_error"])) {echo $_SESSION["create_user_error"];}
+            }
         ?>      
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                 <h2>Create User</h2>
                 <p>Please fill the form below to create an account:</p>
                 <p><span class="error">* required field</span></p>
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username" placeholder="Username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $_POST['username']; ?>" required><span class="error"> * <?php echo $username_error; ?></span><br><br>
+                <input type="text" id="username" name="username" placeholder="Username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_SESSION["create_user_username"])) {echo $_SESSION["create_user_username"];} ?>" required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
                 <label for="user_role">User Role:</label>
                 <select id="user_role" name="user_role" required>
                     <option value="" <?php if (!isset($_POST['create_user_submit'])) {echo "selected";} ?> disabled>Select User Role</option>
-                    <option value="user" <?php if (isset($_POST['create_user_submit']) && isset($_POST['user_role']) && $_POST['user_role'] == "user") {echo "selected";} ?>>User</option>
-                    <option value="recruiter" <?php if (isset($_POST['create_user_submit']) && isset($_POST['user_role']) && $_POST['user_role'] == "recruiter") {echo "selected";} ?>>Recruiter</option>
-                    <option value="administrator" <?php if (isset($_POST['create_user_submit']) && isset($_POST['user_role']) && $_POST['user_role'] == "administrator") {echo "selected";} ?>>Administrator</option>
-                </select><span class="error"> * <?php echo $user_role_error; ?></span><br><br>           
+                    <option value="user" <?php if (isset($_SESSION["create_user_user_role"]) && $_SESSION["create_user_user_role"] == "user") {echo "selected";} ?>>User</option>
+                    <option value="recruiter" <?php if (isset($_SESSION["create_user_user_role"]) && $_SESSION["create_user_user_role"] == "recruiter") {echo "selected";} ?>>Recruiter</option>
+                    <option value="administrator" <?php if (isset($_SESSION["create_user_user_role"]) && $_SESSION["create_user_user_role"] == "administrator") {echo "selected";} ?>>Administrator</option>
+                </select><span class="error"> * <?php if (isset($_SESSION["user_role_error"])) {echo $_SESSION["user_role_error"];} ?></span><br><br>           
                 <label for="user_first_name">First Name:</label>
-                <input type="text" id="user_first_name" name="user_first_name" placeholder="First Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $_POST['user_first_name']; ?>" required><span class="error"> * <?php echo $user_first_name_error; ?></span><br><br>           
+                <input type="text" id="user_first_name" name="user_first_name" placeholder="First Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php if (isset($_SESSION["user_first_name"])) {echo $_SESSION["user_first_name"];} ?>" required><span class="error"> * <?php if (isset($_SESSION["user_first_name_error"])) {echo $_SESSION["user_first_name_error"];} ?></span><br><br>           
                 <label for="user_middle_name">Middle Name:</label>
-                <input type="text" id="user_middle_name" name="user_middle_name" placeholder="Middle Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $_POST['user_middle_name']; ?>"><span class="error"><?php echo $user_middle_name_error; ?></span><br><br>          
+                <input type="text" id="user_middle_name" name="user_middle_name" placeholder="Middle Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php if (isset($_SESSION["user_middle_name"])) {echo $_SESSION["user_middle_name"];} ?>"><span class="error"> <?php if (isset($_SESSION["user_middle_name_error"])) {echo $_SESSION["user_middle_name_error"];} ?></span><br><br>          
                 <label for="user_last_name">Last Name:</label>
-                <input type="text" id="user_last_name" name="user_last_name" placeholder="Last Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $_POST['user_last_name']; ?>" required><span class="error"> * <?php echo $user_last_name_error; ?></span><br><br>
+                <input type="text" id="user_last_name" name="user_last_name" placeholder="Last Name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php if (isset($_SESSION["user_last_name"])) {echo $_SESSION["user_last_name"];} ?>" required><span class="error"> * <?php if (isset($_SESSION["user_last_name_error"])) {echo $_SESSION["user_last_name_error"];} ?></span><br><br>
                 <label for="user_email">Email:</label>
-                <input type="email" id="user_email" name="user_email" placeholder="yourname@example.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php echo $_POST['user_email']; ?>" required><span class="error"> * <?php echo $user_email_error; ?></span><br><br>        
+                <input type="email" id="user_email" name="user_email" placeholder="yourname@example.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php if (isset($_SESSION["user_email"])) {echo $_SESSION["user_email"];} ?>" required><span class="error"> * <?php if (isset($_SESSION["user_email_error"])) {echo $_SESSION["user_email_error"];} ?></span><br><br>        
                 <label for="user_phone">Phone Number:</label>
-                <input type="tel" id="user_phone" name="user_phone" placeholder="0123456789" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php echo $_POST['user_phone']; ?>" required><span class="error"> * <?php echo $user_phone_error; ?></span><br><br> 
+                <input type="tel" id="user_phone" name="user_phone" placeholder="0123456789" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php if (isset($_SESSION["user_phone"])) {echo $_SESSION["user_phone"];} ?>" required><span class="error"> * <?php if (isset($_SESSION["user_phone_error"])) {echo $_SESSION["user_phone_error"];} ?></span><br><br> 
                 <label for="user_birth_date">Birth Date:</label>
                 <?php $minimum_year = date("Y") - 75; $maximum_year = date("Y") - 16; ?>
-                <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01" ?>" required><span class="error"> * <?php echo $user_birth_date_error; ?></span><br><br>
-                <input type="hidden" id="user_status" name="user_status" value="active"><span class="error"> <?php echo $user_status_error; ?></span>
+                <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01" ?>" required><span class="error"> * <?php if (isset($_SESSION["user_birth_date_error"])) {echo $_SESSION["user_birth_date_error"];} ?></span><br><br>
+                <input type="hidden" id="user_status" name="user_status" value="active"><span class="error"> <?php if (isset($_SESSION["user_status_error"])) {echo $_SESSION["user_status_error"];} ?></span>
                 <input type="submit" name="create_user_submit" value="Create User">
         </form>  
         <?php
-            if (isset($_POST['create_user_submit'])) {
+            if ($_SERVER['REQUEST_METHOD'] === "GET") {
                 echo
                 "<script>
-                    document.getElementById(\"user_birth_date\").value = \""; echo $_POST['user_birth_date']; echo "\";
+                    document.getElementById(\"user_birth_date\").value = \""; echo $_SESSION["user_birth_date"]; echo "\";
                 </script>";
             }
+            if (isset($_SESSION["create_user_username"])) {unset($_SESSION["create_user_username"]);}
+            if (isset($_SESSION["create_user_user_role"])) {unset($_SESSION["create_user_user_role"]);}
+            if (isset($_SESSION["user_first_name"])) {unset($_SESSION["user_first_name"]);}
+            if (isset($_SESSION["user_middle_name"])) {unset($_SESSION["user_middle_name"]);}
+            if (isset($_SESSION["user_last_name"])) {unset($_SESSION["user_last_name"]);}
+            if (isset($_SESSION["user_email"])) {unset($_SESSION["user_email"]);}
+            if (isset($_SESSION["user_phone"])) {unset($_SESSION["user_phone"]);}
+            if (isset($_SESSION["user_birth_date"])) {unset($_SESSION["user_birth_date"]);}
+            if (isset($_SESSION["create_user_confirmation"])) {unset($_SESSION["create_user_confirmation"]);}
+            if (isset($_SESSION["create_user_error"])) {unset($_SESSION["create_user_error"]);}
+            if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
+            if (isset($_SESSION["user_role_error"])) {unset($_SESSION["user_role_error"]);}
+            if (isset($_SESSION["user_first_name_error"])) {unset($_SESSION["user_first_name_error"]);}
+            if (isset($_SESSION["user_middle_name_error"])) {unset($_SESSION["user_middle_name_error"]);}
+            if (isset($_SESSION["user_last_name_error"])) {unset($_SESSION["user_last_name_error"]);}
+            if (isset($_SESSION["user_email_error"])) {unset($_SESSION["user_email_error"]);}
+            if (isset($_SESSION["user_phone_error"])) {unset($_SESSION["user_phone_error"]);}
+            if (isset($_SESSION["user_birth_date_error"])) {unset($_SESSION["user_birth_date_error"]);}
+            if (isset($_SESSION["user_status_error"])) {unset($_SESSION["user_status_error"]);}
         ?>
     </body>
 </html>
