@@ -310,25 +310,27 @@
                     document.getElementById(\"user_birth_date\").value = \""; echo $_SESSION["user_birth_date"]; echo "\";
                 </script>";
             }
-            if (isset($_SESSION["create_user_username"])) {unset($_SESSION["create_user_username"]);}
-            if (isset($_SESSION["create_user_user_role"])) {unset($_SESSION["create_user_user_role"]);}
-            if (isset($_SESSION["user_first_name"])) {unset($_SESSION["user_first_name"]);}
-            if (isset($_SESSION["user_middle_name"])) {unset($_SESSION["user_middle_name"]);}
-            if (isset($_SESSION["user_last_name"])) {unset($_SESSION["user_last_name"]);}
-            if (isset($_SESSION["user_email"])) {unset($_SESSION["user_email"]);}
-            if (isset($_SESSION["user_phone"])) {unset($_SESSION["user_phone"]);}
-            if (isset($_SESSION["user_birth_date"])) {unset($_SESSION["user_birth_date"]);}
-            if (isset($_SESSION["create_user_confirmation"])) {unset($_SESSION["create_user_confirmation"]);}
-            if (isset($_SESSION["create_user_error"])) {unset($_SESSION["create_user_error"]);}
-            if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
-            if (isset($_SESSION["user_role_error"])) {unset($_SESSION["user_role_error"]);}
-            if (isset($_SESSION["user_first_name_error"])) {unset($_SESSION["user_first_name_error"]);}
-            if (isset($_SESSION["user_middle_name_error"])) {unset($_SESSION["user_middle_name_error"]);}
-            if (isset($_SESSION["user_last_name_error"])) {unset($_SESSION["user_last_name_error"]);}
-            if (isset($_SESSION["user_email_error"])) {unset($_SESSION["user_email_error"]);}
-            if (isset($_SESSION["user_phone_error"])) {unset($_SESSION["user_phone_error"]);}
-            if (isset($_SESSION["user_birth_date_error"])) {unset($_SESSION["user_birth_date_error"]);}
-            if (isset($_SESSION["user_status_error"])) {unset($_SESSION["user_status_error"]);}
         ?>
     </body>
 </html>
+<?php
+    if (isset($_SESSION["create_user_username"])) {unset($_SESSION["create_user_username"]);}
+    if (isset($_SESSION["create_user_user_role"])) {unset($_SESSION["create_user_user_role"]);}
+    if (isset($_SESSION["user_first_name"])) {unset($_SESSION["user_first_name"]);}
+    if (isset($_SESSION["user_middle_name"])) {unset($_SESSION["user_middle_name"]);}
+    if (isset($_SESSION["user_last_name"])) {unset($_SESSION["user_last_name"]);}
+    if (isset($_SESSION["user_email"])) {unset($_SESSION["user_email"]);}
+    if (isset($_SESSION["user_phone"])) {unset($_SESSION["user_phone"]);}
+    if (isset($_SESSION["user_birth_date"])) {unset($_SESSION["user_birth_date"]);}
+    if (isset($_SESSION["create_user_confirmation"])) {unset($_SESSION["create_user_confirmation"]);}
+    if (isset($_SESSION["create_user_error"])) {unset($_SESSION["create_user_error"]);}
+    if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
+    if (isset($_SESSION["user_role_error"])) {unset($_SESSION["user_role_error"]);}
+    if (isset($_SESSION["user_first_name_error"])) {unset($_SESSION["user_first_name_error"]);}
+    if (isset($_SESSION["user_middle_name_error"])) {unset($_SESSION["user_middle_name_error"]);}
+    if (isset($_SESSION["user_last_name_error"])) {unset($_SESSION["user_last_name_error"]);}
+    if (isset($_SESSION["user_email_error"])) {unset($_SESSION["user_email_error"]);}
+    if (isset($_SESSION["user_phone_error"])) {unset($_SESSION["user_phone_error"]);}
+    if (isset($_SESSION["user_birth_date_error"])) {unset($_SESSION["user_birth_date_error"]);}
+    if (isset($_SESSION["user_status_error"])) {unset($_SESSION["user_status_error"]);}
+?>
