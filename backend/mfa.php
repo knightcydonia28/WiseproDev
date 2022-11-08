@@ -1,7 +1,7 @@
 <?php
     session_start();
     if (!isset($_SESSION['login'])) {
-        header('Location: login.php');
+        header("Location: login.php", true, 303);
         exit();
     }
 ?>
@@ -70,8 +70,8 @@
                         unset($_SESSION["username"]);
                         unset($_SESSION["password_expiration"]);
                         unset($_SESSION["user_role"]);
-                        $_SESSION['mfa_error'] = "Invalid code entered.";
-                        header('Location: login.php');
+                        $_SESSION['mfa_error'] = "<p>Invalid code entered.</p>";
+                        header("Location: login.php", true, 303);
                         exit();
                     }
                     else {
@@ -109,8 +109,8 @@
                             unset($_SESSION["username"]);
                             unset($_SESSION["password_expiration"]);
                             unset($_SESSION["user_role"]);
-                            $_SESSION['mfa_error'] = "Invalid code entered.";
-                            header('Location: login.php');
+                            $_SESSION['mfa_error'] = "<p>Invalid code entered.</p>";
+                            header("Location: login.php", true, 303);
                             exit();
                         }
                     }

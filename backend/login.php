@@ -40,11 +40,7 @@
         <h2>Login</h2>
         <p>Please login to continue</p>
         <?php
-            if (isset($_SESSION["mfa_error"])) {
-                echo $_SESSION["mfa_error"];
-                unset($_SESSION["mfa_error"]);
-            }
-            if (isset($_POST['login'])) {
+            if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                 function test_input($data) {
                     $data = trim($data);
@@ -85,7 +81,9 @@
                         $stmt->execute();
                         
                         if (!ctype_alnum($_POST['username'])) {
-                            echo "<p>Invalid username or password.</p>";
+                            $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                            header("Location: login.php", true, 303);
+                            exit();
                         }
                         else {
                             $username = test_input($_POST['username']);
@@ -113,7 +111,9 @@
                                         $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                         $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                         $stmt->execute();
-                                        echo "<p>Invalid username or password.</p>";
+                                        $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                        header("Location: login.php", true, 303);
+                                        exit();
                                     }
                                     else {
                                         $stmt = $DBConnect->prepare("SELECT password_expiration, secret_key, user_role FROM users WHERE username = ?");
@@ -183,7 +183,9 @@
                                     $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                     $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                     $stmt->execute();
-                                    echo "<p>Invalid username or password.</p>";
+                                    $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                    header("Location: login.php", true, 303);
+                                    exit();
                                 }
                             }
                             else {
@@ -191,17 +193,23 @@
                                 $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                 $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                 $stmt->execute();
-                                echo "<p>Invalid username or password.</p>";
+                                $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                header("Location: login.php", true, 303);
+                                exit();
                             }
                         }
                     }
                     else {
                         if ($retrieved_login_attempts >= 5) {
-                            echo "The maximum number of login attempts has been exceeded. Please try again in 15 minutes.";
+                            $_SESSION["login_error"] = "<p>The maximum number of login attempts has been exceeded. Please try again in 15 minutes.</p>";
+                            header("Location: login.php", true, 303);
+                            exit();
                         }
                         else {
                             if (!ctype_alnum($_POST['username'])) {
-                                echo "<p>Invalid username or password.</p>";
+                                $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                header("Location: login.php", true, 303);
+                                exit();
                             }
                             else {
                                 $username = test_input($_POST['username']);
@@ -229,7 +237,9 @@
                                             $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                             $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                             $stmt->execute();
-                                            echo "<p>Invalid username or password.</p>";
+                                            $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                            header("Location: login.php", true, 303);
+                                            exit();
                                         }
                                         else {
                                             $stmt = $DBConnect->prepare("SELECT password_expiration, secret_key, user_role FROM users WHERE username = ?");
@@ -299,7 +309,9 @@
                                         $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                         $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                         $stmt->execute();
-                                        echo "<p>Invalid username or password.</p>";
+                                        $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                        header("Location: login.php", true, 303);
+                                        exit();
                                     }
                                 }
                                 else {
@@ -307,7 +319,9 @@
                                     $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                     $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                     $stmt->execute();
-                                    echo "<p>Invalid username or password.</p>";
+                                    $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                    header("Location: login.php", true, 303);
+                                    exit();
                                 }
                             }
                         }         
@@ -321,7 +335,9 @@
                     $stmt->execute();
 
                     if (!ctype_alnum($_POST['username'])) {
-                        echo "<p>Invalid username or password.</p>";
+                        $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                        header("Location: login.php", true, 303);
+                        exit();
                     }
                     else {
                         $username = test_input($_POST['username']);
@@ -349,7 +365,9 @@
                                     $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                     $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                     $stmt->execute();
-                                    echo "<p>Invalid username or password.</p>";
+                                    $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                    header("Location: login.php", true, 303);
+                                    exit();
                                 }
                                 else {
                                     $stmt = $DBConnect->prepare("SELECT password_expiration, secret_key, user_role FROM users WHERE username = ?");
@@ -419,7 +437,9 @@
                                 $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                                 $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                                 $stmt->execute();
-                                echo "<p>Invalid username or password.</p>";
+                                $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                                header("Location: login.php", true, 303);
+                                exit();
                             }
                         }
                         else {
@@ -427,13 +447,19 @@
                             $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
                             $stmt->bind_param("ss", $login_time, $retrieved_ip_address);
                             $stmt->execute();
-                            echo "<p>Invalid username or password.</p>";
+                            $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
+                            header("Location: login.php", true, 303);
+                            exit();
                         }
                     }
                 }
                 $stmt->close();
                 $DBConnect->close();
-            }    
+            }
+            elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
+                if (isset($_SESSION["mfa_error"])) {echo $_SESSION["mfa_error"];}
+                if (isset($_SESSION["login_error"])) {echo $_SESSION["login_error"];}
+            }
         ?>
             <hr>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
@@ -445,4 +471,7 @@
         </div>
     </body>
 </html>
-
+<?php
+    if (isset($_SESSION["mfa_error"])) {unset($_SESSION["mfa_error"]);}
+    if (isset($_SESSION["login_error"])) {unset($_SESSION["login_error"]);}
+?>
