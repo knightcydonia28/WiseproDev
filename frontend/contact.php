@@ -79,7 +79,7 @@
 					<div class="col-md-2">
 						<div class="mt-3" float="right">
 							<div class="donate-btn-header">
-								<a class="dtbtn" href="#">Contact Us</a>
+								<a class="dtbtn" href="contact.php">Contact Us</a>
 						   </div>
 						</div>
 					</div>
@@ -113,77 +113,164 @@
 	<!----- End Main Menu Area ----->
 	<!--==================================================-->
 	
+
 	<!--==================================================-->
-	<!----- Start Techno Contact Area ----->
+	<!----- Start Contact Us Area ----->
 	<!--==================================================-->
-	<div class="contact_area pt-85 pb-90" style="background-image:url(assets/images/slider/slider-3.png)" >
+	<div class="main_contact_area style_three pt-160 pb-90">
 		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="section_title white text_center mb-60 mt-3">
-						<div class="section_sub_title uppercase mb-3">
-							<h6>CONTACT US</h6>
+			<div class="row align-items-center">
+
+
+			<?php 
+				//IF THE SUBMIT BUTTON IS PRESSED, LOAD BELOW
+				 if (isset($_POST['form_submit'])) 
+				{
+					//echo '<h2>EMAIL FUNCTION START</h2> <br>';
+					
+					//User Form Entity Set
+					$name    = $_POST['name'];
+					$email   = $_POST['email'];
+					$tel     = $_POST['tel'];
+					$message = $_POST['message'];
+
+					//Email To's Varables
+					$email_to      = "laxapig213@keshitv.com";
+					$email_from    = "administration@wisepro.com";	
+					$email_subject = "New Contact Form Submission";
+                     
+                    //Thank you message variables
+                    $reply_subject = "Message Successfully Sent";
+                    $reply_message = "
+                    <table cellspacing='0' cellpadding='0' border='0' width=100%>
+                        <tr>
+                            <td align='center' background='wisepro.com/frontend/assets/images/new/abs-bg7.png' style='background-size:100%;background-repeat:no-repeat;'>
+                                <h2>Thank you for contacting us, ".$name."!</h2>
+                                <p>We've received your message, and will respond as soon as we can.</p>
+                                <h3>Message Sent:</h3>
+                                <p>".$message."</p>
+                                <br/>
+                                <img src='http://wisepro.com/frontend/assets/images/logo/logo.png' alt='Wisepro Logo' height=60px style='display:block; margin-left:auto;margin-right:auto;'/>
+                                <p>(703)-766-8850</p>
+                                <p>11211 Waples Mill Rd, Suite 220<br/>Fairfax, VA 22030, USA</p>
+                            </td> 
+                        </tr>
+                    </table>"
+                    ;
+				
+					//Email Message Formatting
+					$mainbody_message  = "<h2>New Contact Form Submission</h2>";
+					$mainbody_message .= "<h3>Name:</h3>" . "<p>". $name ."</p>";
+					$mainbody_message .= "<h3>Email Contact:</h3>" . "<p>" . $email . "</p>";
+					$mainbody_message .= "<h3>Phone Contact:</h3>" . "<p>" . $tel . "</p>";
+					$mainbody_message .= "<h3>Main Message:</h3>" . "<p>" . $message . "</p>";
+					$mainbody_message .= "<h3>Date/Time of Submission: </h3>" . date("F j, Y, g:i a");
+					$mainbody_message = wordwrap($mainbody_message, 70);
+
+					//Email Subject/Header Attributes
+					$headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion(), 'MIME-Version' => '1.0', 'Content-Type' => 'text/html; charset=utf8');
+                     
+                    
+                    $reply_headers[]= 'From: Wisetek Providers <administration@wisepro.com>';
+                    $reply_headers[]= 'Reply-To: Wisetek Providers <administration@wisepro.com>';
+                    $reply_headers[] = 'X-Mailer: PHP/' . phpversion();
+                    $reply_headers[] = 'MIME-Version: 1.0';
+                    $reply_headers[] = 'Content-type: text/html; charset=utf8';
+
+					$retval = mail( $email_to, $email_subject, $mainbody_message, $headers);
+        
+					
+					if( $retval == true ) 
+					{
+                        mail($email, $reply_subject, $reply_message, implode("\r\n",$reply_headers));
+						echo '<h2>Message sent successfully!</h2>';
+					}
+					else 
+						{
+							echo '<h2>Message could not be sent</h2>';
+						}
+
+				} 
+				//IF SUBMIT BUTTON IS NOT HIT, LOAD BELOW
+				else {
+					echo "
+					<div class=\"col-lg-6\">
+					<div class=\"section_title text_left mb-50 mt-3\">
+						<div class=\"section_sub_title uppercase mb-3\">
+							<h6>Contact Info</h6>
 						</div>
-						<div class="section_main_title">
-                            <h1>Inquiries Here</h1>
+						<div class=\"section_main_title\">
+							<h1>Get in Touch Today!</h1>
 						</div>
-						<div class="em_bar">
-							<div class="em_bar_bg"></div>
-						</div>
-						
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xl-12">
-					<div class="quote_wrapper">
-						<form id="contact_form" action="mail.php" method="POST" >
-							<div class="row">
-								<div class="col-lg-6">
-									<div class="form_box mb-30">
-										<input type="text" name="name"  placeholder="Name">
-									</div>
+					<div class=\"contact_address\">
+						<div class=\"contact_address_company mb-3\">
+							<ul>
+								<li><i class=\"fa fa-envelope-o\"></i><span><a href=\"#\">PLACEHOLDER_EMAIL</a></span></li>
+								<li><i class=\"fa fa-mobile\"></i><span> (703)-766-8850</span></li>
+								<li><i class=\"fa fa-map-marker\"></i> <span> 11211 Waples Mill Rd, Suite 220 Fairfax, VA 22030. USA</span></li>
+							</ul>
+						</div>
+					</div>
+					</div>
+					<div class=\"col-lg-6\">
+						<div class=\"contact_from\">
+							<div class=\"contact_from_box\">
+								<div class=\"contact_title pb-4\">
+									<h3>Send Message </h3>
 								</div>
-								<div class="col-lg-6">
-									<div class="form_box mb-30">
-										<input type="email" name="email" placeholder="Email Address">
+
+
+								<form id=\"contact_form\" action=\"contact.php\" method=\"POST\">
+									<div class=\"row\">
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<input type=\"text\" name=\"name\" placeholder=\"Name\">
+											</div>
+										</div>
+
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<input type=\"email\" name=\"email\" placeholder=\"Email Address\">
+											</div>
+										</div>
+
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<input type=\"tel\" name=\"tel\" placeholder=\"Phone Number\">
+											</div>
+										</div>
+
+										<div class=\"col-lg-12\">
+											<div class=\"form_box mb-30\">
+												<textarea name=\"message\" id=\"message\" cols=\"30\" rows=\"10\" placeholder=\"Write a Message\"></textarea>
+											</div>
+											<div class=\"quote_btn\">
+												<input type=\"submit\" name=\"form_submit\">
+												<!-- <button class=\"btn\" type=\"submit\">Send Message</button> -->
+											</div>
+										</div>
 									</div>
-								</div>
-								<div class="col-lg-6">
-									<div class="form_box mb-30">
-										<input type="text" name="phone" placeholder="Phone Number">
-									</div>
-								</div>
-								<div class="col-lg-6">
-									<div class="form_box mb-30">
-										<input type="text" name="web" placeholder="Website">
-									</div>
-								</div>
-								
-								<div class="col-lg-12">
-									<div class="form_box mb-30">
-										<textarea name="message" id="message" cols="30" rows="10" placeholder="Write a Message"></textarea>
-									</div>
-									<div class="quote_btn text_center">
-										<button class="btn" type="submit">Send Inquiry</button>
-									</div>
-								</div>
+								</form>
+								<p class=\"form-message\"></p>
 							</div>
-						</form>
-						<p class="form-message"></p>
+						</div>
 					</div>
-				</div>
+				";
+			}?>
+
 			</div>
 		</div>
 	</div>
 	<!--==================================================-->
-	<!----- End Techno Contact Area ----->
+	<!----- End Contact Us Area ----->
 	<!--==================================================-->
-	
+
+
 	<!--==================================================-->
-	<!----- begin leaflet Map Area ----->
+	<!----- Begin Leaflet Map Area ----->
 	<!--==================================================-->
-	<div id="map" style="width:100%; height:400px;position:relative;"></div>
+	<div id="map" style="width:100%; height:400px;position:relative;">
     <script>
         var map = L.map('map').setView([38.857088,-77.332315],15);
         
@@ -193,124 +280,63 @@
         
         var marker = L.marker([38.857088,-77.332315]).addTo(map);
     </script>
-    <!--==================================================-->
-	<!----- End leaflet Map Area ----->
-	<!--==================================================-->
-	<!-- ============================================================== -->
-	<!-- Start Techno Contact Address Area -->
-	<!-- ============================================================== -->
-	
-	<div class="contact_address_area bg_color2 pt-80 pb-70">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="section_title text_center mb-55">
-						<div class="section_sub_title uppercase mb-3">
-							<h6>CONTACT US</h6>
-						</div>
-						<div class="section_main_title">
-							<h1>Insert Catchphrase Here</h1>
-						</div>
-						<div class="em_bar">
-							<div class="em_bar_bg"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-4 col-md-6 col-sm-12">
-					<div class="single_contact_now">
-						<div class="single_contact_now_inner">
-							<div class="single_contact_now_icon">
-								<i class="fa fa-phone"></i>
-							</div>
-							<div class="single_contact_now_content">
-								<h4>Phone Number</h4>
-								<p class="m-0 pt-2">+880 1314 183818</p>
-								<p>+880 19051 45672</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-4 col-md-6 col-sm-12">
-					<div class="single_contact_now">
-						<div class="single_contact_now_inner">
-							<div class="single_contact_now_icon">
-								<i class="fa fa-envelope-o"></i>
-							</div>
-							<div class="single_contact_now_content">
-								<h4>Email Address</h4>
-								<p class="m-0 pt-2">info@example.com</p>
-								<p>gmail@example.com</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-4 col-md-6 col-sm-12">
-					<div class="single_contact_now">
-						<div class="single_contact_now_inner">
-							<div class="single_contact_now_icon">
-								<i class="fa fa-map-marker"></i>
-							</div>
-							<div class="single_contact_now_content">
-								<h4>Office Address</h4>
-								<p class="m-0 pt-2">56/A-102-Middle Point, USA</p>
-								<p>New York, US</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				
-			</div>
-		</div>
 	</div>
-	<!-- ============================================================== -->
-	<!-- End Techno Contact Address Area -->
-	<!-- ============================================================== -->
-    
+    <!--==================================================-->
+	<!----- End Leaflet Map Area ----->
+	<!--==================================================-->
+
+  
 	<!--==================================================-->
 	<!----- Start Techno Footer Middle Area ----->
 	<!--==================================================-->
-	<div class="footer_middle_area footer_bg_shape bg_color4 pt-100 pb-100">
+	<div class="footer footer-middle pt-30" style="background-image:url(assets/images/call-bg.png)" > 
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-12">
 				
-					<div class="footer_middle_social">
-						<div class="footer_middle_social_icon">
-							<a class="color1" href="#"><i class="fa fa-facebook"></i></a>
-							<a class="color2" href="#"><i class="fa fa-twitter"></i></a>
-							<a class="color3" href="#"><i class="fa fa-linkedin"></i></a>
-							<a class="color4" href="#"><i class="fa fa-pinterest"></i></a>
-							<a class="color5" href="#"><i class="fa fa-linkedin"></i></a>
-							<a class="color6" href="#"><i class="fa fa-instagram"></i></a>
-							<a class="color7" href="#"><i class="fa fa-whatsapp"></i></a>
+				<!-- Company Logo & Description -->
+				<div class="col-lg-6 col-md-6 col-sm-12">
+					<div class="widget widgets-company-info">
+						<div class="company-info-desc">
+							<div class="logo mt-3">
+								<a class="logo_img" href="home.html" title="Wisepro">
+									<img src="assets/images/logo/logo2.png" alt="Wisepro Logo" height=60px/>
+								</a>
+							</div>
+							<br>
+							<p>Wisepro is a pioneer in providing innovative business and Information Technology services to Fortune 500 companies, U.S. government agencies, and global development and financial organizations.
+							</p>
 						</div>
-					</div>
+					</div>					
 				</div>
-				<div class="col-lg-12">
-					<div class="footer_bottom_menu pt-5">
-						<div class="footer_bottom_menu_inner">
-							<ul>
-								<li><a href="index.html">Home</a></li>
-								<li><a href="about.html">About</a></li>
-								<li><a href="service-1.html">Service</a></li>
-								<li><a href="blog-gird.html">News</a></li>
-								<li><a href="contact.html">Contact</a></li>
-							</ul>
+
+				<!--Company Address Footer-->
+				<div class="col-lg-6 col-md-6 col-sm-12">
+					<div class="widget widgets-company-info">
+						<br>
+						<h3 class="widget-title pb-4">Company Address</h3>
+						<div class="footer-social-info">
+							<p><span>Address :</span> 11211 Waples Mill Rd, Suite 220
+								Fairfax, VA 22030. USA</p>
 						</div>
-					</div>
-					<div class="footer-bottom-content pt-4 text-center">
+						<div class="footer-social-info">
+							<p><span>Phone : </span>(703)-766-8850</p>
+						</div>						
+					</div>					
+				</div>				
+			</div>
+
+			<!-- Footer of the Footer -->
+			<div class="row footer-bottom mt-25 pt-3 pb-1">
+				<div class="col-lg-6 col-md-6">
+					<div class="footer-bottom-content">
 						<div class="footer-bottom-content-copy">
-							<p>© 2022 Techno.All Rights Reserved. </p>
+							<p>Copyright © 2022 Wisetek Providers, Inc. All rights reserved.</p>
 						</div>
 					</div>
-					
 				</div>
-				
 			</div>
 		</div>
-	</div>
+	</div>		
 	<!--==================================================-->
 	<!----- End Techno Footer Middle Area ----->
 	<!--==================================================-->
