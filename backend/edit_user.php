@@ -345,7 +345,7 @@
                                                                 $secret_key = NULL;
                                                                 include("database.php");
                                                                 $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                $stmt->bind_param("issssssssis", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
+                                                                $stmt->bind_param("issssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
                                                                 if ($stmt->execute()) {
                                                                     echo "<p>Changes have been made successfully.</p>"; 
                                                                 }
@@ -493,7 +493,7 @@
                     </div>
                     <br /><br />
                     <label for="password"><b>Password:</b></label>
-                    <input type="password" id="password" name="passwordd" />&nbsp;&nbsp;<input type="checkbox" onclick="passwordVisibility('password')" />Show Password <br /><br />
+                    <input type="password" id="password" name="password" />&nbsp;&nbsp;<input type="checkbox" onclick="passwordVisibility('password')" />Show Password <br /><br />
                     <label for="user_role"><b>User Role:</b></label>
                     <select id="user_role" name="user_role" required>
                         <option value="">&nbsp;</option>
