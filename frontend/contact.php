@@ -126,7 +126,7 @@
 				//IF THE SUBMIT BUTTON IS PRESSED, LOAD BELOW
 				 if (isset($_POST['form_submit'])) 
 				{
-					//echo '<h2>EMAIL FUNCTION START</h2> <br>';
+					//echo '<h2>EMAIL FUNCTION START</h2> <br>'; //FOR DEBUG
 					
 					//User Form Entity Set
 					$name    = $_POST['name'];
@@ -135,30 +135,11 @@
 					$message = $_POST['message'];
 
 					//Email To's Varables
-					$email_to      = "laxapig213@keshitv.com";
+					$email_to      = "xodaya2013@dmtubes.com";
 					$email_from    = "administration@wisepro.com";	
 					$email_subject = "New Contact Form Submission";
                      
-                    //Thank you message variables
-                    $reply_subject = "Message Successfully Sent";
-                    $reply_message = "
-                    <table cellspacing='0' cellpadding='0' border='0' width=100%>
-                        <tr>
-                            <td align='center' background='wisepro.com/frontend/assets/images/new/abs-bg7.png' style='background-size:100%;background-repeat:no-repeat;'>
-                                <h2>Thank you for contacting us, ".$name."!</h2>
-                                <p>We've received your message, and will respond as soon as we can.</p>
-                                <h3>Message Sent:</h3>
-                                <p>".$message."</p>
-                                <br/>
-                                <img src='http://wisepro.com/frontend/assets/images/logo/logo.png' alt='Wisepro Logo' height=60px style='display:block; margin-left:auto;margin-right:auto;'/>
-                                <p>(703)-766-8850</p>
-                                <p>11211 Waples Mill Rd, Suite 220<br/>Fairfax, VA 22030, USA</p>
-                            </td> 
-                        </tr>
-                    </table>"
-                    ;
-				
-					//Email Message Formatting
+					//FOR ADMIN: Email Message Formatting
 					$mainbody_message  = "<h2>New Contact Form Submission</h2>";
 					$mainbody_message .= "<h3>Name:</h3>" . "<p>". $name ."</p>";
 					$mainbody_message .= "<h3>Email Contact:</h3>" . "<p>" . $email . "</p>";
@@ -167,18 +148,41 @@
 					$mainbody_message .= "<h3>Date/Time of Submission: </h3>" . date("F j, Y, g:i a");
 					$mainbody_message = wordwrap($mainbody_message, 70);
 
-					//Email Subject/Header Attributes
+					//FOR ADMIN: Email Subject/Header Attributes
 					$headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion(), 'MIME-Version' => '1.0', 'Content-Type' => 'text/html; charset=utf8');
                      
-                    
+					//FOR CUSTOMER: Notification email SUBJECT and MESSAGE
+					 $reply_subject = "Message Successfully Sent";
+					 $reply_message = "
+					 <table cellspacing='0' cellpadding='0' border='0' width=100%>
+						 <tr>
+							 <td align='center' background='wisepro.com/frontend/assets/images/new/abs-bg7.png' style='background-size:100%;background-repeat:no-repeat;'>
+								 <h2>Thank you for contacting us, ".$name."!</h2>
+								 <p>We've received your message, and will respond as soon as we can.</p>
+								 <h3>Message Sent:</h3>
+								 <p>".$message."</p>
+								 <br/>
+								 <img src='http://wisepro.com/frontend/assets/images/logo/logo.png' alt='Wisepro Logo' height=60px style='display:block; margin-left:auto;margin-right:auto;'/>
+								 <p>(703)-766-8850</p>
+								 <p>11211 Waples Mill Rd, Suite 220<br/>Fairfax, VA 22030, USA</p>
+							 </td> 
+						 </tr>
+					 </table>"
+					;
+					
+					//FOR CUSTOMER: Notification email headers
                     $reply_headers[]= 'From: Wisetek Providers <administration@wisepro.com>';
                     $reply_headers[]= 'Reply-To: Wisetek Providers <administration@wisepro.com>';
                     $reply_headers[] = 'X-Mailer: PHP/' . phpversion();
                     $reply_headers[] = 'MIME-Version: 1.0';
                     $reply_headers[] = 'Content-type: text/html; charset=utf8';
 
+
+					//
+					// If Contact Us email message is successful, a notification
+					// email is sent to the Customer using their inputed email on contact form
+					//
 					$retval = mail( $email_to, $email_subject, $mainbody_message, $headers);
-        
 					
 					if( $retval == true ) 
 					{
@@ -192,26 +196,28 @@
 
 				} 
 				//IF SUBMIT BUTTON IS NOT HIT, LOAD BELOW
+				//Summary: Below is the base page that includes the Contact Us page elements
+				// and company Email, Address and Phone
 				else {
 					echo "
 					<div class=\"col-lg-6\">
-					<div class=\"section_title text_left mb-50 mt-3\">
-						<div class=\"section_sub_title uppercase mb-3\">
-							<h6>Contact Info</h6>
+						<div class=\"section_title text_left mb-50 mt-3\">
+							<div class=\"section_sub_title uppercase mb-3\">
+								<h6>Contact Info</h6>
+							</div>
+							<div class=\"section_main_title\">
+								<h1>Get in Touch Today!</h1>
+							</div>
 						</div>
-						<div class=\"section_main_title\">
-							<h1>Get in Touch Today!</h1>
+						<div class=\"contact_address\">
+							<div class=\"contact_address_company mb-3\">
+								<ul>
+									<li><i class=\"fa fa-envelope-o\"></i><span><a href=\"#\">PLACEHOLDER_EMAIL</a></span></li>
+									<li><i class=\"fa fa-mobile\"></i><span> (703)-766-8850</span></li>
+									<li><i class=\"fa fa-map-marker\"></i> <span> 11211 Waples Mill Rd, Suite 220 Fairfax, VA 22030. USA</span></li>
+								</ul>
+							</div>
 						</div>
-					</div>
-					<div class=\"contact_address\">
-						<div class=\"contact_address_company mb-3\">
-							<ul>
-								<li><i class=\"fa fa-envelope-o\"></i><span><a href=\"#\">PLACEHOLDER_EMAIL</a></span></li>
-								<li><i class=\"fa fa-mobile\"></i><span> (703)-766-8850</span></li>
-								<li><i class=\"fa fa-map-marker\"></i> <span> 11211 Waples Mill Rd, Suite 220 Fairfax, VA 22030. USA</span></li>
-							</ul>
-						</div>
-					</div>
 					</div>
 					<div class=\"col-lg-6\">
 						<div class=\"contact_from\">
@@ -219,7 +225,6 @@
 								<div class=\"contact_title pb-4\">
 									<h3>Send Message </h3>
 								</div>
-
 
 								<form id=\"contact_form\" action=\"contact.php\" method=\"POST\">
 									<div class=\"row\">
@@ -246,12 +251,12 @@
 												<textarea name=\"message\" id=\"message\" cols=\"30\" rows=\"10\" placeholder=\"Write a Message\"></textarea>
 											</div>
 											<div class=\"quote_btn\">
-												<input type=\"submit\" name=\"form_submit\">
-												<!-- <button class=\"btn\" type=\"submit\">Send Message</button> -->
+												<button class=\"btn\" type=\"submit\" name=\"form_submit\">Send Message</button>
 											</div>
 										</div>
 									</div>
 								</form>
+								
 								<p class=\"form-message\"></p>
 							</div>
 						</div>

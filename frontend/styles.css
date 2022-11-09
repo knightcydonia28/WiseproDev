@@ -2734,6 +2734,19 @@ a.em-active-button:hover {
     transition: .5s;
     display: inline-block;
 }
+
+.service_style_three_bt_icon button {
+    width: 55px;
+    height: 55px;
+    border-radius: 100%;
+    border: 2px solid #0c5adb;
+    line-height: 50px;
+    color: #0c5adb;
+    background: #fff;
+    transition: .5s;
+    display: inline-block;
+}
+
 .service_style_three:hover{
 	border: 2px solid #0c5adb;
 }
@@ -2741,6 +2754,11 @@ a.em-active-button:hover {
 	color:#0c5adb;
 }
 .service_style_three:hover .service_style_three_bt_icon a{
+	background: #0c5adb;
+	color:#fff;
+}
+
+.service_style_three:hover .service_style_three_bt_icon button{
 	background: #0c5adb;
 	color:#fff;
 }
@@ -5230,13 +5248,14 @@ to{-webkit-transform:rotate(360deg) translate(-10px) rotate(-360deg);-moz-transf
 	transition:.5s;
 }
 .quote_btn button {
-    background: #fff;
+    background: #0c5adb;
     border: 0;
     display: inline-block;
     text-align: center;
     padding: 14px 39px;
     border-radius: 7px;
     transition: .3s;
+    color: white;
 }
 .quote_btn button:hover {
     background: #00247e;

@@ -162,50 +162,114 @@
                     <div class="row">
                         
 					<?php
-						include("database.php");
-						$job_status = "active";
-						$stmt = $DBConnect->prepare("SELECT job_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date FROM jobs WHERE job_status = ?");
-						$stmt->bind_param("s", $job_status); 
-						$stmt->execute();
-						$stmt->store_result();
-						$stmt->bind_result($retrieved_job_id, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_description, $retrieved_preferred_skills, $retrieved_required_skills, $retrieved_job_posted_date);
-						if ($stmt->num_rows > 0) {
-							while($stmt->fetch()) {
-								echo 
+
+						if (isset($_POST['jobChoice_submit'])) 
+						{
+							//Post Value Set
+							$jobChoice = $_POST['jobChoice_submit'];
+
+							include("database.php");
+							$job_status = "active";
+							$stmt = $DBConnect->prepare("SELECT job_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date FROM jobs WHERE job_id = ?");
+							$stmt->bind_param("i", $jobChoice); 
+							$stmt->execute();
+							$stmt->store_result();
+							$stmt->bind_result($retrieved_job_id, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_description, $retrieved_preferred_skills, $retrieved_required_skills, $retrieved_job_posted_date);
+							$stmt->fetch();
+
+							$myJobArray = explode("•", $retrieved_job_description);
+							
+							//JOB DESCRIPTION ARRAY DEBUG
+							//echo print_r($myJobArray); 
+							
+							echo 
 								"
-								<div class=\"col-lg-4 col-md-6 col-sm-12\">
-								<div class=\"service_style_three pt-60 pl-30 pr-30 mb-5 text_center\">
-									<div class=\"service_style_three_title pb-3\">
-										<h4>$retrieved_job_title</h4>
-									</div>
-									<div class=\"service_style_three_text\">
-										<p>$retrieved_job_id</p>
-										<p>$retrieved_job_type</p>
-										<p>$retrieved_job_location</p>
-										<p>$retrieved_required_skills</p>
-									</div>
-									<div class=\"service_style_three_bt_icon pt-30\">
-										<a href=\"#\"><i class=\"fa fa-long-arrow-right\"></i></a>
+								<div class=\"col-lg-12 col-md-12 col-sm-12\">
+									<div class=\"service_style_two pt-30 pl-30 pr-30 mb-5\">
+
+										<form id=\"contact_form\" action=\"contact.php\" method=\"POST\">
+											<div class=\"service_style_three_title pb-3\">
+												<h4>$retrieved_job_title: $retrieved_job_location</h4>
+											</div>
+											<div class=\"service_style_three_text\">
+												<p>$reteived_job_title</p>
+												<p>Job ID: #$retrieved_job_id</p>
+												<p>Time Type: $retrieved_job_type</p>
+												<p>Job Location: $retrieved_job_location</p>
+												<p>Required Skills: $retrieved_required_skills</p>
+												<p>Preffered Skills: $retrieved_preferred_skills</p>
+												<p>Full Description: <br> "; 
+												
+												foreach ($myJobArray as $qualLine) {
+													echo "•$qualLine <br>";
+												} 					
+													echo "</p>
+											</div>
+											<div class=\"col-lg-12\">
+												<div class=\"quote_btn\">
+													<button class=\"btn\" type=\"submit\" name=\"job_submit\">Apply Now!</button>
+												</div>
+											</div>
+										</form>
+
 									</div>
 								</div>
-							</div>
-							";
+								";
+
+							$stmt->close();
+							$DBConnect->close();
+						} 
+						else 
+						{
+							include("database.php");
+							$job_status = "active";
+							$stmt = $DBConnect->prepare("SELECT job_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date FROM jobs WHERE job_status = ?");
+							$stmt->bind_param("s", $job_status); 
+							$stmt->execute();
+							$stmt->store_result();
+							$stmt->bind_result($retrieved_job_id, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_description, $retrieved_preferred_skills, $retrieved_required_skills, $retrieved_job_posted_date);
+							if ($stmt->num_rows > 0) 
+							{
+								while($stmt->fetch()) {
+									echo 
+									"
+									<div class=\"col-lg-4 col-md-6 col-sm-12\">
+										<div class=\"service_style_three pt-60 pl-30 pr-30 mb-5 text_center\">
+											<div class=\"service_style_three_title pb-3\">
+												<h4>$retrieved_job_title</h4>
+											</div>
+											<div class=\"service_style_three_text\">
+												<p>$retrieved_job_id</p>
+												<p>$retrieved_job_type</p>
+												<p>$retrieved_job_location</p>
+												<p>$retrieved_required_skills</p>
+											</div>
+											<form id=\"jobForm_submit\" action=\"careers.php\" method=\"POST\">
+												<div class=\"service_style_three_bt_icon pt-30\">
+
+													<button type=\"submit\" name=\"jobChoice_submit\" value=\"$retrieved_job_id\"><i class=\"fa fa-long-arrow-right\"></i></button>
+
+												</div>
+											</form>
+										</div>
+									</div>
+									";
+								}
 							}
+							else 
+							{
+								echo "<p>Currently no positions available</p>";
+							}
+							$stmt->close();
+							$DBConnect->close();
 						}
-						else {
-							echo "<p>Currently no positions available</p>";
-						}
-						$stmt->close();
-						$DBConnect->close();
 					?>	
 
 					<br>
 					<br>
 
+					<!-- JOB DIV STRUCTURE AND STYLE
 
-
-					
-					
                         <div class="col-lg-4 col-md-6 col-sm-12">
                             <div class="service_style_three pt-60 pl-30 pr-30 mb-5 text_center">
                                 <div class="service_style_three_title pb-3">
@@ -218,12 +282,12 @@
                                     <p>Job Location</p>
                                 </div>
                                 <div class="service_style_three_bt_icon pt-30">
-                                    <a href="#"><i class="fa fa-long-arrow-right"></i></a>
+                                    <button type="submit" name="$retrieved_job_id"><i class="fa fa-long-arrow-right"></i></button>
                                 </div>
                             </div>
                         </div>
 
-
+					-->
                    
                     
                             
