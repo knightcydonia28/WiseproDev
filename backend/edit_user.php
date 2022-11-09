@@ -610,7 +610,7 @@
                 <option value="">&nbsp;</option>
                 <option value="0" <?php if ($retrieved_password_expiration == 0) {echo "selected";} ?>>0</option>
                 <option value="1" <?php if ($retrieved_password_expiration == 1) {echo "selected";} ?>>1</option>
-            </select><span class="error"> * <?php echo $_SESSION['password_expiration_error']; ?></span>
+            </select><span class="error"> * <?php if (isset($_SESSION['password_expiration_error'])) {echo $_SESSION['password_expiration_error'];} ?></span>
             &nbsp;
             <div class="tooltip">What is this?
                 <span class="tooltip_text" style="margin-top: -91%;">The password expiration shows whether a user has reset their temporary password (1) or not (0). <br><br> By selecting 0 (if previously 1), the password expiration can also be used as a way to require the user to change their password.</span>
@@ -624,26 +624,26 @@
                 <option value="user" <?php if ($retrieved_user_role == "user") {echo "selected";} ?>>User</option>
                 <option value="recruiter" <?php if ($retrieved_user_role == "recruiter") {echo "selected";} ?>>Recruiter</option>
                 <option value="administrator" <?php if ($retrieved_user_role == "administrator") {echo "selected";} ?>>Administrator</option>
-            </select><span class="error"> * <?php echo $_SESSION['user_role_error']; ?></span><br><br>
+            </select><span class="error"> * <?php if (isset($_SESSION['user_role_error'])) {echo $_SESSION['user_role_error'];} ?></span><br><br>
             <label for="user_first_name"><b>First name:</b></label>
-            <input type="text" id="user_first_name" name="user_first_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $retrieved_user_first_name; ?>" required><span class="error"> * <?php echo $_SESSION['user_first_name_error']; ?></span><br><br>
+            <input type="text" id="user_first_name" name="user_first_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your first name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $retrieved_user_first_name; ?>" required><span class="error"> * <?php if (isset($_SESSION['user_first_name_error'])) {echo $_SESSION['user_first_name_error'];} ?></span><br><br>
             <label for="user_middle_name"><b>Middle Name:</b></label>
-            <input type="text" id="user_middle_name" name="user_middle_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $retrieved_user_middle_name; ?>"><span class="error"> <?php echo $user_middle_name_error; ?></span><br><br>
+            <input type="text" id="user_middle_name" name="user_middle_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $retrieved_user_middle_name; ?>"><span class="error"> <?php if (isset($_SESSION['user_middle_name_error'])) {echo $_SESSION['user_middle_name_error'];} ?></span><br><br>
             <label for="user_last_name"><b>Last Name:</b></label>
-            <input type="text" id="user_last_name" name="user_last_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $retrieved_user_last_name; ?>" required><span class="error"> * <?php echo $_SESSION['user_last_name_error']; ?></span><br><br>
+            <input type="text" id="user_last_name" name="user_last_name" pattern="[a-zA-Z-'\s]*$" title="Please ensure that your last name has letters, dashes, apostrophes and whitespaces only" value="<?php echo $retrieved_user_last_name; ?>" required><span class="error"> * <?php if (isset($_SESSION['user_last_name_error'])) {echo $_SESSION['user_last_name_error'];} ?></span><br><br>
             <label for="user_email"><b>Email:</b></label>
-            <input type="email" id="user_email" name="user_email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php echo $retrieved_user_email; ?>" required><span class="error"> * <?php echo $_SESSION['user_email_error']; ?></span><br><br>
+            <input type="email" id="user_email" name="user_email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address (e.g., yourname@example.com)" value="<?php echo $retrieved_user_email; ?>" required><span class="error"> * <?php if (isset($_SESSION['user_email_error'])) {echo $_SESSION['user_email_error'];} ?></span><br><br>
             <label for="phone"><b>Phone Number:</b></label>
-            <input type="tel" id="user_phone" name="user_phone" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php echo $retrieved_user_phone; ?>" required><span class="error"> * <?php echo $_SESSION['user_phone_error']; ?></span><br><br>
+            <input type="tel" id="user_phone" name="user_phone" pattern="[0-9]{10}" title="Please enter a 10 digit phone number (without special characters including whitespaces)" value="<?php echo $retrieved_user_phone; ?>" required><span class="error"> * <?php if (isset($_SESSION['user_phone_error'])) {echo $_SESSION['user_phone_error'];} ?></span><br><br>
             <label for="user_birth_date"><b>Birth Date:</b></label>
             <?php $minimum_year = date("Y") - 75; $maximum_year = date("Y") - 16; ?>
-            <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01"; ?>" required><span class="error"> * <?php echo $_SESSION['user_birth_date_error']; ?></span><br><br>
+            <input type="date" id="user_birth_date" name="user_birth_date" min="<?php echo "$minimum_year-01-01" ?>" max="<?php echo "$maximum_year-01-01"; ?>" required><span class="error"> * <?php if (isset($_SESSION['user_birth_date_error'])) {echo $_SESSION['user_birth_date_error'];} ?></span><br><br>
             <label for="user_status"><b>User Status:</b></label>
             <select id="user_status" name="user_status" required>
                 <option value="">&nbsp;</option>
                 <option value="active" <?php if ($retrieved_user_status == "active") {echo "selected";} ?>>Active</option>
                 <option value="inactive" <?php if ($retrieved_user_status == "inactive") {echo "selected";} ?>>Inactive</option>
-            </select><span class="error"> * <?php echo $_SESSION['user_status_error']; ?></span><br><br>
+            </select><span class="error"> * <?php if (isset($_SESSION['user_status_error'])) {echo $_SESSION['user_status_error'];} ?></span><br><br>
             <label for="secret_key"><b>Secret Key:</b></label>
             <?php
                 if ($retrieved_secret_key == NULL) {
@@ -657,7 +657,7 @@
                 <option value="">&nbsp;</option>
                 <option value="0" <?php if ($retrieved_secret_key == 0) {echo "selected";} ?>>0</option>
                 <option value="1" <?php if ($retrieved_secret_key == 1) {echo "selected";} ?>>1</option>
-            </select><span class="error"> * <?php echo $_SESSION['secret_key_error']; ?></span>
+            </select><span class="error"> * <?php if (isset($_SESSION['secret_key_error'])) {echo $_SESSION['secret_key_error'];} ?></span>
             &nbsp;
             <div class="tooltip">What is this?
                 <span class="tooltip_text" style="margin-top: -130%;">The secret key is assigned to each user so that they can use Multi-factor authentication (MFA). <br><br> 1 indicates a user has a secret key whereas 0 indicates the opposite. <br><br> Select 0 to require a user to go through the MFA process again by resetting their secret key (if they previously had 1).</span>
@@ -684,4 +684,14 @@
 <?php
     if (isset($_SESSION['edit_user_confirmation'])) {unset($_SESSION['edit_user_confirmation']);}
     if (isset($_SESSION['edit_user_error'])) {unset($_SESSION['edit_user_error']);}
+    if (isset($_SESSION['password_expiration_error'])) {unset($_SESSION['password_expiration_error']);}
+    if (isset($_SESSION['user_role_error'])) {unset($_SESSION['user_role_error']);}
+    if (isset($_SESSION['user_first_name_error'])) {unset($_SESSION['user_first_name_error']);}
+    if (isset($_SESSION['user_middle_name_error'])) {unset($_SESSION['user_middle_name_error']);}
+    if (isset($_SESSION['user_last_name_error'])) {unset($_SESSION['user_last_name_error']);}
+    if (isset($_SESSION['user_email_error'])) {unset($_SESSION['user_email_error']);}
+    if (isset($_SESSION['user_phone_error'])) {unset($_SESSION['user_phone_error']);}
+    if (isset($_SESSION['user_birth_date_error'])) {unset($_SESSION['user_birth_date_error']);}
+    if (isset($_SESSION['user_status_error'])) {unset($_SESSION['user_status_error']);}
+    if (isset($_SESSION['secret_key_error'])) {unset($_SESSION['secret_key_error']);}
 ?>
