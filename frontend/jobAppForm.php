@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<title>Careers</title>
+	<title>Apply Now</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- Favicon -->
@@ -160,134 +160,153 @@
             <div class="feature_area bg_color2 pt-40 pb-35">
                 <div class="container">
                     <div class="row">
+						<div class="col-lg-12 col-md-12 col-sm-12">
+							<div class="service_style_two pt-30 pl-30 pr-30 mb-5">
                         
-					<?php
+								<?php
+									if (isset($_POST['jobApp_submit'])) 
+									{
+										//Post Value Set
+										$jobChoice = $_POST['jobApp_submit'];
 
-						if (isset($_POST['jobChoice_submit'])) 
-						{
-							//Post Value Set
-							$jobChoice = $_POST['jobChoice_submit'];
-
-							include("database.php");
-							$job_status = "active";
-							$stmt = $DBConnect->prepare("SELECT job_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date FROM jobs WHERE job_id = ?");
-							$stmt->bind_param("i", $jobChoice); 
-							$stmt->execute();
-							$stmt->store_result();
-							$stmt->bind_result($retrieved_job_id, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_description, $retrieved_preferred_skills, $retrieved_required_skills, $retrieved_job_posted_date);
-							$stmt->fetch();
-
-							$myJobArray = explode("•", $retrieved_job_description);
-							
-							//JOB DESCRIPTION ARRAY DEBUG
-							//echo print_r($myJobArray); 
-							echo 
-								"
-								<div class=\"col-lg-12 col-md-12 col-sm-12\">
-									<div class=\"service_style_two pt-30 pl-30 pr-30 mb-5\">
-
-										
-											<div class=\"service_style_three_title pb-3\">
-												<h3>$retrieved_job_title: $retrieved_job_location</h3>
+										include("database.php");
+										$job_status = "active";
+										$stmt = $DBConnect->prepare("SELECT job_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date FROM jobs WHERE job_id = ?");
+										$stmt->bind_param("i", $jobChoice); 
+										$stmt->execute();
+										$stmt->store_result();
+										$stmt->bind_result($retrieved_job_id, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_description, $retrieved_preferred_skills, $retrieved_required_skills, $retrieved_job_posted_date);
+										$stmt->fetch();
+				
+										echo 
+											"			
+											<div class=\"service_style_three_title text-center\">
+													<h3>$retrieved_job_title: $retrieved_job_location - Job ID:#$retrieved_job_id</h3>
+													<br>
 											</div>
-											<div class=\"service_style_three_text\">
-												<p>$reteived_job_title</p>
-												<p>Job ID: #$retrieved_job_id</p>
-												<p>Time Type: $retrieved_job_type</p>
-												<p>Job Location: $retrieved_job_location</p>
-												<p>Required Skills: $retrieved_required_skills</p>
-												<p>Preffered Skills: $retrieved_preferred_skills</p>
-												<p>Full Description: <br> "; 
+
+											<form id=\"appEmail_form\" action=\"jobAppForm.php\" method=\"POST\">	
 												
-												foreach ($myJobArray as $qualLine) {
-													echo "•$qualLine <br>";
-												} 					
-													echo "</p>
-											</div>
-											<form id=\"jobApp_form\" action=\"jobAppForm.php\" method=\"POST\">
-												<div class=\"col-lg-12\">
-													<div class=\"quote_btn\">
-														<button class=\"btn\" type=\"submit\" name=\"jobApp_submit\" value=\"$retrieved_job_id\">Apply Now!</button>
+												<div class=\"col-lg-12 col-md-12\">
+
+													<div class =\"row text-center\">
+														<div class=\"col-lg-12\"> 
+															<h4>Please upload your resume below</h4> 
+														</div>
+														<div class=\"col-12\"> 
+															<label for=\"myfile\"><b>Select a file:</b></label>
+															<input type=\"file\" id=\"myfile\" name=\"myfile\"> 
+														</div>
+													</div>
+													
+													<div class=\"col-lg-12 pt-5\">
+													
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"user_first_name\"><b>First Name:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_first_name\" name=\"user_first_name\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your first name has letters, dashes, apostrophes and whitespaces only\" size=\"40\" required autofocus /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"user_last_name\"><b>Last Name:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_last_name\" name=\"user_last_name\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your last name has letters, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"user_address_1\"><b>Address Line 1:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_address_1\" name=\"user_address_1\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"user_address_2\"><b>Address Line 2:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_address_2\" name=\"user_address_2\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"city\"><b>City:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_city\" name=\"user_city\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"state\"><b>State:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_state\" name=\"user_state\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>
+														
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"postal_code\"><b>Postal Code:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"text\" id=\"user_postal_code\" name=\"user_postal_code\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"email\"><b>Email Address:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"email\" id=\"user_email\" name=\"user_email\" pattern=\"[a-zA-Z-'\s]*$\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>
+
+														<div class=\"row\">
+															<div class=\"col-lg-4 text-align-right\">
+																<label for=\"phone\"><b>Phone Number:</b></label>
+															</div>
+															<div class=\"col-lg-5\">
+																<input type=\"tel\" id=\"user_phone_number\" name=\"user_phone_number\" placeholder=\"123-456-7890\" title=\"Please ensure that your address has, dashes, apostrophes and whitespaces only\" size=\"40\" required /><br /><br />
+															</div>
+														</div>	
+
+													</div>	
+												</div>
+
+												<div class=\"col-12\">
+													<div class=\"quote_btn float-right\">
+														<button class=\"btn\" type=\"submit\" name=\"appEmail_submit\">Submit Application</button>
 													</div>
 												</div>
+
 											</form>
+											";
 
-									</div>
-								</div>
-								";
+										$stmt->close();
+										$DBConnect->close();
+									} 
+									else 
+									{
+										echo "<h3>You must submit for a job submission, please go back.</h3>";
+									}	
+								?>	
+							</div>
+						</div>
 
-							$stmt->close();
-							$DBConnect->close();
-						} 
-						else 
-						{
-							include("database.php");
-							$job_status = "active";
-							$stmt = $DBConnect->prepare("SELECT job_id, job_title, job_type, job_location, job_description, preferred_skills, required_skills, job_posted_date FROM jobs WHERE job_status = ?");
-							$stmt->bind_param("s", $job_status); 
-							$stmt->execute();
-							$stmt->store_result();
-							$stmt->bind_result($retrieved_job_id, $retrieved_job_title, $retrieved_job_type, $retrieved_job_location, $retrieved_job_description, $retrieved_preferred_skills, $retrieved_required_skills, $retrieved_job_posted_date);
-							if ($stmt->num_rows > 0) 
-							{
-								while($stmt->fetch()) {
-									echo 
-									"
-									<div class=\"col-lg-4 col-md-6 col-sm-12\">
-										<div class=\"service_style_three pt-60 pl-30 pr-30 mb-5 text_center\">
-											<div class=\"service_style_three_title pb-3\">
-												<h4>$retrieved_job_title</h4>
-											</div>
-											<div class=\"service_style_three_text\">
-												<p>$retrieved_job_id</p>
-												<p>$retrieved_job_type</p>
-												<p>$retrieved_job_location</p>
-												<p>$retrieved_required_skills</p>
-											</div>
-											<form id=\"jobCoice_form\" action=\"careers.php\" method=\"POST\">
-												<div class=\"service_style_three_bt_icon pt-30\">
-
-													<button type=\"submit\" name=\"jobChoice_submit\" value=\"$retrieved_job_id\"><i class=\"fa fa-long-arrow-right\"></i></button>
-
-												</div>
-											</form>
-										</div>
-									</div>
-									";
-								}
-							}
-							else 
-							{
-								echo "<p>Currently no positions available</p>";
-							}
-							$stmt->close();
-							$DBConnect->close();
-						}
-					?>	
-
-					<br>
-					<br>
-
-					<!-- JOB DIV STRUCTURE AND STYLE
-
-                        <div class="col-lg-4 col-md-6 col-sm-12">
-                            <div class="service_style_three pt-60 pl-30 pr-30 mb-5 text_center">
-                                <div class="service_style_three_title pb-3">
-                                    <h4>Job Title</h4>
-                                </div>
-                                <div class="service_style_three_text">
-                                    <p>Job Id</p>
-                                    <p>Job Type</p>
-                                    <p>Job ID</p>
-                                    <p>Job Location</p>
-                                </div>
-                                <div class="service_style_three_bt_icon pt-30">
-                                    <button type="submit" name="$retrieved_job_id"><i class="fa fa-long-arrow-right"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-					-->
+						<br>
+						<br>
                    
                     
                             

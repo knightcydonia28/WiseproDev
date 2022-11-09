@@ -56,8 +56,15 @@ Accordian CSS
 
 #content-wrap {
    
-  }
+}
 
+.float-right {
+    float:right;
+}
+
+.text-align-right {
+    text-align: right;
+}
 
 /*============================
  techno	Main Menu Area Css
