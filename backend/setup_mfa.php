@@ -50,18 +50,19 @@
         ?>
         <a href='?logout=true'>Logout</a>
         <h3>Setup MFA</h3>
-        <p>Please click the "Activate MFA" button to start the process of enabling multi-factor authentication (MFA) with Google Authenticator.</p>
+        <p>The enterprise portal for Wisetek Providers Inc utilizes the Google Authenticator application for multi-factor authentication (MFA). This application can be installed from Google Play for Android users or from the App Store for iOS users. Once installed, please click the "Activate MFA" button to start the process of enabling MFA with Google Authenticator.</p>
         <?php
             if(isset($_GET['change_secret_key'])) { 
                 function changeSecretKey() {
-                    unset($_SESSION['setup_mfa_disabled']);
+                    unset($_SESSION["setup_mfa_confirmation"]);
+                    unset($_SESSION['setup_mfa_success']);
                     $_SESSION['secret_key'] = 1;
                     header('Location: home.php');
                     exit();
                 }
                 changeSecretKey();
             }
-            if (isset($_POST['submit'])) {
+            if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
                 require __DIR__ . '/vendor/autoload.php';
 
@@ -91,24 +92,39 @@
                 $stmt = $DBConnect->prepare("UPDATE users SET secret_key = AES_ENCRYPT(?, ?) WHERE username = ?");
                 $stmt->bind_param("sss", $secret_key, $encryption_key, $username);
                 if ($stmt->execute()) {
-                    $_SESSION['setup_mfa_disabled'] = 1;
-                    echo 
-                    "<p>MFA activation was successful.</p>
-                    <p>You may enter the code below to your phone or use the QR Code.</p>
-                    <p>Code: $secret_key</p>
-                    <p>QR Code:</p>
-                    <img src=\"data:image/png;base64,$qrcode_image\" alt=\"QR Code for the Secret Key\">
-                    <p>Please <a href=\"?change_secret_key=true\">Click Here</a> to return to the home page or logout to exit this page.</p>";
+                    
+                    $_SESSION['setup_mfa_success'] = 1;
+                    
+                    $setup_mfa_confirmation = array();
+                    $setup_mfa_confirmation[] = "<p>MFA activation was successful.</p>";
+                    $setup_mfa_confirmation[] = "<p>You may enter the setup key below by clicking the plus icon in the Google Authenticator application and selecting \"Enter a setup key\". For faster setup, you can select \"Scan a QR code\" and scan the QR code below.</p>";
+                    $setup_mfa_confirmation[] = "<p><b>Setup Key:</b> $secret_key</p>";
+                    $setup_mfa_confirmation[] = "<p><b>QR Code:</b></p>";
+                    $setup_mfa_confirmation[] = "<img src=\"data:image/png;base64,$qrcode_image\" alt=\"QR Code for the Secret Key\">";
+                    $setup_mfa_confirmation[] = "<p>Please <a href=\"?change_secret_key=true\">Click Here</a> to return to the home page.</p>";
+                    
+                    $_SESSION["setup_mfa_confirmation"] = $setup_mfa_confirmation;
+                    header("Location: setup_mfa.php", true, 303);
+                    exit();
                 }
                 else {
-                    echo "<p>MFA activation was unsuccessful.</p>";
+                    $_SESSION["setup_mfa_error"] = "<p>MFA activation was unsuccessful.</p>";
                 }
                 
             }
+            elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
+                if (isset($_SESSION["setup_mfa_confirmation"])) {echo $_SESSION["setup_mfa_confirmation"][0], $_SESSION["setup_mfa_confirmation"][1], $_SESSION["setup_mfa_confirmation"][2], $_SESSION["setup_mfa_confirmation"][3], $_SESSION["setup_mfa_confirmation"][4], $_SESSION["setup_mfa_confirmation"][5];}
+                if (isset($_SESSION["setup_mfa_error"])) {echo $_SESSION["setup_mfa_error"];}
+            }
+            if (!isset($_SESSION['setup_mfa_success'])) {
+                echo
+                "<form method=\"post\" action=\""; echo htmlspecialchars($_SERVER["PHP_SELF"]); echo "\">
+                    <input type=\"submit\" name=\"submit\" value=\"Activiate MFA\">
+                </form>";
+            }
         ?>
-        <form method="post" action="#">
-            <input type="submit" name="submit" value="Activiate MFA" <?php if (isset($_SESSION['setup_mfa_disabled'])) {echo "disabled";} ?>>
-        </form>
     </body>
 </html>
-
+<?php
+    if (isset($_SESSION["setup_mfa_error"])) {unset($_SESSION["setup_mfa_error"]);}
+?>

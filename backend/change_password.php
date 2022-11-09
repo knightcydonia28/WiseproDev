@@ -191,7 +191,7 @@
             }
             if (!isset($_SESSION['change_password_success'])) {
                 echo 
-                "<form method=\"post\" action=\""; echo htmlspecialchars($_SERVER["PHP_SELF"]); echo"\">
+                "<form method=\"post\" action=\""; echo htmlspecialchars($_SERVER["PHP_SELF"]); echo "\">
                     <label for=\"old_password\">Enter your old password:</label><br><br>
                     <input type=\"password\" id=\"old_password\" name=\"old_password\" placeholder=\"old password\" required>
                     <input type=\"checkbox\" id=\"checkbox1\" onclick=\"passwordVisibility('old_password')\">Show Password <br><br>
