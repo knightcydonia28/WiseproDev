@@ -32,6 +32,40 @@
                 padding: 5px;
                 width: 821px;
             }
+            input[type=submit] {
+                background-color: #10469A;
+                color: white;
+                padding: 12px 12px;
+                margin: 8px 0;
+                border: none;
+                cursor: pointer;
+                border-radius: 20px;
+                
+            }
+            button{
+                background-color: #10469A;
+                color: white;
+                padding: 12px 12px;
+                margin: 8px 0;
+                border: none;
+                cursor: pointer;
+                border-radius: 20px; 
+                margin-left: 55px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 50%;
+            }
+            th, td {
+                text-align: left;
+                padding: 8px;
+            }
+            tr:nth-child(even){background-color: #f2f2f2}
+            
+            th {
+                background-color: #10469A;
+                color: white;
+            }
         </style>
         <script src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         <script>
@@ -555,7 +589,7 @@
                 if(!is_null($reject_reason)){
                 echo "<div class=reject_reason>
                     <label for=\"reject_reason\">Reason for Rejection:</label><br>
-                    <textarea id=\"reject_reason\" name=\"reject_reason\" readonly>$reject_reason</textarea>
+                    <textarea id=\"reject_reason\" name=\"reject_reason\" rows=\"3\" cols=\"40\" readonly>$reject_reason</textarea>
                 </div>";
                 }
                 echo "<br >
