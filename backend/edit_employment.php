@@ -1,4 +1,5 @@
 <?php
+    //THIS DOCUMENT IS BEING TESTED FOR POST-REDIRECT-GET METHODOLOGY.
     session_start();
     if (!isset($_SESSION['login_status'])) {
         header('Location: login.php');
@@ -103,14 +104,14 @@
                 
                 if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_position'])) {
                     $_SESSION['job_position_error'] = "Please ensure that job position has letters and whitespaces only";
-                    header("Location: edit_employment_prg.php", true, 303);
+                    header("Location: edit_employment.php", true, 303);
                     exit();
                 }
                 else {
                     $job_position = test_input($_POST['job_position']);
                     if ($_POST['employment_type'] != "full-time" && $_POST['employment_type'] != "part-time" && $_POST['employment_type'] != "contract" && $_POST['employment_type'] != "internship") {
                         $_SESSION['employment_type_error'] = "Please select an appropriate employment type";
-                        header("Location: edit_employment_prg.php", true, 303);
+                        header("Location: edit_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -118,13 +119,13 @@
                         $employment_start_date = test_input($_POST['employment_start_date']);
                         if (!validateDate($employment_start_date)) {
                             $_SESSION['employment_start_date_error'] = "Please enter a valid employment start date";
-                            header("Location: edit_employment_prg.php", true, 303);
+                            header("Location: edit_employment.php", true, 303);
                             exit(); 
                         }
                         else {
                             if ($_POST['employment_status'] != "employed" && $_POST['employment_status'] != "unemployed") {
                                 $_SESSION['employment_status_error'] = "Please ensure that the employment status of the user is employed when adding employment";
-                                header("Location: edit_employment_prg.php", true, 303);
+                                header("Location: edit_employment.php", true, 303);
                                 exit();
                             }
                             else {
@@ -136,12 +137,12 @@
                                     $stmt->bind_param("ssssssi", $job_position, $employment_type, $employment_start_date, $employment_status, $employment_end_date, $_COOKIE['username'], $_COOKIE['client_id']);
                                     if ($stmt->execute()) {
                                         $_SESSION['edit_employment_confirmation'] = "<p>Changes have been made successfully.</p>";
-                                        header("Location: edit_employment_prg.php", true, 303);
+                                        header("Location: edit_employment.php", true, 303);
                                         exit(); 
                                     }
                                     else {
                                         $_SESSION['edit_employment_error'] = "<p>Changes have not been made successfully.</p>";
-                                        header("Location: edit_employment_prg.php", true, 303);
+                                        header("Location: edit_employment.php", true, 303);
                                         exit(); 
                                     }
                                 }
@@ -149,7 +150,7 @@
                                     $employment_end_date = test_input($_POST['employment_end_date']);
                                     if (!validateDate($employment_end_date)) {
                                         $_SESSION['employment_end_date_error'] = "Please enter a valid employment end date";
-                                        header("Location: edit_employment_prg.php", true, 303);
+                                        header("Location: edit_employment.php", true, 303);
                                         exit();
                                     }
                                     else {
@@ -158,12 +159,12 @@
                                         $stmt->bind_param("ssssssi", $job_position, $employment_type, $employment_start_date, $employment_status, $employment_end_date, $_COOKIE['username'], $_COOKIE['client_id']);
                                         if ($stmt->execute()) {
                                             $_SESSION['edit_employment_confirmation'] = "<p>Changes have been made successfully.</p>";
-                                            header("Location: edit_employment_prg.php", true, 303);
+                                            header("Location: edit_employment.php", true, 303);
                                             exit(); 
                                         }
                                         else {
                                             $_SESSION['edit_employment_error'] = "<p>Changes have not been made successfully.</p>";
-                                            header("Location: edit_employment_prg.php", true, 303);
+                                            header("Location: edit_employment.php", true, 303);
                                             exit(); 
                                         }
                                     }
