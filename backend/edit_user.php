@@ -666,14 +666,8 @@
             <input type="submit" name="edit_user_submit" value="Submit Changes">
         </form>
         <?php
-            if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            if ($_SERVER['REQUEST_METHOD'] === "GET" || !isset($_POST['edit_user_submit'])) {
                 echo 
-                "<script>
-                    document.getElementById('user_birth_date').value = \"".$retrieved_user_birth_date."\";
-                </script>";
-            }
-            if (!isset($_POST['edit_user_submit'])) {
-                echo
                 "<script>
                     document.getElementById('user_birth_date').value = \"".$retrieved_user_birth_date."\";
                 </script>";
