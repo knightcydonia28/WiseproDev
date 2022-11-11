@@ -66,7 +66,7 @@
                 function validateUsername($provided_username) {
                     $provided_username = testInput($provided_username);
                     if (!ctype_alnum($provided_username)) {
-                        $_SESSION["username_error"] = "Please ensure that your username is alphanumeric";
+                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -78,7 +78,7 @@
                 function validateUserRole($provided_user_role) {
                     $provided_user_role = testInput($provided_user_role);
                     if ($provided_user_role != "user" && $provided_user_role != "recruiter" && $provided_user_role != "administrator") {
-                        $_SESSION["user_role_error"] = "Please select an appropriate user role";
+                        $_SESSION["user_role_error"] = "<p class=\"error\">Please select an appropriate user role</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -90,7 +90,7 @@
                 function validateUserFirstName($provided_user_first_name) {
                     $provided_user_first_name = testInput($provided_user_first_name);
                     if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_first_name)) {
-                        $_SESSION["user_first_name_error"] = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
+                        $_SESSION["user_first_name_error"] = "<p class=\"error\">Please ensure that your first name has letters, dashes, apostrophes and whitespaces only</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -102,7 +102,7 @@
                 function validateUserMiddleName($provided_user_middle_name) {
                     $provided_user_middle_name = testInput($provided_user_middle_name);
                     if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_middle_name)) {
-                        $_SESSION["user_middle_name_error"] = "Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only";
+                        $_SESSION["user_middle_name_error"] = "<p class=\"error\">Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -114,7 +114,7 @@
                 function validateUserLastName($provided_user_last_name) {
                     $provided_user_last_name = testInput($provided_user_last_name);
                     if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_last_name)) {
-                        $_SESSION["user_last_name_error"] = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
+                        $_SESSION["user_last_name_error"] = "<p class=\"error\">Please ensure that your last name has letters, dashes, apostrophes and whitespaces only</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -126,7 +126,7 @@
                 function validateUserEmail($provided_user_email) {
                     $provided_user_email = testInput($provided_user_email);
                     if (!filter_var($provided_user_email, FILTER_VALIDATE_EMAIL)) {
-                        $_SESSION["user_email_error"] = "Please enter a valid email address (e.g., yourname@example.com)";
+                        $_SESSION["user_email_error"] = "<p class=\"error\">Please enter a valid email address (e.g., yourname@example.com)</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit(); 
                     }
@@ -138,7 +138,7 @@
                 function validateUserPhone($provided_user_phone) {
                     $provided_user_phone = testInput($provided_user_phone);
                     if (!preg_match("/^[0-9]{10}$/", $provided_user_phone)) {
-                        $_SESSION["user_phone_error"] = "Please enter a 10 digit phone number (without special characters including whitespace)";
+                        $_SESSION["user_phone_error"] = "<p class=\"error\">Please enter a 10 digit phone number (without special characters including whitespace)</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -150,7 +150,7 @@
                 function validateUserBirthDate($provided_user_birth_date) {
                     $provided_user_birth_date = testInput($provided_user_birth_date);
                     if (!validateDate($provided_user_birth_date)) {
-                        $_SESSION["user_birth_date_error"] = "Please enter a valid birth date";
+                        $_SESSION["user_birth_date_error"] = "<p class=\"error\">Please enter a valid birth date</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -162,7 +162,7 @@
                 function validateUserStatus($provided_user_status) {
                     $provided_user_status = testInput($provided_user_status);
                     if (($provided_user_status != "active")) {
-                        $_SESSION["user_status_error"] = "Please ensure that the status of the user is active upon creation";
+                        $_SESSION["user_status_error"] = "<p class=\"error\">Please ensure that the status of the user is active upon creation</p>";
                         header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
@@ -200,7 +200,7 @@
                 $DBConnect->close();
 
                 if ($stmt->num_rows > 0) {
-                    $_SESSION["username_error"] = "Username is already taken. Please choose another username";
+                    $_SESSION["username_error"] = "<p class=\"error\">Username is already taken. Please choose another username</p>";
                     header("Location: create_user_procedural.php", true, 303);
                     exit();
                 }
