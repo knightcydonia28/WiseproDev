@@ -80,7 +80,7 @@
                             if (isset($_SESSION["password_expiration"])) {unset($_SESSION["password_expiration"]);}
                             if (isset($_SESSION["user_role"])) {unset($_SESSION["user_role"]);}
                             
-                            $_SESSION['mfa_error'] = "<p>Invalid code entered.</p>";
+                            $_SESSION['mfa_error'] = "<p class=\"error\">Invalid code entered.</p>";
                             header("Location: login.php", true, 303);
                             exit();
                     }
