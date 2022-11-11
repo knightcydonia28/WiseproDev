@@ -62,6 +62,12 @@
                     return $ip_address;
                 }
 
+                function loginSessionRedirection() {
+                    $_SESSION["login_error"] = "<p class=\"error\">Invalid username or password.</p>";
+                    header("Location: login_procedural.php", true, 303);
+                    exit();
+                }
+
                 function incrementLoginAttempt($provided_login_time, $provided_ip_address) {
                     include("database.php");
                     $stmt = $DBConnect->prepare("UPDATE logins SET login_attempts = login_attempts + 1, login_time = ? WHERE ip_address = ?");
@@ -86,9 +92,7 @@
                     if (!ctype_alnum($provided_username)) {
                         incrementLoginAttempt($provided_login_time, $provided_ip_address);
 
-                        $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
-                        header("Location: login_procedural.php", true, 303);
-                        exit();
+                        loginSessionRedirection();
                     }
                     else {
                         include("database.php");
@@ -113,9 +117,7 @@
                                 if ($retrieved_user_status == "inactive") {
                                     incrementLoginAttempt($provided_login_time, $provided_ip_address);
 
-                                    $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
-                                    header("Location: login_procedural.php", true, 303);
-                                    exit();
+                                    loginSessionRedirection();
                                 }
                                 else {
                                     $stmt = $DBConnect->prepare("SELECT password_expiration, secret_key, user_role FROM users WHERE username = ?");
@@ -179,17 +181,13 @@
                             else {
                                 incrementLoginAttempt($provided_login_time, $provided_ip_address);
 
-                                $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
-                                header("Location: login_procedural.php", true, 303);
-                                exit();
+                                loginSessionRedirection();
                             }
                         }
                         else {
                             incrementLoginAttempt($provided_login_time, $provided_ip_address);
 
-                            $_SESSION["login_error"] = "<p>Invalid username or password.</p>";
-                            header("Location: login_procedural.php", true, 303);
-                            exit();
+                            loginSessionRedirection();
                         }
                     }
                     $stmt->close();
@@ -215,7 +213,7 @@
                     }
                     else {
                         if ($retrieved_login_attempts >= 5) {
-                            $_SESSION["login_error"] = "<p>The maximum number of login attempts has been exceeded. Please try again in 15 minutes.</p>";
+                            $_SESSION["login_error"] = "<p class=\"error\">The maximum number of login attempts has been exceeded. Please try again in 15 minutes.</p>";
                             header("Location: login_procedural.php", true, 303);
                             exit();
                         }
@@ -233,7 +231,6 @@
                     $stmt->execute();
                     $stmt->close();
                     $DBConnect->close();
-
                     authentication($_POST['username'], $_POST['password'], $login_time, $ip_address);
                     */
                 }
