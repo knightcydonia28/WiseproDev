@@ -20,6 +20,15 @@
                         );
                     }
                     session_destroy();
+                    if (isset($_SERVER['HTTP_COOKIE'])) {
+                        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+                        foreach($cookies as $cookie) {
+                            $parts = explode('=', $cookie);
+                            $name = trim($parts[0]);
+                            setcookie($name, '', time()-1000);
+                            setcookie($name, '', time()-1000, '/');
+                        }
+                    }
                 }
                 destroySession();
                 echo 
@@ -55,65 +64,70 @@
             <h2>Multi-factor Authentication</h2>
             <p>Please enter your generated code below.</p>
             <?php
-                if (isset($_POST['mfa_code_submit'])) {
+                if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     
-                    function test_input($data) {
+                    function testInput($data) {
                         $data = trim($data);
                         $data = stripslashes($data);
                         $data = htmlspecialchars($data);
                         return $data;
-                    } 
-
-                    if (!is_numeric($_POST['mfa_code']) || strlen($_POST['mfa_code']) != 6) {
-                        unset($_SESSION["secret_key"]);
-                        unset($_SESSION["mfa_time"]);
-                        unset($_SESSION["username"]);
-                        unset($_SESSION["password_expiration"]);
-                        unset($_SESSION["user_role"]);
-                        $_SESSION['mfa_error'] = "<p>Invalid code entered.</p>";
-                        header("Location: login.php", true, 303);
-                        exit();
                     }
-                    else {
-                        $mfa_code = test_input($_POST['mfa_code']);
-                        
-                        require __DIR__ . '/vendor/autoload.php';
 
-                        $google2fa = new \PragmaRX\Google2FA\Google2FA();
-                        
-                        $username = $_SESSION['username'];
-
-                        $decryption_key = "random_key";
-                        include("database.php");
-                        $stmt = $DBConnect->prepare("SELECT AES_DECRYPT(secret_key, ?) FROM users WHERE username = ?");
-                        $stmt->bind_param("ss", $decryption_key, $username); 
-                        $stmt->execute();
-                        $stmt->store_result();
-                        $stmt->bind_result($retrieved_secret_key);
-                        $stmt->fetch();
-                        
-                        $valid = $google2fa->verifyKey($retrieved_secret_key, $mfa_code); 
-                        
-                        if ($valid) {
-                            session_regenerate_id();
-                            $_SESSION['login_status'] = 1;
-                            $_SESSION['login_time'] = time();
-                            unset($_SESSION['login']);
-                            unset($_SESSION['mfa_time']);
-                            header('Location: home.php');
-                            exit();
-                        }
-                        else {
-                            unset($_SESSION["secret_key"]);
-                            unset($_SESSION["mfa_time"]);
-                            unset($_SESSION["username"]);
-                            unset($_SESSION["password_expiration"]);
-                            unset($_SESSION["user_role"]);
+                    function mfaSessionReset() {
+                        if (isset($_SESSION["secret_key"])) {unset($_SESSION["secret_key"]);}
+                            if (isset($_SESSION["mfa_time"])) {unset($_SESSION["mfa_time"]);}
+                            if (isset($_SESSION["username"])) {unset($_SESSION["username"]);}
+                            if (isset($_SESSION["password_expiration"])) {unset($_SESSION["password_expiration"]);}
+                            if (isset($_SESSION["user_role"])) {unset($_SESSION["user_role"]);}
+                            
                             $_SESSION['mfa_error'] = "<p>Invalid code entered.</p>";
                             header("Location: login.php", true, 303);
                             exit();
+                    }
+
+                    function validateMfaCode($provided_mfa_code) {
+                        $provided_mfa_code = testInput($provided_mfa_code);
+
+                        if (!is_numeric($provided_mfa_code) || strlen($provided_mfa_code) != 6) {
+                            mfaSessionReset();
+                        }
+                        else {
+                            return $provided_mfa_code;
                         }
                     }
+
+                    $mfa_code = validateMfaCode($_POST['mfa_code']);
+                    
+                    require __DIR__ . '/vendor/autoload.php';
+
+                    $google2fa = new \PragmaRX\Google2FA\Google2FA();
+                    
+                    $username = $_SESSION['username'];
+
+                    $decryption_key = "random_key";
+                    include("database.php");
+                    $stmt = $DBConnect->prepare("SELECT AES_DECRYPT(secret_key, ?) FROM users WHERE username = ?");
+                    $stmt->bind_param("ss", $decryption_key, $username); 
+                    $stmt->execute();
+                    $stmt->store_result();
+                    $stmt->bind_result($retrieved_secret_key);
+                    $stmt->fetch();
+                    
+                    $valid = $google2fa->verifyKey($retrieved_secret_key, $mfa_code); 
+                    
+                    if ($valid) {
+                        session_regenerate_id();
+                        $_SESSION['login_status'] = 1;
+                        $_SESSION['login_time'] = time();
+                        unset($_SESSION['login']);
+                        unset($_SESSION['mfa_time']);
+                        header('Location: home.php');
+                        exit();
+                    }
+                    else {
+                        mfaSessionReset();
+                    }
+
                     $stmt->close();
                     $DBConnect->close();
                 }
