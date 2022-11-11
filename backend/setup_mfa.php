@@ -86,7 +86,7 @@
                     exit();
                 }
                 else {
-                    $_SESSION["setup_mfa_error"] = "<p>MFA activation was unsuccessful.</p>";
+                    $_SESSION["setup_mfa_error"] = "<p class=\"error\">MFA activation was unsuccessful.</p>";
                 }
                 
             }
