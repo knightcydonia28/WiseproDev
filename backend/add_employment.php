@@ -25,29 +25,7 @@
 <html lang="en">
     <head>
         <?php
-            if (time() - $_SESSION['login_time'] > 900) {
-                function destroySession() {
-                    $_SESSION = array();
-                    if (ini_get("session.use_cookies")) {
-                        $params = session_get_cookie_params();
-                        setcookie(session_name(), '', time() - 42000,
-                            $params["path"], $params["domain"],
-                            $params["secure"], $params["httponly"]
-                        );
-                    }
-                    session_destroy();
-                }
-                destroySession();
-                echo 
-                "<script>
-                    alert(\"Your session has expired.\");
-                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
-                </script>";
-            }
-            if (time() - $_SESSION['login_time'] < 900) {
-                $added_time = time() - $_SESSION['login_time'];
-                $_SESSION['login_time'] += $added_time;
-            }
+            include("session_timeout.php");
         ?>
         <meta charset="UTF-8">
         <title>Add Employment</title>
@@ -71,319 +49,207 @@
         <?php
             if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 
-                function test_input($data) {
+                function testInput($data) {
                     $data = trim($data);
                     $data = stripslashes($data);
                     $data = htmlspecialchars($data);
                     return $data;
                 }
+
                 function validateDate($date, $format = 'Y-m-d') {
                     $d = DateTime::createFromFormat($format, $date);
                     return $d && $d->format($format) == $date;
                 }
+
+                function validateUsername($provided_username) {
+                    $provided_username = testInput($provided_username);
+                    if (!ctype_alnum($provided_username)) {
+                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
+                        header("Location: create_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_username;
+                    }
+                }
+
+                function validateClientName($provided_client_name) {
+                    $provided_client_name = testInput($provided_client_name);
+                    if (!preg_match("/^[a-zA-Z\s]*$/", $provided_client_name)) {
+                        $_SESSION['client_name_error'] = "<p class=\"error\">Please ensure that client name has letters and whitespaces only</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        $_SESSION['client_name'] = $provided_client_name;
+                        return $provided_client_name;
+                    }
+                }
+
+                function validateVendorName($provided_vendor_name) {
+                    $provided_vendor_name = testInput($provided_vendor_name);
+                    if (!preg_match("/^[a-zA-Z\s]*$/", $provided_vendor_name)) {
+                        $_SESSION['vendor_name_error'] = "<p class=\"error\">Please ensure that vendor name has letters and whitespaces only</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        $_SESSION['vendor_name'] = $provided_vendor_name;
+                        return $provided_vendor_name;
+                    }
+                }
+
+                function validateJobPosition($provided_job_position) {
+                    $provided_job_position = testInput($provided_job_position);
+                    if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_position)) {
+                        $_SESSION['job_position_error'] = "<p class=\"error\">Please ensure that job position has letters and whitespaces only</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        $_SESSION['job_position'] = $provided_job_position;
+                        return $provided_job_position;
+                    }
+                }
+
+                function validateEmploymentType($provided_employment_type) {
+                    $provided_employment_type = testInput($provided_employment_type);
+                    if ($provided_employment_type != "full-time" && $provided_employment_type != "part-time" && $provided_employment_type != "contract" && $provided_employment_type != "internship") {
+                        $_SESSION['employment_type_error'] = "<p class=\"error\">Please select an appropriate employment type</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        $_SESSION['employment_type'] = $provided_employment_type;
+                        return $provided_employment_type;
+                    }
+                }
+
+                function validateEmploymentStartDate($provided_employment_start_date) {
+                    $provided_employment_start_date = testInput($provided_employment_start_date);
+                    if (!validateDate($provided_employment_start_date)) {
+                        $_SESSION['employment_start_date_error'] = "<p class=\"error\">Please enter a valid employment start date</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        $_SESSION['employment_start_date'] = $provided_employment_start_date;
+                        return $provided_employment_start_date;
+                    }
+                }
+
+                function validateEmploymentStatus($provided_employment_status) {
+                    $provided_employment_status = testInput($provided_employment_status);
+                    if ($provided_employment_status != "employed") {
+                        $_SESSION['employment_status_error'] = "<p class=\"error\">Please ensure that the employment status of the user is employed when adding employment</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_employment_status;
+                    }
+                }
+
+                function checkClientId($provided_client_name) {
+                    include("database.php");
+                    $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                    $stmt->bind_param("s", $provided_client_name); 
+                    $stmt->execute();
+                    $stmt->store_result();
+                    $stmt->bind_result($retrieved_client_id);
+
+                    if ($stmt->num_rows == 0) {
+                        include("database.php");
+                        $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
+                        $stmt->bind_param("s", $provided_client_name);
+                        $stmt->execute();
+
+                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
+                        $stmt->bind_param("s", $provided_client_name); 
+                        $stmt->execute();
+                        $stmt->store_result();
+                        $stmt->bind_result($retrieved_client_id);
+                        $stmt->fetch();
+
+                        $result = $retrieved_client_id;
+                    }
+                    elseif ($stmt->num_rows > 0) {
+                        $stmt->fetch();
+                        $result = $retrieved_client_id;
+                    }
+                    
+                    $stmt->close();
+                    $DBConnect->close();
+
+                    return $result;
+                }
+
+                function checkVendorId($provided_vendor_name) {
+                    include("database.php");
+                    $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
+                    $stmt->bind_param("s", $provided_vendor_name); 
+                    $stmt->execute();
+                    $stmt->store_result();
+                    $stmt->bind_result($retrieved_vendor_id);
+
+                    if ($stmt->num_rows == 0) {
+                        include("database.php");
+                        $stmt = $DBConnect->prepare("INSERT INTO vendors (vendor_name) VALUES (?)");
+                        $stmt->bind_param("s", $provided_vendor_name);
+                        $stmt->execute();
+
+                        $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
+                        $stmt->bind_param("s", $provided_vendor_name); 
+                        $stmt->execute();
+                        $stmt->store_result();
+                        $stmt->bind_result($retrieved_vendor_id);
+                        $stmt->fetch();
+
+                        $result = $retrieved_vendor_id;
+                    }
+                    elseif ($stmt->num_rows > 0) {
+                        $stmt->fetch();
+                        $result = $retrieved_vendor_id;
+                    }
+                    
+                    $stmt->close();
+                    $DBConnect->close();
+
+                    return $result;
+                }
+
+                if (!empty($_POST['vendor_name'])) {
+                    $vendor_name = validateVendorName($_POST['vendor_name']);
+                    $vendor_id = checkVendorId($vendor_name);
+                }
+                else {
+                    $vendor_id = NULL;
+                }
                 
-                $username = test_input($_POST['username']);
-                if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['client_name'])) {
-                    $_SESSION['client_name_error'] = "Please ensure that client name has letters and whitespaces only";
-                    header("Location: add_employment.php", true, 303);
+                $username = validateUsername($_POST['username']);
+                $client_name = validateClientName($_POST['client_name']);
+                $job_position = validateJobPosition($_POST['job_position']);
+                $employment_type = validateEmploymentType($_POST['employment_type']);
+                $employment_start_date = validateEmploymentStartDate($_POST['employment_start_date']);          
+                $employment_status = validateEmploymentStatus($_POST['employment_status']);
+                $client_id = checkClientId($client_name);
+
+                include("database.php");
+                $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("siissss", $username, $client_id, $vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
+                if ($stmt->execute()) {
+                    $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
+                    header("Location: add_employment_procedural.php", true, 303);
                     exit();
                 }
                 else {
-                    $client_name = test_input($_POST['client_name']);
-                    $_SESSION['client_name'] = $client_name;
-                    if (empty($_POST['vendor_name'])) {
-                        $vendor_name = NULL;
-                        if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_position'])) {
-                            $_SESSION['job_position_error'] = "Please ensure that job position has letters and whitespaces only";
-                            header("Location: add_employment.php", true, 303);
-                            exit();
-                        }
-                        else {
-                            $job_position = test_input($_POST['job_position']);
-                            if ($_POST['employment_type'] != "full-time" && $_POST['employment_type'] != "part-time" && $_POST['employment_type'] != "contract" && $_POST['employment_type'] != "internship") {
-                                $_SESSION['employment_type_error'] = "Please select an appropriate employment type";
-                                header("Location: add_employment.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $employment_type = test_input($_POST['employment_type']);
-                                $employment_start_date = test_input($_POST['employment_start_date']);
-                                if (!validateDate($employment_start_date)) {
-                                    $_SESSION['employment_start_date_error'] = "Please enter a valid employment start date";
-                                    header("Location: add_employment.php", true, 303);
-                                    exit();
-                                }
-                                else {
-                                    if ($_POST['employment_status'] != "employed") {
-                                        $_SESSION['employment_status_error'] = "Please ensure that the employment status of the user is employed when adding employment";
-                                        header("Location: add_employment.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        $employment_status = test_input($_POST['employment_status']);
-                                        include("database.php");
-                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
-                                        $stmt->bind_param("s", $client_name); 
-                                        $stmt->execute();
-                                        $stmt->store_result();
-                                        $stmt->bind_result($retrieved_client_id);
-                                        if ($stmt->num_rows > 0) {
-                                            $stmt->fetch();
-
-                                            $_SESSION['job_position'] = $job_position;
-                                            $_SESSION['employment_type'] = $employment_type;
-                                            $_SESSION['employment_start_date'] = $employment_start_date;
-
-                                            include("database.php");
-                                            $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                            $stmt->bind_param("siissss", $username, $retrieved_client_id, $vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
-                                            if ($stmt->execute()) {
-                                                $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                                                header("Location: add_employment.php", true, 303);
-                                                exit();
-                                            }
-                                            else {
-                                                $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                header("Location: add_employment.php", true, 303);
-                                                exit();
-                                            }
-                                        }
-                                        else {
-                                            include("database.php");
-                                            $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
-                                            $stmt->bind_param("s", $client_name);
-                                            if ($stmt->execute()) {
-                                                include("database.php");
-                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
-                                                $stmt->bind_param("s", $client_name); 
-                                                $stmt->execute();
-                                                $stmt->store_result();
-                                                $stmt->bind_result($retrieved_client_id);
-                                                $stmt->fetch();
-
-                                                $_SESSION['job_position'] = $job_position;
-                                                $_SESSION['employment_type'] = $employment_type;
-                                                $_SESSION['employment_start_date'] = $employment_start_date;
-
-                                                $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                                $stmt->bind_param("siissss", $username, $retrieved_client_id, $vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
-                                                if ($stmt->execute()) {
-                                                    $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                                                    header("Location: add_employment.php", true, 303);
-                                                    exit();
-                                                }
-                                                else {
-                                                    $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                    header("Location: add_employment.php", true, 303);
-                                                    exit();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }   
-                            } 
-                        }       
-                    }
-                    else {
-                        if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['vendor_name'])) {
-                            $_SESSION['vendor_name_error'] = "Please ensure that vendor name has letters and whitespaces only";
-                            header("Location: add_employment.php", true, 303);
-                            exit();
-                        }
-                        else {
-                            $vendor_name = test_input($_POST['vendor_name']);
-                            $_SESSION['vendor_name'] = $vendor_name;
-                            if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_position'])) {
-                                $_SESSION['job_position_error'] = "Please ensure that job position has letters and whitespaces only";
-                                header("Location: add_employment.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $job_position = test_input($_POST['job_position']);
-                                if ($_POST['employment_type'] != "full-time" && $_POST['employment_type'] != "part-time" && $_POST['employment_type'] != "contract" && $_POST['employment_type'] != "internship") {
-                                    $_SESSION['employment_type_error'] = "Please select an appropriate employment type";
-                                    header("Location: add_employment.php", true, 303);
-                                    exit();
-                                }
-                                else {
-                                    $employment_type = test_input($_POST['employment_type']);
-                                    $employment_start_date = test_input($_POST['employment_start_date']);
-                                    if (!validateDate($employment_start_date)) {
-                                        $_SESSION['employment_start_date_error'] = "Please enter a valid employment start date";
-                                        header("Location: add_employment.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        if ($_POST['employment_status'] != "employed") {
-                                            $_SESSION['employment_status_error'] = "Please ensure that the employment status of the user is employed when adding employment";
-                                            header("Location: add_employment.php", true, 303);
-                                            exit();
-                                        }
-                                        else {
-                                            $employment_status = test_input($_POST['employment_status']);
-                                            include("database.php");
-                                            $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
-                                            $stmt->bind_param("s", $vendor_name); 
-                                            $stmt->execute();
-                                            $stmt->store_result();
-                                            $stmt->bind_result($retrieved_vendor_id);
-                                            if ($stmt->num_rows > 0) {
-                                                $stmt->fetch();
-                                                include("database.php");
-                                                $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
-                                                $stmt->bind_param("s", $client_name); 
-                                                $stmt->execute();
-                                                $stmt->store_result();
-                                                $stmt->bind_result($retrieved_client_id);
-                                                if ($stmt->num_rows > 0) {
-                                                    $stmt->fetch();
-
-                                                    $_SESSION['job_position'] = $job_position;
-                                                    $_SESSION['employment_type'] = $employment_type;
-                                                    $_SESSION['employment_start_date'] = $employment_start_date;
-
-                                                    include("database.php");
-                                                    $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                                    $stmt->bind_param("siissss", $username, $retrieved_client_id, $retrieved_vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
-                                                    if ($stmt->execute()) {
-                                                        $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                                                        header("Location: add_employment.php", true, 303);
-                                                        exit();
-                                                    }
-                                                    else {
-                                                        $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                        header("Location: add_employment.php", true, 303);
-                                                        exit();
-                                                    }
-                                                }
-                                                else {
-                                                    include("database.php");
-                                                    $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
-                                                    $stmt->bind_param("s", $client_name);
-                                                    if ($stmt->execute()) {
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
-                                                        $stmt->bind_param("s", $client_name); 
-                                                        $stmt->execute();
-                                                        $stmt->store_result();
-                                                        $stmt->bind_result($retrieved_client_id);
-                                                        $stmt->fetch();
-
-                                                        $_SESSION['job_position'] = $job_position;
-                                                        $_SESSION['employment_type'] = $employment_type;
-                                                        $_SESSION['employment_start_date'] = $employment_start_date;
-
-                                                        $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                                        $stmt->bind_param("siissss", $username, $retrieved_client_id, $retrieved_vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
-                                                        if ($stmt->execute()) {
-                                                            $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                                                            header("Location: add_employment.php", true, 303);
-                                                            exit();
-                                                        }
-                                                        else {
-                                                            $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                            header("Location: add_employment.php", true, 303);
-                                                            exit();
-                                                        }
-                                                    }
-                                                    else {
-                                                        $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                        header("Location: add_employment.php", true, 303);
-                                                        exit();
-                                                    }
-                                                }
-                                            }
-                                            else {
-                                                include("database.php");
-                                                $stmt = $DBConnect->prepare("INSERT INTO vendors (vendor_name) VALUES (?)");
-                                                $stmt->bind_param("s", $vendor_name);
-                                                if ($stmt->execute()) {
-                                                    include("database.php");
-                                                    $stmt = $DBConnect->prepare("SELECT vendor_id FROM vendors WHERE vendor_name = ?");
-                                                    $stmt->bind_param("s", $vendor_name); 
-                                                    $stmt->execute();
-                                                    $stmt->store_result();
-                                                    $stmt->bind_result($retrieved_vendor_id);
-                                                    $stmt->fetch();
-
-                                                    $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
-                                                    $stmt->bind_param("s", $client_name); 
-                                                    $stmt->execute();
-                                                    $stmt->store_result();
-                                                    $stmt->bind_result($retrieved_client_id);
-                                                    if ($stmt->num_rows > 0) {
-                                                        $stmt->fetch();
-
-                                                        $_SESSION['job_position'] = $job_position;
-                                                        $_SESSION['employment_type'] = $employment_type;
-                                                        $_SESSION['employment_start_date'] = $employment_start_date;
-
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                                        $stmt->bind_param("siissss", $username, $retrieved_client_id, $retrieved_vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
-                                                        if ($stmt->execute()) {
-                                                            $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                                                            header("Location: add_employment.php", true, 303);
-                                                            exit();
-                                                        }
-                                                        else {
-                                                            $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                            header("Location: add_employment.php", true, 303);
-                                                            exit();
-                                                        }
-                                                    }
-                                                    else {
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("INSERT INTO clients (client_name) VALUES (?)");
-                                                        $stmt->bind_param("s", $client_name);
-                                                        if ($stmt->execute()) {
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("SELECT client_id FROM clients WHERE client_name = ?");
-                                                            $stmt->bind_param("s", $client_name); 
-                                                            $stmt->execute();
-                                                            $stmt->store_result();
-                                                            $stmt->bind_result($retrieved_client_id);
-                                                            $stmt->fetch();
-
-                                                            $_SESSION['job_position'] = $job_position;
-                                                            $_SESSION['employment_type'] = $employment_type;
-                                                            $_SESSION['employment_start_date'] = $employment_start_date;
-
-                                                            $stmt = $DBConnect->prepare("INSERT INTO employments (username, client_id, vendor_id, job_position, employment_type, employment_start_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                                            $stmt->bind_param("siisssss", $username, $retrieved_client_id, $retrieved_vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
-                                                            if ($stmt->execute()) {
-                                                                $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                                                                header("Location: add_employment.php", true, 303);
-                                                                exit();
-                                                            }
-                                                            else {
-                                                                $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                                header("Location: add_employment.php", true, 303);
-                                                                exit();
-                                                            }
-                                                        }
-                                                        else {
-                                                            $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                            header("Location: add_employment.php", true, 303);
-                                                            exit();
-                                                        }
-                                                    }
-                                                }
-                                                else {
-                                                    $_SESSION['add_employment_error'] = "<p>Employment was not successfully added.</p>";
-                                                    header("Location: add_employment.php", true, 303);
-                                                    exit();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    $_SESSION['add_employment_error'] = "<p class=\"error\">Employment was not successfully added.</p>";
+                    header("Location: add_employment_procedural.php", true, 303);
+                    exit();
                 }
                 $stmt->close();
                 $DBConnect->close();
+
             }
             elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
                 if (isset($_SESSION['add_employment_confirmation'])) {echo $_SESSION['add_employment_confirmation'];}
@@ -395,7 +261,7 @@
             <p>Please fill the form below to add an employment for the selected user:</p>
             <p><span class="error">* required field</span></p>
                 <label for="username"><b>Username:</b></label>
-                <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><br><br>
+                <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
                 <label for="client_name"><b>Client:</b></label>
                 <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php if (isset($_SESSION['client_name'])) {echo $_SESSION['client_name'];} ?>" required><span class="error"> * <?php if (isset($_SESSION['client_name_error'])) {echo $_SESSION['client_name_error'];} ?></span>
                     <datalist id="clients">
@@ -469,6 +335,7 @@
     if (isset($_SESSION['job_position'])) {unset($_SESSION['job_position']);}
     if (isset($_SESSION['employment_type'])) {unset($_SESSION['employment_type']);}
     if (isset($_SESSION['employment_start_date'])) {unset($_SESSION['employment_start_date']);}
+    if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
     if (isset($_SESSION['client_name_error'])) {unset($_SESSION['client_name_error']);}
     if (isset($_SESSION['vendor_name_error'])) {unset($_SESSION['vendor_name_error']);}
     if (isset($_SESSION['job_position_error'])) {unset($_SESSION['job_position_error']);}
