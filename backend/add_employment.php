@@ -226,7 +226,7 @@
                     $vendor_id = NULL;
                 }
                 
-                $username = validateUsername($_POST['username']);
+                $username = validateUsername($_COOKIE['username']);
                 $client_name = validateClientName($_POST['client_name']);
                 $job_position = validateJobPosition($_POST['job_position']);
                 $employment_type = validateEmploymentType($_POST['employment_type']);
@@ -261,7 +261,7 @@
             <p>Please fill the form below to add an employment for the selected user:</p>
             <p><span class="error">* required field</span></p>
                 <label for="username"><b>Username:</b></label>
-                <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
+                <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE['username'])) {echo $_COOKIE['username'];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
                 <label for="client_name"><b>Client:</b></label>
                 <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php if (isset($_SESSION['client_name'])) {echo $_SESSION['client_name'];} ?>" required><span class="error"> * <?php if (isset($_SESSION['client_name_error'])) {echo $_SESSION['client_name_error'];} ?></span>
                     <datalist id="clients">

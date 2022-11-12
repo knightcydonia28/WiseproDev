@@ -25,29 +25,7 @@
 <html lang="en">
     <head>
         <?php
-            if (time() - $_SESSION['login_time'] > 900) {
-                function destroySession() {
-                    $_SESSION = array();
-                    if (ini_get("session.use_cookies")) {
-                        $params = session_get_cookie_params();
-                        setcookie(session_name(), '', time() - 42000,
-                            $params["path"], $params["domain"],
-                            $params["secure"], $params["httponly"]
-                        );
-                    }
-                    session_destroy();
-                }
-                destroySession();
-                echo 
-                "<script>
-                    alert(\"Your session has expired.\");
-                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
-                </script>";
-            }
-            if (time() - $_SESSION['login_time'] < 900) {
-                $added_time = time() - $_SESSION['login_time'];
-                $_SESSION['login_time'] += $added_time;
-            }
+            include("session_timeout.php");
         ?>
         <meta charset="UTF-8">
         <title>Edit User</title>
@@ -117,473 +95,207 @@
         <?php
             if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 
-                function test_input($data) {
+                function testInput($data) {
                     $data = trim($data);
                     $data = stripslashes($data);
                     $data = htmlspecialchars($data);
                     return $data;
                 }
+
                 function validateDate($date, $format = 'Y-m-d') {
                     $d = DateTime::createFromFormat($format, $date);
                     return $d && $d->format($format) == $date;
                 }
-                
-                if (empty($_POST['password'])) {
-                    if (empty($_POST['user_middle_name'])) {
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $_SESSION['password_expiration_error'] = "Please select an appropriate value for the password expiration";
-                            header("Location: edit_user.php", true, 303);
-                            exit();
-                        }
-                        else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $_SESSION['user_role_error'] = "Please select an appropriate user role";
-                                header("Location: edit_user.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $user_role = test_input($_POST['user_role']);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $_SESSION['user_first_name_error'] = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
-                                    header("Location: edit_user.php", true, 303);
-                                    exit();
-                                }
-                                else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
-                                        $_SESSION['user_last_name_error'] = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
-                                        header("Location: edit_user.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        $user_last_name = test_input($_POST['user_last_name']);
-                                        $user_email = test_input($_POST['user_email']);
-                                        if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                            $_SESSION['user_email_error'] = "Please enter a valid email address (e.g., yourname@example.com)";
-                                            header("Location: edit_user.php", true, 303);
-                                            exit();
-                                        }
-                                        else {
-                                            if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                $_SESSION['user_phone_error'] = "Please enter a 10 digit phone number (without special characters including whitespaces)";
-                                                header("Location: edit_user.php", true, 303);
-                                                exit();
-                                            }
-                                            else {
-                                                $user_phone = test_input($_POST['user_phone']);
-                                                $user_birth_date = test_input($_POST['user_birth_date']);
-                                                if (!validateDate($user_birth_date)) {
-                                                    $_SESSION['user_birth_date_error'] = "Please enter a valid birth date";
-                                                    header("Location: edit_user.php", true, 303);
-                                                    exit();
-                                                }
-                                                else {
-                                                    if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                        $_SESSION['user_status_error'] = "Please select an appropriate user status";
-                                                        header("Location: edit_user.php", true, 303);
-                                                        exit();
-                                                    }
-                                                    else {
-                                                        $user_status = test_input($_POST['user_status']);
-                                                        if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
-                                                            $_SESSION['secret_key_error'] = "Please select an appropriate value for the secret key";
-                                                            header("Location: edit_user.php", true, 303);
-                                                            exit();
-                                                        }
-                                                        else {
-                                                            $secret_key = test_input($_POST['secret_key']);
-                                                            if ($secret_key == 0) {
-                                                                $secret_key = NULL;
-                                                                $user_middle_name = NULL;
-                                                                
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                $stmt->bind_param("issssssssis", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
-                                                                if ($stmt->execute()) {
-                                                                    $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                                else {
-                                                                    $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                            }
-                                                            else {
-                                                                $user_middle_name = NULL;
 
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ? WHERE username = ?");
-                                                                $stmt->bind_param("isssssssss", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
-                                                                if ($stmt->execute()) {
-                                                                    $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                                else {
-                                                                    $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }  
+                function validateUsername($provided_username) {
+                    $provided_username = testInput($provided_username);
+                    if (!ctype_alnum($provided_username)) {
+                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
                     }
                     else {
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $_SESSION['password_expiration_error'] = "Please select an appropriate value for the password expiration";
-                            header("Location: edit_user.php", true, 303);
-                            exit();
-                        }
-                        else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $_SESSION['user_role_error'] = "Please select an appropriate user role";
-                                header("Location: edit_user.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $user_role = test_input($_POST['user_role']);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $_SESSION['user_first_name_error'] = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
-                                    header("Location: edit_user.php", true, 303);
-                                    exit();
-                                }
-                                else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_middle_name'])) {
-                                        $_SESSION['user_middle_name_error'] = "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
-                                        header("Location: edit_user.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        $user_middle_name = $_POST['user_middle_name'];
-                                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
-                                            $_SESSION['user_last_name_error'] = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
-                                            header("Location: edit_user.php", true, 303);
-                                            exit();
-                                        }
-                                        else {
-                                            $user_last_name = test_input($_POST['user_last_name']);
-                                            $user_email = test_input($_POST['user_email']);
-                                            if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                                $_SESSION['user_email_error'] = "Please enter a valid email address (e.g., yourname@example.com)";
-                                                header("Location: edit_user.php", true, 303);
-                                                exit(); 
-                                            }
-                                            else {
-                                                if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                    $_SESSION['user_phone_error'] = "Please enter a 10 digit phone number (without special characters including whitespaces)";
-                                                    header("Location: edit_user.php", true, 303);
-                                                    exit();
-                                                }
-                                                else {
-                                                    $user_phone = test_input($_POST['user_phone']);
-                                                    $user_birth_date = test_input($_POST['user_birth_date']);
-                                                    if (!validateDate($user_birth_date)) {
-                                                        $_SESSION['user_birth_date_error'] = "Please enter a valid birth date";
-                                                        header("Location: edit_user.php", true, 303);
-                                                        exit();
-                                                    }
-                                                    else {
-                                                        if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                            $_SESSION['user_status_error'] = "Please select an appropriate user status";
-                                                            header("Location: edit_user.php", true, 303);
-                                                            exit();
-                                                        }
-                                                        else {
-                                                            $user_status = test_input($_POST['user_status']);
-                                                            if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
-                                                                $_SESSION['secret_key_error'] = "Please select an appropriate value for the secret key";
-                                                                header("Location: edit_user.php", true, 303);
-                                                                exit();
-                                                            }
-                                                            else {
-                                                                $secret_key = test_input($_POST['secret_key']);
-                                                                if ($secret_key == 0) {
-                                                                    $secret_key = NULL;
-
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                    $stmt->bind_param("issssssssis", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit(); 
-                                                                    }
-                                                                    else {
-                                                                        $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit(); 
-                                                                    }
-                                                                }
-                                                                else {
-
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ? WHERE username = ?");
-                                                                    $stmt->bind_param("isssssssss", $password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit();
-                                                                    }
-                                                                    else {
-                                                                        $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit();
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }  
+                        return $provided_username;
                     }
+                }
+
+                function validatePasswordExpiration($provided_password_expiration) {
+                    $provided_password_expiration = testInput($provided_password_expiration);
+                    if($provided_password_expiration != 0 && $provided_password_expiration != 1) {
+                        $_SESSION['password_expiration_error'] = "<p class=\"error\">Please select an appropriate value for the password expiration</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_password_expiration;
+                    }
+                }
+
+                function validateUserRole($provided_user_role) {
+                    $provided_user_role = testInput($provided_user_role);
+                    if ($provided_user_role != "user" && $provided_user_role != "recruiter" && $provided_user_role != "administrator") {
+                        $_SESSION["user_role_error"] = "<p class=\"error\">Please select an appropriate user role</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_role;
+                    }
+                }
+
+                function validateUserFirstName($provided_user_first_name) {
+                    $provided_user_first_name = testInput($provided_user_first_name);
+                    if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_first_name)) {
+                        $_SESSION["user_first_name_error"] = "<p class=\"error\">Please ensure that your first name has letters, dashes, apostrophes and whitespaces only</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_first_name;
+                    }
+                }
+
+                function validateUserMiddleName($provided_user_middle_name) {
+                    $provided_user_middle_name = testInput($provided_user_middle_name);
+                    if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_middle_name)) {
+                        $_SESSION["user_middle_name_error"] = "<p class=\"error\">Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_middle_name;
+                    }
+                }
+
+                function validateUserLastName($provided_user_last_name) {
+                    $provided_user_last_name = testInput($provided_user_last_name);
+                    if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_last_name)) {
+                        $_SESSION["user_last_name_error"] = "<p class=\"error\">Please ensure that your last name has letters, dashes, apostrophes and whitespaces only</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_last_name;
+                    }
+                }
+
+                function validateUserEmail($provided_user_email) {
+                    $provided_user_email = testInput($provided_user_email);
+                    if (!filter_var($provided_user_email, FILTER_VALIDATE_EMAIL)) {
+                        $_SESSION["user_email_error"] = "<p class=\"error\">Please enter a valid email address (e.g., yourname@example.com)</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit(); 
+                    }
+                    else {
+                        return $provided_user_email;
+                    }
+                }
+
+                function validateUserPhone($provided_user_phone) {
+                    $provided_user_phone = testInput($provided_user_phone);
+                    if (!preg_match("/^[0-9]{10}$/", $provided_user_phone)) {
+                        $_SESSION["user_phone_error"] = "<p class=\"error\">Please enter a 10 digit phone number (without special characters including whitespace)</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_phone;
+                    }
+                }
+
+                function validateUserBirthDate($provided_user_birth_date) {
+                    $provided_user_birth_date = testInput($provided_user_birth_date);
+                    if (!validateDate($provided_user_birth_date)) {
+                        $_SESSION["user_birth_date_error"] = "<p class=\"error\">Please enter a valid birth date</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_birth_date;
+                    }
+                }
+
+                function validateUserStatus($provided_user_status) {
+                    $provided_user_status = testInput($provided_user_status);
+                    if (($provided_user_status != "active" && $provided_user_status != "inactive")) {
+                        $_SESSION["user_status_error"] = "<p class=\"error\">Please ensure that the status of the user is active upon creation</p>";
+                        header("Location: create_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_user_status;
+                    }
+                }
+
+                function validateSecretKey($provided_secret_key) {
+                    $provided_secret_key = testInput($provided_secret_key);
+                    if ($provided_secret_key != 0 && $provided_secret_key != 1) {
+                        $_SESSION['secret_key_error'] = "<p class=\"error\">Please select an appropriate value for the secret key</p>";
+                        header("Location: edit_user_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_secret_key;
+                    }
+                }
+
+                if (!empty($_POST['user_middle_name'])) {
+                    $user_middle_name = validateUserMiddleName($_POST['user_middle_name']);
                 }
                 else {
-                    if (empty($_POST['user_middle_name'])) {
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $_SESSION['password_expiration_error'] = "Please select an appropriate value for the password expiration";
-                            header("Location: edit_user.php", true, 303);
-                            exit();
-                        }
-                        else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $_SESSION['user_role_error'] = "Please select an appropriate user role";
-                                header("Location: edit_user.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $user_role = test_input($_POST['user_role']);
-                                $password = $_POST['password'];
-                                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $_SESSION['user_first_name_error'] = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
-                                    header("Location: edit_user.php", true, 303);
-                                    exit();
-                                }
-                                else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
-                                        $_SESSION['user_last_name_error'] = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
-                                        header("Location: edit_user.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        $user_last_name = test_input($_POST['user_last_name']);
-                                        $user_email = test_input($_POST['user_email']);
-                                        if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                            $_SESSION['user_email_error'] = "Please enter a valid email address (e.g., yourname@example.com)";
-                                            header("Location: edit_user.php", true, 303);
-                                            exit();
-                                        }
-                                        else {
-                                            if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                $_SESSION['user_phone_error'] = "Please enter a 10 digit phone number (without special characters including whitespaces)";
-                                                header("Location: edit_user.php", true, 303);
-                                                exit();
-                                            }
-                                            else {
-                                                $user_phone = test_input($_POST['user_phone']);                                      
-                                                $user_birth_date = test_input($_POST['user_birth_date']);
-                                                if (!validateDate($user_birth_date)) {
-                                                    $_SESSION['user_birth_date_error'] = "Please enter a valid birth date";
-                                                    header("Location: edit_user.php", true, 303);
-                                                    exit(); 
-                                                }
-                                                else {
-                                                    if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                        $_SESSION['user_status_error'] = "Please select an appropriate user status";
-                                                        header("Location: edit_user.php", true, 303);
-                                                        exit();
-                                                    }
-                                                    else {
-                                                        $user_status = test_input($_POST['user_status']);
-                                                        if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
-                                                            $_SESSION['secret_key_error'] = "Please select an appropriate value for the secret key";
-                                                            header("Location: edit_user.php", true, 303);
-                                                            exit();
-                                                        }
-                                                        else {
-                                                            $secret_key = test_input($_POST['secret_key']);
-                                                            if ($secret_key == 0) {
-                                                                $secret_key = NULL;
-                                                                $user_middle_name = NULL;
-
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                $stmt->bind_param("isssssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
-                                                                if ($stmt->execute()) {
-                                                                    $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                                else {
-                                                                    $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                            }
-                                                            else {
-                                                                $user_middle_name = NULL;
-
-                                                                include("database.php");
-                                                                $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ? WHERE username = ?");
-                                                                $stmt->bind_param("issssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
-                                                                if ($stmt->execute()) {
-                                                                    $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                                else {
-                                                                    $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                    header("Location: edit_user.php", true, 303);
-                                                                    exit();
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else {                 
-                        if($_POST['password_expiration'] != 0 && $_POST['password_expiration'] != 1) {
-                            $_SESSION['password_expiration_error'] = "Please select an appropriate value for the password expiration";
-                            header("Location: edit_user.php", true, 303);
-                            exit();
-                        }
-                        else {
-                            $password_expiration = test_input($_POST['password_expiration']);
-                            if($_POST['user_role'] != "user" && $_POST['user_role'] != "recruiter" && $_POST['user_role'] != "administrator") {
-                                $_SESSION['user_role_error'] = "Please select an appropriate user role";
-                                header("Location: edit_user.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $user_role = test_input($_POST['user_role']);
-                                $password = $_POST['password'];
-                                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                                if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_first_name'])) {
-                                    $_SESSION['user_first_name_error'] = "Please ensure that your first name has letters, dashes, apostrophes and whitespaces only";
-                                    header("Location: edit_user.php", true, 303);
-                                    exit();
-                                }
-                                else {
-                                    $user_first_name = test_input($_POST['user_first_name']);
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_middle_name'])) {
-                                        $_SESSION['user_middle_name_error'] = "<p>Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only.</p>";
-                                        header("Location: edit_user.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        $user_middle_name = $_POST['user_middle_name'];
-                                        if (!preg_match("/^[a-zA-Z-' ]*$/",$_POST['user_last_name'])) {
-                                            $_SESSION['user_last_name_error'] = "Please ensure that your last name has letters, dashes, apostrophes and whitespaces only";
-                                            header("Location: edit_user.php", true, 303);
-                                            exit();
-                                        }
-                                        else {
-                                            $user_last_name = test_input($_POST['user_last_name']);
-                                            $user_email = test_input($_POST['user_email']);
-                                            if (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-                                                $_SESSION['user_email_error'] = "Please enter a valid email address (e.g., yourname@example.com)";
-                                                header("Location: edit_user.php", true, 303);
-                                                exit();
-                                            }
-                                            else {
-                                                if (!preg_match("/^[0-9]{10}$/", $_POST['user_phone'])) {
-                                                    $_SESSION['user_phone_error'] = "Please enter a 10 digit phone number (without special characters including whitespaces)";
-                                                    header("Location: edit_user.php", true, 303);
-                                                    exit();
-                                                }
-                                                else {
-                                                    $user_phone = test_input($_POST['user_phone']);
-                                                    $user_birth_date = test_input($_POST['user_birth_date']);
-                                                    if (!validateDate($user_birth_date)) {
-                                                        $_SESSION['user_birth_date_error'] = "Please enter a valid birth date";
-                                                        header("Location: edit_user.php", true, 303);
-                                                        exit();
-                                                    }
-                                                    else {
-                                                        if ($_POST['user_status'] != "active" && $_POST['user_status'] != "inactive") {
-                                                            $_SESSION['user_status_error'] = "Please select an appropriate user status";
-                                                            header("Location: edit_user.php", true, 303);
-                                                            exit();
-                                                        }
-                                                        else {
-                                                            $user_status = test_input($_POST['user_status']);
-                                                            if ($_POST['secret_key'] != 0 && $_POST['secret_key'] != 1) {
-                                                                $_SESSION['secret_key_error'] = "Please select an appropriate value for the secret key";
-                                                                header("Location: edit_user.php", true, 303);
-                                                                exit();
-                                                            }
-                                                            else {
-                                                                $secret_key = test_input($_POST['secret_key']);
-                                                                if ($secret_key == 0) {
-                                                                    $secret_key = NULL;
-
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ?, secret_key = ? WHERE username = ?");
-                                                                    $stmt->bind_param("isssssssssis", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $secret_key, $_COOKIE['username']);
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit();
-                                                                    }
-                                                                    else {
-                                                                        $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit(); 
-                                                                    }
-                                                                }
-                                                                else {
-
-                                                                    include("database.php");
-                                                                    $stmt = $DBConnect->prepare("UPDATE users SET password_expiration = ?, password = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date= ?, user_status = ? WHERE username = ?");
-                                                                    $stmt->bind_param("issssssssss", $password_expiration, $hashed_password, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status, $_COOKIE['username']);
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit(); 
-                                                                    }
-                                                                    else {
-                                                                        $_SESSION["edit_user_error"] = "<p>Changes have not been made successfully.</p>";
-                                                                        header("Location: edit_user.php", true, 303);
-                                                                        exit();
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    $user_middle_name = NULL;
                 }
+
+                $username = validateUsername($_COOKIE['username']);
+                $password_expiration = validatePasswordExpiration($_POST['password_expiration']);
+                $user_role = validateUserRole($_POST['user_role']);
+                $user_first_name = validateUserFirstName($_POST['user_first_name']);
+                $user_last_name = validateUserLastName($_POST['user_last_name']);
+                $user_email = validateUserEmail($_POST['user_email']);
+                $user_phone = validateUserPhone($_POST['user_phone']);
+                $user_birth_date = validateUserBirthDate($_POST['user_birth_date']);
+                $user_status = validateUserStatus($_POST['user_status']);
+                $secret_key = validateSecretKey($_POST['secret_key']);
+
+                $sql = "UPDATE users SET password_expiration = ?, user_role = ?, user_first_name = ?, user_middle_name = ?, user_last_name = ?, user_email = ?, user_phone = ?, user_birth_date = ?, user_status = ?";
+                $where = " WHERE username = ?";
+                $types = "isssssssss";
+                $values = array($password_expiration, $user_role, $user_first_name, $user_middle_name, $user_last_name, $user_email, $user_phone, $user_birth_date, $user_status);
+
+                if (!empty($_POST['password'])) {
+                    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                    $sql .= ", password = ?";
+                    $types .= "s";
+                    $values[] = $password;
+                }
+
+                if ($secret_key == 0) {
+                    $secret_key = NULL;
+                    $sql.=", secret_key = ?";
+                    $types .= "s";
+                    $values[] = $secret_key;
+                }
+
+                $sql = $sql.$where;
+                $values[] = $username;
+                
+                include("database.php");
+                $stmt = $DBConnect->prepare($sql);
+                $stmt->bind_param($types, ...$values);
+                $stmt->execute();
+                if ($stmt->execute()) {
+                    $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
+                    header("Location: edit_user_procedural.php", true, 303);
+                    exit();
+                }
+                else {
+                    $_SESSION["edit_user_error"] = "<p class=\"error\">Changes have not been made successfully.</p>";
+                    header("Location: edit_user_procedural.php", true, 303);
+                    exit();
+                }
+                $stmt->close();
+                $DBConnect->close();
+                
             }
             elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
                 if (isset($_SESSION["edit_user_confirmation"])) {echo $_SESSION["edit_user_confirmation"];}
@@ -604,7 +316,7 @@
             <p>Please utilize the form below to make changes to the selected account:</p>
             <p><span class="error">* required field</span></p>
             <label for="username"><b>Username:</b></label>
-            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php echo $_COOKIE["username"]; ?>" readonly required><span class="error"> * </span><br><br>
+            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
             <label for="password_expiration"><b>Password Expiration:</b></label>
             <select id="password_expiration" name="password_expiration" required>
                 <option value="">&nbsp;</option>
@@ -679,6 +391,7 @@
     if (isset($_SESSION['edit_user_confirmation'])) {unset($_SESSION['edit_user_confirmation']);}
     if (isset($_SESSION['edit_user_error'])) {unset($_SESSION['edit_user_error']);}
     if (isset($_SESSION['password_expiration_error'])) {unset($_SESSION['password_expiration_error']);}
+    if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
     if (isset($_SESSION['user_role_error'])) {unset($_SESSION['user_role_error']);}
     if (isset($_SESSION['user_first_name_error'])) {unset($_SESSION['user_first_name_error']);}
     if (isset($_SESSION['user_middle_name_error'])) {unset($_SESSION['user_middle_name_error']);}
