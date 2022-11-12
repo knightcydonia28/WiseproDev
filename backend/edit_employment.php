@@ -1,5 +1,4 @@
 <?php
-    //THIS DOCUMENT IS BEING TESTED FOR POST-REDIRECT-GET METHODOLOGY.
     session_start();
     if (!isset($_SESSION['login_status'])) {
         header('Location: login.php');
@@ -30,29 +29,7 @@
 <html lang="en">
     <head>
         <?php
-            if (time() - $_SESSION['login_time'] > 90000000) {
-                function destroySession() {
-                    $_SESSION = array();
-                    if (ini_get("session.use_cookies")) {
-                        $params = session_get_cookie_params();
-                        setcookie(session_name(), '', time() - 42000,
-                            $params["path"], $params["domain"],
-                            $params["secure"], $params["httponly"]
-                        );
-                    }
-                    session_destroy();
-                }
-                destroySession();
-                echo 
-                "<script>
-                    alert(\"Your session has expired.\");
-                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
-                </script>";
-            }
-            if (time() - $_SESSION['login_time'] < 900) {
-                $added_time = time() - $_SESSION['login_time'];
-                $_SESSION['login_time'] += $added_time;
-            }
+            include("session_timeout.php");
         ?>
         <meta charset="UTF-8">
         <title>Edit Employment</title>
@@ -91,88 +68,131 @@
         <?php
             if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 
-                function test_input($data) {
+                function testInput($data) {
                     $data = trim($data);
                     $data = stripslashes($data);
                     $data = htmlspecialchars($data);
                     return $data;
                 }
+
                 function validateDate($date, $format = 'Y-m-d') {
                     $d = DateTime::createFromFormat($format, $date);
                     return $d && $d->format($format) == $date;
                 }
                 
-                if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_position'])) {
-                    $_SESSION['job_position_error'] = "Please ensure that job position has letters and whitespaces only";
-                    header("Location: edit_employment.php", true, 303);
-                    exit();
-                }
-                else {
-                    $job_position = test_input($_POST['job_position']);
-                    if ($_POST['employment_type'] != "full-time" && $_POST['employment_type'] != "part-time" && $_POST['employment_type'] != "contract" && $_POST['employment_type'] != "internship") {
-                        $_SESSION['employment_type_error'] = "Please select an appropriate employment type";
-                        header("Location: edit_employment.php", true, 303);
+                function validateUsername($provided_username) {
+                    $provided_username = testInput($provided_username);
+                    if (!ctype_alnum($provided_username)) {
+                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
+                        header("Location: create_user_procedural.php", true, 303);
                         exit();
                     }
                     else {
-                        $employment_type = test_input($_POST['employment_type']);
-                        $employment_start_date = test_input($_POST['employment_start_date']);
-                        if (!validateDate($employment_start_date)) {
-                            $_SESSION['employment_start_date_error'] = "Please enter a valid employment start date";
-                            header("Location: edit_employment.php", true, 303);
-                            exit(); 
-                        }
-                        else {
-                            if ($_POST['employment_status'] != "employed" && $_POST['employment_status'] != "unemployed") {
-                                $_SESSION['employment_status_error'] = "Please ensure that the employment status of the user is employed when adding employment";
-                                header("Location: edit_employment.php", true, 303);
-                                exit();
-                            }
-                            else {
-                                $employment_status = test_input($_POST['employment_status']);
-                                if ($employment_status == "employed") {
-                                    $employment_end_date = NULL;
-                                    include("database.php");
-                                    $stmt = $DBConnect->prepare("UPDATE employments SET job_position = ?, employment_type = ?, employment_start_date = ?, employment_status = ?, employment_end_date = ? WHERE username = ? AND client_id = ?");
-                                    $stmt->bind_param("ssssssi", $job_position, $employment_type, $employment_start_date, $employment_status, $employment_end_date, $_COOKIE['username'], $_COOKIE['client_id']);
-                                    if ($stmt->execute()) {
-                                        $_SESSION['edit_employment_confirmation'] = "<p>Changes have been made successfully.</p>";
-                                        header("Location: edit_employment.php", true, 303);
-                                        exit(); 
-                                    }
-                                    else {
-                                        $_SESSION['edit_employment_error'] = "<p>Changes have not been made successfully.</p>";
-                                        header("Location: edit_employment.php", true, 303);
-                                        exit(); 
-                                    }
-                                }
-                                if ($employment_status == "unemployed" && !empty($_POST['employment_end_date'])) {
-                                    $employment_end_date = test_input($_POST['employment_end_date']);
-                                    if (!validateDate($employment_end_date)) {
-                                        $_SESSION['employment_end_date_error'] = "Please enter a valid employment end date";
-                                        header("Location: edit_employment.php", true, 303);
-                                        exit();
-                                    }
-                                    else {
-                                        include("database.php");
-                                        $stmt = $DBConnect->prepare("UPDATE employments SET job_position = ?, employment_type = ?, employment_start_date = ?, employment_status = ?, employment_end_date = ? WHERE username = ? AND client_id = ?");
-                                        $stmt->bind_param("ssssssi", $job_position, $employment_type, $employment_start_date, $employment_status, $employment_end_date, $_COOKIE['username'], $_COOKIE['client_id']);
-                                        if ($stmt->execute()) {
-                                            $_SESSION['edit_employment_confirmation'] = "<p>Changes have been made successfully.</p>";
-                                            header("Location: edit_employment.php", true, 303);
-                                            exit(); 
-                                        }
-                                        else {
-                                            $_SESSION['edit_employment_error'] = "<p>Changes have not been made successfully.</p>";
-                                            header("Location: edit_employment.php", true, 303);
-                                            exit(); 
-                                        }
-                                    }
-                                }
-                            }
-                        }   
-                    } 
-                }       
+                        return $provided_username;
+                    }
+                }
+
+                function validateClientId($provided_client_id) {
+                    $provided_client_id = testInput($provided_client_id);
+                    if (!is_numeric($provided_client_id)) {
+                        $_SESSION["client_id_error"] = "<p class=\"error\">Please ensure that client id is numeric</p>";
+                        header("Location: edit_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_client_id;
+                    }
+                }
+
+                function validateJobPosition($provided_job_position) {
+                    $provided_job_position = testInput($provided_job_position);
+                    if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_position)) {
+                        $_SESSION['job_position_error'] = "<p class=\"error\">Please ensure that job position has letters and whitespaces only</p>";
+                        header("Location: edit_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_job_position;
+                    }
+                }
+
+                function validateEmploymentType($provided_employment_type) {
+                    $provided_employment_type = testInput($provided_employment_type);
+                    if ($provided_employment_type != "full-time" && $provided_employment_type != "part-time" && $provided_employment_type != "contract" && $provided_employment_type != "internship") {
+                        $_SESSION['employment_type_error'] = "<p class=\"error\">Please select an appropriate employment type</p>";
+                        header("Location: edit_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_employment_type;
+                    }
+                }
+
+                function validateEmploymentStartDate($provided_employment_start_date) {
+                    $provided_employment_start_date = testInput($provided_employment_start_date);
+                    if (!validateDate($provided_employment_start_date)) {
+                        $_SESSION['employment_start_date_error'] = "<p class=\"error\">Please enter a valid employment start date</p>";
+                        header("Location: edit_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_employment_start_date;
+                    }
+                }
+
+                function validateEmploymentStatus($provided_employment_status) {
+                    $provided_employment_status = testInput($provided_employment_status);
+                    if ($provided_employment_status != "employed" && $provided_employment_status != "unemployed") {
+                        $_SESSION['employment_status_error'] = "<p class=\"error\">Please ensure that the employment status of the user is employed when adding employment</p>";
+                        header("Location: add_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_employment_status;
+                    }
+                }
+
+                function validateEmploymentEndDate($provided_employment_end_date) {
+                    $provided_employment_end_date = testInput($provided_employment_end_date);
+                    if (!validateDate($provided_employment_end_date)) {
+                        $_SESSION['employment_end_date_error'] = "<p class=\"error\">Please enter a valid employment end date</p>";
+                        header("Location: edit_employment_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_employment_end_date;
+                    }
+                }
+
+                if (!empty($_POST['employment_end_date'])) {
+                    $employment_end_date = validateEmploymentEndDate($_POST['employment_end_date']);
+                }
+                else {
+                    $employment_end_date = NULL;
+                }
+
+                $username = validateUsername($_COOKIE['username']);
+                $client_id = validateClientId($_COOKIE['client_id']);
+                $job_position = validateJobPosition($_POST['job_position']);
+                $employment_type = validateEmploymentType($_POST['employment_type']);
+                $employment_start_date = validateEmploymentStartDate($_POST['employment_start_date']);          
+                $employment_status = validateEmploymentStatus($_POST['employment_status']);
+
+                include("database.php");
+                $stmt = $DBConnect->prepare("UPDATE employments SET job_position = ?, employment_type = ?, employment_start_date = ?, employment_status = ?, employment_end_date = ? WHERE username = ? AND client_id = ?");
+                $stmt->bind_param("ssssssi", $job_position, $employment_type, $employment_start_date, $employment_status, $employment_end_date, $username, $client_id);
+                if ($stmt->execute()) {
+                    $_SESSION['edit_employment_confirmation'] = "<p>Changes have been made successfully.</p>";
+                    header("Location: edit_employment_procedural.php", true, 303);
+                    exit(); 
+                }
+                else {
+                    $_SESSION['edit_employment_error'] = "<p class=\"error\">Changes have not been made successfully.</p>";
+                    header("Location: edit_employment_procedural.php", true, 303);
+                    exit(); 
+                }
+                $stmt->close();
+                $DBConnect->close();
             }
             elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
                 if (isset($_SESSION['edit_employment_confirmation'])) {echo $_SESSION['edit_employment_confirmation'];}
@@ -190,9 +210,9 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><br><br>
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION['username_error'])) {echo $_SESSION['username_error'];} ?></span><br><br>
             <label for="client_name">Client:</label>
-            <input type="text" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $retrieved_client_name; ?>" readonly required><br><br>
+            <input type="text" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $retrieved_client_name; ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["client_id_error"])) {echo $_SESSION["client_id_error"];} ?></span><br><br>
             <label for="vendor_name">Vendor:</label>
             <input type="text" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $retrieved_vendor_name; ?>" readonly required><br><br>
             <label for="job_position">Job Position:</label>
@@ -250,4 +270,6 @@
     if (isset($_SESSION['employment_end_date_error'])) {unset($_SESSION['employment_end_date_error']);}
     if (isset($_SESSION['edit_employment_confirmation'])) {unset($_SESSION['edit_employment_confirmation']);}
     if (isset($_SESSION['edit_employment_error'])) {unset($_SESSION['edit_employment_error']);}
+    if (isset($_SESSION['username_error'])) {unset($_SESSION['username_error']);}
+    if (isset($_SESSION["client_id_error"])) {unset($_SESSION["client_id_error"]);}
 ?>
