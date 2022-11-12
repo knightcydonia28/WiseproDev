@@ -282,7 +282,6 @@
                 include("database.php");
                 $stmt = $DBConnect->prepare($sql);
                 $stmt->bind_param($types, ...$values);
-                $stmt->execute();
                 if ($stmt->execute()) {
                     $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
                     header("Location: edit_user_procedural.php", true, 303);
