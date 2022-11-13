@@ -80,30 +80,6 @@
                     return $d && $d->format($format) == $date;
                 }
                 
-                function validateUsername($provided_username) {
-                    $provided_username = testInput($provided_username);
-                    if (!ctype_alnum($provided_username)) {
-                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
-                        header("Location: create_user_procedural.php", true, 303);
-                        exit();
-                    }
-                    else {
-                        return $provided_username;
-                    }
-                }
-
-                function validateClientId($provided_client_id) {
-                    $provided_client_id = testInput($provided_client_id);
-                    if (!is_numeric($provided_client_id)) {
-                        $_SESSION["client_id_error"] = "<p class=\"error\">Please ensure that client id is numeric</p>";
-                        header("Location: edit_employment_procedural.php", true, 303);
-                        exit();
-                    }
-                    else {
-                        return $provided_client_id;
-                    }
-                }
-
                 function validateJobPosition($provided_job_position) {
                     $provided_job_position = testInput($provided_job_position);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_position)) {
@@ -171,8 +147,8 @@
                     $employment_end_date = NULL;
                 }
 
-                $username = validateUsername($_COOKIE['username']);
-                $client_id = validateClientId($_COOKIE['client_id']);
+                $username = $_COOKIE['username'];
+                $client_id = $_COOKIE['client_id'];
                 $job_position = validateJobPosition($_POST['job_position']);
                 $employment_type = validateEmploymentType($_POST['employment_type']);
                 $employment_start_date = validateEmploymentStartDate($_POST['employment_start_date']);          
@@ -210,9 +186,9 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION['username_error'])) {echo $_SESSION['username_error'];} ?></span><br><br>
+            <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * </span><br><br>
             <label for="client_name">Client:</label>
-            <input type="text" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $retrieved_client_name; ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["client_id_error"])) {echo $_SESSION["client_id_error"];} ?></span><br><br>
+            <input type="text" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php echo $retrieved_client_name; ?>" readonly required><span class="error"> * </span><br><br>
             <label for="vendor_name">Vendor:</label>
             <input type="text" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $retrieved_vendor_name; ?>" readonly required><br><br>
             <label for="job_position">Job Position:</label>
@@ -270,6 +246,4 @@
     if (isset($_SESSION['employment_end_date_error'])) {unset($_SESSION['employment_end_date_error']);}
     if (isset($_SESSION['edit_employment_confirmation'])) {unset($_SESSION['edit_employment_confirmation']);}
     if (isset($_SESSION['edit_employment_error'])) {unset($_SESSION['edit_employment_error']);}
-    if (isset($_SESSION['username_error'])) {unset($_SESSION['username_error']);}
-    if (isset($_SESSION["client_id_error"])) {unset($_SESSION["client_id_error"]);}
 ?>
