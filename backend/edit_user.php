@@ -107,18 +107,6 @@
                     return $d && $d->format($format) == $date;
                 }
 
-                function validateUsername($provided_username) {
-                    $provided_username = testInput($provided_username);
-                    if (!ctype_alnum($provided_username)) {
-                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
-                        exit();
-                    }
-                    else {
-                        return $provided_username;
-                    }
-                }
-
                 function validatePasswordExpiration($provided_password_expiration) {
                     $provided_password_expiration = testInput($provided_password_expiration);
                     if($provided_password_expiration != 0 && $provided_password_expiration != 1) {
@@ -246,7 +234,7 @@
                     $user_middle_name = NULL;
                 }
 
-                $username = validateUsername($_COOKIE['username']);
+                $username = $_COOKIE['username'];
                 $password_expiration = validatePasswordExpiration($_POST['password_expiration']);
                 $user_role = validateUserRole($_POST['user_role']);
                 $user_first_name = validateUserFirstName($_POST['user_first_name']);
@@ -315,7 +303,7 @@
             <p>Please utilize the form below to make changes to the selected account:</p>
             <p><span class="error">* required field</span></p>
             <label for="username"><b>Username:</b></label>
-            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
+            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE["username"])) {echo $_COOKIE["username"];} ?>" readonly required><span class="error"> * </span><br><br>
             <label for="password_expiration"><b>Password Expiration:</b></label>
             <select id="password_expiration" name="password_expiration" required>
                 <option value="">&nbsp;</option>
@@ -390,7 +378,6 @@
     if (isset($_SESSION['edit_user_confirmation'])) {unset($_SESSION['edit_user_confirmation']);}
     if (isset($_SESSION['edit_user_error'])) {unset($_SESSION['edit_user_error']);}
     if (isset($_SESSION['password_expiration_error'])) {unset($_SESSION['password_expiration_error']);}
-    if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
     if (isset($_SESSION['user_role_error'])) {unset($_SESSION['user_role_error']);}
     if (isset($_SESSION['user_first_name_error'])) {unset($_SESSION['user_first_name_error']);}
     if (isset($_SESSION['user_middle_name_error'])) {unset($_SESSION['user_middle_name_error']);}
