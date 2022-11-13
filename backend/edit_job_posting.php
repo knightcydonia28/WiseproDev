@@ -132,18 +132,6 @@
                     return $d && $d->format($format) == $date;
                 }
 
-                function validateJobId($provided_job_id) {
-                    $provided_job_id = testInput($provided_job_id);
-                    if (!is_numeric($provided_job_id)) {
-                        $_SESSION["job_id_error"] = "<p class=\"error\">Please ensure that job id is numeric</p>";
-                        header("Location: edit_job_posting.php", true, 303);
-                        exit();
-                    }
-                    else {
-                        return $provided_job_id;
-                    }
-                }
-
                 function validateVendorRate($provided_vendor_rate) {
                     $provided_vendor_rate = testInput($provided_vendor_rate);
                     if (!is_numeric($provided_vendor_rate)) {
@@ -246,7 +234,7 @@
                     }
                 }
 
-                $job_id = validateJobId($_COOKIE['job_id']);
+                $job_id = $_COOKIE['job_id'];
                 $vendor_rate = validateVendorRate($_POST['vendor_rate']);
                 $job_title = validateJobTitle($_POST['job_title']);
                 $job_type = validateJobType($_POST['job_type']);
@@ -301,7 +289,7 @@
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="job_id">Job Id:</label>
-            <input type="text" id="job_id" name="job_id" value="<?php echo $retrieved_job_id; ?>" readonly><span class="error"> * <?php if (isset($_SESSION['job_id_error'])) {echo $_SESSION['job_id_error'];} ?></span><br><br>
+            <input type="text" id="job_id" name="job_id" value="<?php echo $retrieved_job_id; ?>" readonly><span class="error"> * </span><br><br>
             <label for="vendor_name">Vendor:</label>
             <input type="text" name="vendor_name" id="vendor_name" placeholder="vendor" pattern="^[a-zA-Z\s]*$" title="Please ensure that vendor name has letters and whitespaces only" value="<?php echo $retrieved_vendor_name; ?>" readonly><br><br>
             <label for="vendor_rate">Vendor Rate:</label>
@@ -357,7 +345,6 @@
     </body>
 </html>
 <?php
-    if (isset($_SESSION['job_id_error'])) {unset($_SESSION['job_id_error']);}
     if (isset($_SESSION['vendor_rate_error'])) {unset($_SESSION['vendor_rate_error']);}
     if (isset($_SESSION['job_title_error'])) {unset($_SESSION['job_title_error']);}
     if (isset($_SESSION['job_type_error'])) {unset($_SESSION['job_type_error']);}
