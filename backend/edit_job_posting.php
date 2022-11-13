@@ -26,29 +26,7 @@
 <html lang="en">
     <head>
         <?php
-            if (time() - $_SESSION['login_time'] > 900) {
-                function destroySession() {
-                    $_SESSION = array();
-                    if (ini_get("session.use_cookies")) {
-                        $params = session_get_cookie_params();
-                        setcookie(session_name(), '', time() - 42000,
-                            $params["path"], $params["domain"],
-                            $params["secure"], $params["httponly"]
-                        );
-                    }
-                    session_destroy();
-                }
-                destroySession();
-                echo 
-                "<script>
-                    alert(\"Your session has expired.\");
-                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
-                </script>";
-            }
-            if (time() - $_SESSION['login_time'] < 900) {
-                $added_time = time() - $_SESSION['login_time'];
-                $_SESSION['login_time'] += $added_time;
-            }
+            include("session_timeout.php");
         ?>
         <meta charset="UTF-8">
         <title>Edit Job Posting</title>
@@ -140,537 +118,184 @@
             $stmt->close();
             $DBConnect->close();
 
-            if (isset($_POST['create_another_job_submit'])) {
-                header('Location: create_job.php');
-                exit();
-            }
-            if (isset($_POST['edit_job_submit'])) {
+            if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
-                function test_input($data) {
+                function testInput($data) {
                     $data = trim($data);
                     $data = stripslashes($data);
                     $data = htmlspecialchars($data);
                     return $data;
                 }
+
                 function validateDate($date, $format = 'Y-m-d') {
                     $d = DateTime::createFromFormat($format, $date);
                     return $d && $d->format($format) == $date;
                 }
 
-                if (!isset($_POST['vendor_rate'])) {
-                    if ($_POST['job_status'] == "inactive") {
-                        if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_title'])) {
-                            $job_title_error = "Please ensure that job title has letters and whitespaces only";
-                        }
-                        else {
-                            $job_title = test_input($_POST['job_title']);
-                            if ($_POST['job_type'] != "full-time" && $_POST['job_type'] != "part-time" && $_POST['job_type'] != "contract" && $_POST['job_type'] != "internship") {
-                                $job_type_error = "Please select an appropriate job type";
-                            }
-                            else {
-                                $job_type = test_input($_POST['job_type']);
-                                if (!isset($_POST['job_location'])) {
-                                    if ($_POST['job_location_alternative'] != "Remote") {
-                                        $job_location_error = "Please ensure that job location is remote";
-                                    }
-                                    else {
-                                        $job_location = test_input($_POST['job_location_alternative']);
-                                        $job_description = $_POST['job_description'];
-                                        if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                            $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                        }
-                                        else {
-                                            $preferred_skills = test_input($_POST['preferred_skills']);
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $required_skills = test_input($_POST['required_skills']);
-                                                $job_expired_date = test_input($_POST['job_expired_date']);
-                                                if (!validateDate($job_expired_date)) {
-                                                    $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                }
-                                                else {
-                                                    $job_status = test_input($_POST['job_status']);
-                                                    include("database.php");
-                                                    $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                    $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                    if ($stmt->execute()) {
-                                                        echo "<p>Changes were made successfully.</p>";
-                                                    }
-                                                    else {
-                                                        echo "<p>Changes were not made successfully.</p>";
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                else {
-                                    if (isset($_POST['job_location_alternative'])) {
-                                        if ($_POST['job_location_alternative'] == "Hybrid") {
-                                            $job_location = test_input($_POST['job_location'])."; ".test_input($_POST['job_location_alternative']);
-                                            $job_description = $_POST['job_description'];
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $preferred_skills = test_input($_POST['preferred_skills']);
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                    $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $required_skills = test_input($_POST['required_skills']);
-                                                    $job_expired_date = test_input($_POST['job_expired_date']);
-                                                    if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                    }
-                                                    else {
-                                                        $job_status = test_input($_POST['job_status']);
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                        $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                        if ($stmt->execute()) {
-                                                            echo "<p>Changes were made successfully.</p>";
-                                                        }
-                                                        else {
-                                                            echo "<p>Changes were not made successfully.</p>";
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['job_location'])) {
-                                            $job_location_error = "Please ensure that job location has letters, commas and whitespaces only";
-                                        }
-                                        else {
-                                            $job_location = test_input($_POST['job_location']);
-                                            $job_description = $_POST['job_description'];
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $preferred_skills = test_input($_POST['preferred_skills']);
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                    $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $required_skills = test_input($_POST['required_skills']);
-                                                    $job_expired_date = test_input($_POST['job_expired_date']);
-                                                    if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                    }
-                                                    else {
-                                                        $job_status = test_input($_POST['job_status']);
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                        $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                        if ($stmt->execute()) {
-                                                            echo "<p>Changes were made successfully.</p>";
-                                                        }
-                                                        else {
-                                                            echo "<p>Changes were not made successfully.</p>";
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }  
-                                    }
-                                }
-                            }
-                        }
+                function validateJobId($provided_job_id) {
+                    $provided_job_id = testInput($provided_job_id);
+                    if (!is_numeric($provided_job_id)) {
+                        $_SESSION["job_id_error"] = "<p class=\"error\">Please ensure that job id is numeric</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
                     }
                     else {
-                        if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_title'])) {
-                            $job_title_error = "Please ensure that job title has letters and whitespaces only";
-                        }
-                        else {
-                            $job_title = test_input($_POST['job_title']);
-                            if ($_POST['job_type'] != "full-time" && $_POST['job_type'] != "part-time" && $_POST['job_type'] != "contract" && $_POST['job_type'] != "internship") {
-                                $job_type_error = "Please select an appropriate job type";
-                            }
-                            else {
-                                $job_type = test_input($_POST['job_type']);
-                                if (!isset($_POST['job_location'])) {
-                                    if ($_POST['job_location_alternative'] != "Remote") {
-                                        $job_location_error = "Please ensure that job location is remote";
-                                    }
-                                    else {
-                                        $job_location = test_input($_POST['job_location_alternative']);
-                                        $job_description = $_POST['job_description'];
-                                        if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                            $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                        }
-                                        else {
-                                            $preferred_skills = test_input($_POST['preferred_skills']);
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $required_skills = test_input($_POST['required_skills']);
-                                                $job_expired_date = NULL;
-                                                $job_status = test_input($_POST['job_status']);
-                                                include("database.php");
-                                                $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                if ($stmt->execute()) {
-                                                    echo "<p>Changes were made successfully.</p>";
-                                                }
-                                                else {
-                                                    echo "<p>Changes were not made successfully.</p>";
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                else {
-                                    if (isset($_POST['job_location_alternative'])) {
-                                        if ($_POST['job_location_alternative'] == "Hybrid") {
-                                            $job_location = test_input($_POST['job_location'])."; ".test_input($_POST['job_location_alternative']);
-                                            $job_description = $_POST['job_description'];
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $preferred_skills = test_input($_POST['preferred_skills']);
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                    $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $required_skills = test_input($_POST['required_skills']);
-                                                    $job_expired_date = NULL;
-                                                    if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                    }
-                                                    else {
-                                                        if ($_POST['job_status'] != "active") {
-                                                            $job_status_error = "Please ensure that the status of the job is active upon creation";
-                                                        }
-                                                        else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['job_location'])) {
-                                            $job_location_error = "Please ensure that job location has letters, commas and whitespaces only";
-                                        }
-                                        else {
-                                            $job_location = test_input($_POST['job_location']);
-                                            $job_description = $_POST['job_description'];
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $preferred_skills = test_input($_POST['preferred_skills']);
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                    $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $required_skills = test_input($_POST['required_skills']);
-                                                    $job_expired_date = NULL;
-                                                    if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                    }
-                                                    else {
-                                                        if ($_POST['job_status'] != "active") {
-                                                            $job_status_error = "Please ensure that the status of the job is active upon creation";
-                                                        }
-                                                        else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("ssssssssi", $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }  
-                                    }
-                                }
-                            }
-                        }
+                        return $provided_job_id;
                     }
                 }
-                else {
-                    if ($_POST['job_status'] == "inactive") {
-                        if (!is_numeric($_POST['vendor_rate'])) {
-                            $vendor_rate_error = "Please ensure that vendor rate is numeric";
-                        }
-                        else {
-                            $vendor_rate = test_input($_POST['vendor_rate']);
-                            if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_title'])) {
-                                $job_title_error = "Please ensure that job title has letters and whitespaces only";
-                            }
-                            else {
-                                $job_title = test_input($_POST['job_title']);
-                                if ($_POST['job_type'] != "full-time" && $_POST['job_type'] != "part-time" && $_POST['job_type'] != "contract" && $_POST['job_type'] != "internship") {
-                                    $job_type_error = "Please select an appropriate job type";
-                                }
-                                else {
-                                    $job_type = test_input($_POST['job_type']);
-                                    if (!isset($_POST['job_location'])) {
-                                        if ($_POST['job_location_alternative'] != "Remote") {
-                                            $job_location_error = "Please ensure that job location is remote";
-                                        }
-                                        else {
-                                            $job_location = test_input($_POST['job_location_alternative']);
-                                            $job_description = $_POST['job_description'];
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $preferred_skills = test_input($_POST['preferred_skills']);
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                    $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $required_skills = test_input($_POST['required_skills']);
-                                                    $job_expired_date = test_input($_POST['job_expired_date']);
-                                                    if (!validateDate($job_expired_date)) {
-                                                        $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                    }
-                                                    else {
-                                                        $job_status = test_input($_POST['job_status']);
-                                                        include("database.php");
-                                                        $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                        $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                        if ($stmt->execute()) {
-                                                            echo "<p>Changes were made successfully.</p>";
-                                                        }
-                                                        else {
-                                                            echo "<p>Changes were not made successfully.</p>";
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        if (isset($_POST['job_location_alternative'])) {
-                                            if ($_POST['job_location_alternative'] == "Hybrid") {
-                                                $job_location = test_input($_POST['job_location'])."; ".test_input($_POST['job_location_alternative']);
-                                                $job_description = $_POST['job_description'];
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                    $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $preferred_skills = test_input($_POST['preferred_skills']);
-                                                    if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                        $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                    }
-                                                    else {
-                                                        $required_skills = test_input($_POST['required_skills']);
-                                                        $job_expired_date = test_input($_POST['job_expired_date']);
-                                                        if (!validateDate($job_expired_date)) {
-                                                            $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                        }
-                                                        else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['job_location'])) {
-                                                $job_location_error = "Please ensure that job location has letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $job_location = test_input($_POST['job_location']);
-                                                $job_description = $_POST['job_description'];
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                    $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $preferred_skills = test_input($_POST['preferred_skills']);
-                                                    if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                        $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                    }
-                                                    else {
-                                                        $required_skills = test_input($_POST['required_skills']);
-                                                        $job_expired_date = test_input($_POST['job_expired_date']);
-                                                        if (!validateDate($job_expired_date)) {
-                                                            $job_expired_date_error = "Please enter a valid job expired date"; 
-                                                        }
-                                                        else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }  
-                                        }
-                                    }
-                                }
-                            }
-                        }
+
+                function validateVendorRate($provided_vendor_rate) {
+                    $provided_vendor_rate = testInput($provided_vendor_rate);
+                    if (!is_numeric($provided_vendor_rate)) {
+                        $_SESSION['vendor_rate_error'] = "<p class=\"error\">Please ensure that vendor rate is numeric</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
                     }
                     else {
-                        if (!is_numeric($_POST['vendor_rate'])) {
-                            $vendor_rate_error = "Please ensure that vendor rate is numeric";
-                        }
-                        else {
-                            $vendor_rate = test_input($_POST['vendor_rate']);
-                            if (!preg_match("/^[a-zA-Z\s]*$/", $_POST['job_title'])) {
-                                $job_title_error = "Please ensure that job title has letters and whitespaces only";
-                            }
-                            else {
-                                $job_title = test_input($_POST['job_title']);
-                                if ($_POST['job_type'] != "full-time" && $_POST['job_type'] != "part-time" && $_POST['job_type'] != "contract" && $_POST['job_type'] != "internship") {
-                                    $job_type_error = "Please select an appropriate job type";
-                                }
-                                else {
-                                    $job_type = test_input($_POST['job_type']);
-                                    if (!isset($_POST['job_location'])) {
-                                        if ($_POST['job_location_alternative'] != "Remote") {
-                                            $job_location_error = "Please ensure that job location is remote";
-                                        }
-                                        else {
-                                            $job_location = test_input($_POST['job_location_alternative']);
-                                            $job_description = $_POST['job_description'];
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $preferred_skills = test_input($_POST['preferred_skills']);
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                    $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $required_skills = test_input($_POST['required_skills']);
-                                                    $job_expired_date = NULL;
-                                                    $job_status = test_input($_POST['job_status']);
-                                                    include("database.php");
-                                                    $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                    $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                    if ($stmt->execute()) {
-                                                        echo "<p>Changes were made successfully.</p>";
-                                                    }
-                                                    else {
-                                                        echo "<p>Changes were not made successfully.</p>";
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        if (isset($_POST['job_location_alternative'])) {
-                                            if ($_POST['job_location_alternative'] == "Hybrid") {
-                                                $job_location = test_input($_POST['job_location'])."; ".test_input($_POST['job_location_alternative']);
-                                                $job_description = $_POST['job_description'];
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                    $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $preferred_skills = test_input($_POST['preferred_skills']);
-                                                    if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                        $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                    }
-                                                    else {
-                                                        $required_skills = test_input($_POST['required_skills']);
-                                                        $job_expired_date = NULL;
-                                                        if ($_POST['job_status'] != "active") {
-                                                            $job_status_error = "Please ensure that the status of the job is active upon creation";
-                                                        }
-                                                        else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ?, WHERE job_id = ?");
-                                                            $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['job_location'])) {
-                                                $job_location_error = "Please ensure that job location has letters, commas and whitespaces only";
-                                            }
-                                            else {
-                                                $job_location = test_input($_POST['job_location']);
-                                                $job_description = $_POST['job_description'];
-                                                if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['preferred_skills'])) {
-                                                    $preferred_skills_error = "Please ensure that preferred skills have letters, commas and whitespaces only";
-                                                }
-                                                else {
-                                                    $preferred_skills = test_input($_POST['preferred_skills']);
-                                                    if (!preg_match("/^[a-zA-Z,\s]*$/", $_POST['required_skills'])) {
-                                                        $required_skills_error = "Please ensure that required skills have letters, commas and whitespaces only";
-                                                    }
-                                                    else {
-                                                        $required_skills = test_input($_POST['required_skills']);
-                                                        $job_expired_date = NULL;
-                                                        if ($_POST['job_status'] != "active") {
-                                                            $job_status_error = "Please ensure that the status of the job is active upon creation";
-                                                        }
-                                                        else {
-                                                            $job_status = test_input($_POST['job_status']);
-                                                            include("database.php");
-                                                            $stmt = $DBConnect->prepare("UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?, job_expired_date = ? WHERE job_id = ?");
-                                                            $stmt->bind_param("dssssssssi", $vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status, $job_expired_date, $_COOKIE['job_id']); 
-                                                            if ($stmt->execute()) {
-                                                                echo "<p>Changes were made successfully.</p>";
-                                                            }
-                                                            else {
-                                                                echo "<p>Changes were not made successfully.</p>";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }  
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        return $provided_vendor_rate;
                     }
+                }
+
+                function validateJobTitle($provided_job_title) {
+                    $provided_job_title = testInput($provided_job_title);
+                    if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_title)) {
+                        $_SESSION['job_title_error'] = "<p class=\"error\">Please ensure that job title has letters and whitespaces only</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_job_title;
+                    }
+                }
+
+                function validateJobType($provided_job_type) {
+                    $provided_job_type = testInput($provided_job_type);
+                    if ($provided_job_type != "full-time" && $provided_job_type != "part-time" && $provided_job_type != "contract" && $provided_job_type != "internship") {
+                        $_SESSION['job_type_error'] = "<p class=\"error\">Please select an appropriate job type</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_job_type;
+                    }
+                }
+
+                function validateJobLocation($provided_job_location) {
+                    $provided_job_location = testInput($provided_job_location);
+                    if (preg_match("/^[a-zA-Z,;\s]*$/", $provided_job_location)) {
+                        return $provided_job_location;
+                    }
+                    else {
+                        $_SESSION['job_location_error'] = "<p class=\"error\">Please ensure that job location has letters, commas, semicolons, and whitespaces only</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
+                    }
+                }
+
+                function validateJobDescription($provided_job_description) {
+                    $provided_job_description = testInput($provided_job_description);
+                    return $provided_job_description;
+                }
+
+                function validatePreferredSkills($provided_preferred_skills) {
+                    $provided_preferred_skills = testInput($provided_preferred_skills);
+                    if (!preg_match("/^[a-zA-Z,\s]*$/", $provided_preferred_skills)) {
+                        $_SESSION['preferred_skills_error'] = "<p class=\"error\">Please ensure that preferred skills have letters, commas and whitespaces only</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_preferred_skills;
+                    }
+                }
+
+                function validateRequiredSkills($provided_required_skills) {
+                    $provided_required_skills = testInput($provided_required_skills);
+                    if (!preg_match("/^[a-zA-Z,\s]*$/", $provided_required_skills)) {
+                        $_SESSION['required_skills_error'] = "<p class=\"error\">Please ensure that required skills have letters, commas and whitespaces only</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_required_skills;
+                    }
+                }
+
+                function validateJobStatus($provided_job_status) {
+                    $provided_job_status = testInput($provided_job_status);
+                    if ($provided_job_status != "active" && $provided_job_status != "inactive") {
+                        $_SESSION['job_status_error'] = "<p class=\"error\">Please select an appropriate job status</p>";
+                        header("Location: edit_job_posting_procedural.php", true, 303);
+                        exit();
+                    }
+                    else {
+                        return $provided_job_status;
+                    }
+                }
+
+                if (!isset($_POST['job_location'])) {
+                    $job_location = validateJobLocation($_POST['job_location_alternative']);
+                }
+                else {
+                    if (isset($_POST['job_location_alternative'])) {
+                        $job_location_concatenation = $_POST['job_location'].";".$_POST['job_location_alternative'];
+                        $job_location = validateJobLocation($job_location_concatenation);
+                    }
+                    else {
+                        $job_location = validateJobLocation($_POST['job_location']);
+                    }
+                }
+
+                $job_id = validateJobId($_COOKIE['job_id']);
+                $vendor_rate = validateVendorRate($_POST['vendor_rate']);
+                $job_title = validateJobTitle($_POST['job_title']);
+                $job_type = validateJobType($_POST['job_type']);
+                $job_description = validateJobDescription($_POST['job_description']);
+                $preferred_skills = validatePreferredSkills($_POST['preferred_skills']);
+                $required_skills = validateRequiredSkills($_POST['required_skills']);
+                $job_status = validateJobStatus($_POST['job_status']);
+
+
+                $sql = "UPDATE jobs SET vendor_rate = ?, job_title = ?, job_type = ?, job_location = ?, job_description = ?, preferred_skills = ?, required_skills = ?, job_status = ?";
+                $where = " WHERE job_id = ?";
+                $types = "dsssssss";
+                $values = array($vendor_rate, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_status);
+
+                if ($job_status == "inactive") {
+                    $job_expired_date = date("Y-m-d");
+                    $sql .= ", job_expired_date = ?";
+                    $types .= "s";
+                    $values[] = $job_expired_date;
+                }
+                elseif ($job_status == "active") {
+                    $job_expired_date = NULL;
+                    $sql .= ", job_expired_date = ?";
+                    $types .= "s";
+                    $values[] = $job_expired_date;
+                }
+
+                $sql = $sql.$where;
+                $types .= "i";
+                $values[] = $job_id;
+
+                include("database.php");
+                $stmt = $DBConnect->prepare($sql);
+                $stmt->bind_param($types, ...$values);
+                if ($stmt->execute()) {
+                    $_SESSION["edit_job_posting_confirmation"] = "<p>Changes have been made successfully.</p>";
+                    header("Location: edit_job_posting_procedural.php", true, 303);
+                    exit();
+                }
+                else {
+                    $_SESSION["edit_job_posting_error"] = "<p>Changes have not been made successfully.</p>";
+                    header("Location: edit_job_posting_procedural.php", true, 303);
+                    exit();
                 }
                 $stmt->close();
                 $DBConnect->close();
+            }
+            elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
+            
             }
         ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
