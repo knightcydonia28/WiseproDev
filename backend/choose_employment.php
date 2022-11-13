@@ -120,6 +120,8 @@
                     echo "</select><br><br>
                     <input type=\"submit\" name=\"select_client_submit\" value=\"Select Client\">
                 </form>";
+                $stmt->close();
+                $DBConnect->close();
             }
         ?>
     </body>
