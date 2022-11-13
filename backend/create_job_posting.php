@@ -131,7 +131,7 @@
                     $provided_vendor_name = testInput($provided_vendor_name);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_vendor_name)) {
                         $_SESSION['vendor_name_error'] = "<p class=\"error\">Please ensure that vendor name has letters and whitespaces only</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -144,7 +144,7 @@
                     $provided_vendor_rate = testInput($provided_vendor_rate);
                     if (!is_numeric($provided_vendor_rate)) {
                         $_SESSION['vendor_rate_error'] = "<p class=\"error\">Please ensure that vendor rate is numeric</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -157,7 +157,7 @@
                     $provided_client_name = testInput($provided_client_name);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_client_name)) {
                         $_SESSION['client_name_error'] = "<p class=\"error\">Please ensure that client name has letters and whitespaces only</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -170,7 +170,7 @@
                     $provided_job_title = testInput($provided_job_title);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_title)) {
                         $_SESSION['job_title_error'] = "<p class=\"error\">Please ensure that job title has letters and whitespaces only</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -183,7 +183,7 @@
                     $provided_job_type = testInput($provided_job_type);
                     if ($provided_job_type != "full-time" && $provided_job_type != "part-time" && $provided_job_type != "contract" && $provided_job_type != "internship") {
                         $_SESSION['job_type_error'] = "<p class=\"error\">Please select an appropriate job type</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -200,7 +200,7 @@
                     }
                     else {
                         $_SESSION['job_location_error'] = "<p class=\"error\">Please ensure that job location has letters, commas, semicolons, and whitespaces only</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                 }
@@ -215,7 +215,7 @@
                     $provided_preferred_skills = testInput($provided_preferred_skills);
                     if (!preg_match("/^[a-zA-Z,\s]*$/", $provided_preferred_skills)) {
                         $_SESSION['preferred_skills_error'] = "<p class=\"error\">Please ensure that preferred skills have letters, commas and whitespaces only</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -228,7 +228,7 @@
                     $provided_required_skills = testInput($provided_required_skills);
                     if (!preg_match("/^[a-zA-Z,\s]*$/", $provided_required_skills)) {
                         $_SESSION['required_skills_error'] = "<p class=\"error\">Please ensure that required skills have letters, commas and whitespaces only</p>";
-                        header("Location: create_job_posting_procedural.php", true, 303);
+                        header("Location: create_job_posting.php", true, 303);
                         exit();
                     }
                     else {
@@ -344,12 +344,12 @@
                 $stmt->bind_param("idissssssss", $vendor_id, $vendor_rate, $client_id, $job_title, $job_type, $job_location, $job_description, $preferred_skills, $required_skills, $job_posted_date, $job_status);
                 if ($stmt->execute()) {
                     $_SESSION["create_job_posting_confirmation"] = "<p>Job was successfully created and posted.</p>";
-                    header("Location: create_job_posting_procedural.php", true, 303);
+                    header("Location: create_job_posting.php", true, 303);
                     exit();
                 }
                 else {
                     $_SESSION["create_job_posting_error"] = "<p class=\"error\">Job was not successfully created and posted.</p>";
-                    header("Location: create_job_posting_procedural.php", true, 303);
+                    header("Location: create_job_posting.php", true, 303);
                     exit();
                 }
                 $stmt->close();
