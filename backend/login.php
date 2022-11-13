@@ -223,7 +223,6 @@
                     }
                 }
                 else {
-                    /*The code block below has not been tested yet.
                     $login_attempts = 1;
                     include("database.php");
                     $stmt = $DBConnect->prepare("INSERT INTO logins (ip_address, login_attempts, login_time) VALUES (?, ?, ?)");
@@ -232,7 +231,6 @@
                     $stmt->close();
                     $DBConnect->close();
                     authentication($_POST['username'], $_POST['password'], $login_time, $ip_address);
-                    */
                 }
             }
             elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
