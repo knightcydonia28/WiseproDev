@@ -128,29 +128,41 @@
 				{
 					//echo '<h2>EMAIL FUNCTION START</h2> <br>'; //FOR DEBUG
 					
-					//User Form Entity Set
+					//USER INPUT VARIABLE SETTERS
 					$name    = $_POST['name'];
 					$email   = $_POST['email'];
 					$tel     = $_POST['tel'];
 					$message = $_POST['message'];
 
-					//Email To's Varables
-					$email_to      = "xodaya2013@dmtubes.com";
+					//--------------------------------------------------------//
+									// FOR ADMIN EMAIL VIEW //
+					//--------------------------------------------------------//
+					//EMAIL FORM DESTINATION, FROM, and SUBJECT
+					$email_to      = "xewoni9988@kixotic.com";  //CHANGE THIS TO ADMIN EMAIL
 					$email_from    = "administration@wisepro.com";	
 					$email_subject = "New Contact Form Submission";
-                     
+
 					//FOR ADMIN: Email Message Formatting
-					$mainbody_message  = "<h2>New Contact Form Submission</h2>";
-					$mainbody_message .= "<h3>Name:</h3>" . "<p>". $name ."</p>";
-					$mainbody_message .= "<h3>Email Contact:</h3>" . "<p>" . $email . "</p>";
-					$mainbody_message .= "<h3>Phone Contact:</h3>" . "<p>" . $tel . "</p>";
-					$mainbody_message .= "<h3>Main Message:</h3>" . "<p>" . $message . "</p>";
-					$mainbody_message .= "<h3>Date/Time of Submission: </h3>" . date("F j, Y, g:i a");
+					$mainbody_message  = "<h3>New Contact Form Submission</h3>";
+					$mainbody_message .= "<p>Name: <b>". $name ."</b></p>";
+					$mainbody_message .= "<p>Email Contact: <b>" . $email . "</b></p>";
+					$mainbody_message .= "<p>Phone Contact: <b>" . $tel . "</b></p> <br>";
+					$mainbody_message .= "<p>Main Message: </p><p>". $message . "</p>";
+					$mainbody_message .= "<p>Date/Time of Submission: <b>" . date("F j, Y, g:i a") . "</b></p>";
 					$mainbody_message = wordwrap($mainbody_message, 70);
 
 					//FOR ADMIN: Email Subject/Header Attributes
-					$headers = array('From' => 'administration@wisepro.com', 'Reply-To' => 'administration@wisepro.com', 'X-Mailer' => 'PHP/' . phpversion(), 'MIME-Version' => '1.0', 'Content-Type' => 'text/html; charset=utf8');
-                     
+					$headers[] = 'From: Wisetek Providers <administration@wisepro.com>';
+                    $headers[] = 'Reply-To: Wisetek Providers <administration@wisepro.com>';
+                    $headers[] = 'X-Mailer: PHP/' . phpversion();
+                    $headers[] = 'MIME-Version: 1.0';
+                    $headers[] = 'Content-type: text/html; charset=utf8';
+
+					$admin_header = implode("\r\n",$headers);
+
+					//--------------------------------------------------------//
+								// CUSTOMER REPLY EMAIL VIEW //
+					//--------------------------------------------------------//
 					//FOR CUSTOMER: Notification email SUBJECT and MESSAGE
 					 $reply_subject = "Message Successfully Sent";
 					 $reply_message = "
@@ -171,22 +183,24 @@
 					;
 					
 					//FOR CUSTOMER: Notification email headers
-                    $reply_headers[]= 'From: Wisetek Providers <administration@wisepro.com>';
-                    $reply_headers[]= 'Reply-To: Wisetek Providers <administration@wisepro.com>';
+                    $reply_headers[] = 'From: Wisetek Providers <administration@wisepro.com>';
+                    $reply_headers[] = 'Reply-To: Wisetek Providers <administration@wisepro.com>';
                     $reply_headers[] = 'X-Mailer: PHP/' . phpversion();
                     $reply_headers[] = 'MIME-Version: 1.0';
                     $reply_headers[] = 'Content-type: text/html; charset=utf8';
 
+					$customer_header = implode("\r\n",$reply_headers);
 
-					//
-					// If Contact Us email message is successful, a notification
-					// email is sent to the Customer using their inputed email on contact form
-					//
-					$retval = mail( $email_to, $email_subject, $mainbody_message, $headers);
+
+					//------------------------------------------------------------//
+					// If Contact Us Form is sent successfully to the ADMIN, a notification
+					// email is sent to the CUSTOMER using their inputed email on contact form
+					//------------------------------------------------------------//
+					$retval = mail( $email_to, $email_subject, $mainbody_message, $admin_header);
 					
 					if( $retval == true ) 
 					{
-                        mail($email, $reply_subject, $reply_message, implode("\r\n",$reply_headers));
+                        mail($email, $reply_subject, $reply_message, $customer_header);
 						echo '<h2>Message sent successfully!</h2>';
 					}
 					else 
@@ -195,9 +209,11 @@
 						}
 
 				} 
+				//--------------------------------------------------------//
 				//IF SUBMIT BUTTON IS NOT HIT, LOAD BELOW
 				//Summary: Below is the base page that includes the Contact Us page elements
 				// and company Email, Address and Phone
+				//------------------------------------------------------------//
 				else {
 					echo "
 					<div class=\"col-lg-6\">
