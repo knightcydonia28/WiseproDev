@@ -194,14 +194,14 @@
 
                 function validateJobLocation($provided_job_location) {
                     $provided_job_location = testInput($provided_job_location);
-                    if (preg_match("/^[a-zA-Z,;\s]*$/", $provided_job_location)) {
-                        $_SESSION['job_location'] = $provided_job_location;
-                        return $provided_job_location;
-                    }
-                    else {
+                    if (!preg_match("/^[a-zA-Z,;\s]*$/", $provided_job_location)) {
                         $_SESSION['job_location_error'] = "<p class=\"error\">Please ensure that job location has letters, commas, semicolons, and whitespaces only</p>";
                         header("Location: create_job_posting.php", true, 303);
                         exit();
+                    }
+                    else {
+                        $_SESSION['job_location'] = $provided_job_location;
+                        return $provided_job_location;
                     }
                 }
 
