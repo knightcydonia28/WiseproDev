@@ -17,52 +17,20 @@
         exit();
     }
     setcookie("choose_employment", 1);
-
-    include("database.php");
-    $stmt = $DBConnect->prepare("SELECT COUNT(client_id) AS employment_number, client_id FROM employments WHERE username = ?");
-    $stmt->bind_param("s", $_COOKIE['username']);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($retrieved_employment_number, $retrieved_client_id);
-    $stmt->fetch();
-    if ($retrieved_employment_number == 1) {
-        setcookie("client_id", $retrieved_client_id);
-        header('Location: edit_employment.php');
-        exit();
-    }
-    $stmt->close();
-    $DBConnect->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <?php
-            if (time() - $_SESSION['login_time'] > 900) {
-                function destroySession() {
-                    $_SESSION = array();
-                    if (ini_get("session.use_cookies")) {
-                        $params = session_get_cookie_params();
-                        setcookie(session_name(), '', time() - 42000,
-                            $params["path"], $params["domain"],
-                            $params["secure"], $params["httponly"]
-                        );
-                    }
-                    session_destroy();
-                }
-                destroySession();
-                echo 
-                "<script>
-                    alert(\"Your session has expired.\");
-                    window.location.replace(\"http://wisepro.com/testing6/login.php\");
-                </script>";
-            }
-            if (time() - $_SESSION['login_time'] < 900) {
-                $added_time = time() - $_SESSION['login_time'];
-                $_SESSION['login_time'] += $added_time;
-            }
+            include("session_timeout.php");
         ?>
         <meta charset="UTF-8">
         <title>Choose Employment</title>
+        <style>
+            .error {
+                color: #FF0000;
+            }
+        </style>
     </head>
     <body>
         <a href="home.php">Home</a>
@@ -74,54 +42,88 @@
         <h2>Choose Employment</h2>
         <p>Please select a client that the selected user is employed with for editing.</p>
         <?php
-            if (isset($_POST['select_client_submit'])) {
-                function test_input($data) {
+            if ($_SERVER['REQUEST_METHOD'] === "POST") {
+                function testInput($data) {
                     $data = trim($data);
                     $data = stripslashes($data);
                     $data = htmlspecialchars($data);
                     return $data;
                 }
-                if (!is_numeric($_POST['client_id'])) {
-                    $client_id_error = "Please select an appropriate client";
-                }
-                else {
-                    $client_id = test_input($_POST['client_id']);
-                    setcookie("client_id", $client_id);
-                    header('Location: edit_employment.php');
-                    exit();
-                }
-            }
-        ?>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <label for="client_id">Client:</label>
-            <select id="client_id" name="client_id" required>
-                <option value="" <?php if (!isset($_POST['select_client_submit'])) {echo "selected";} ?> disabled>Select Client</option>
-                <?php
-                    include("database.php");
-                    $stmt = $DBConnect->prepare("SELECT clients.client_id, clients.client_name FROM ((clients INNER JOIN employments ON clients.client_id = employments.client_id) INNER JOIN users ON employments.username= users.username) WHERE employments.username = ?");
-                    $stmt->bind_param("s", $_COOKIE['username']);
-                    $stmt->execute();
-                    $stmt->store_result();
-                    $stmt->bind_result($retrieved_client_id, $retrieved_client_name);
-                    if ($stmt->num_rows > 0) {
-                        while($stmt->fetch()) {
-                            echo "<option value=\"$retrieved_client_id\">$retrieved_client_name</option>";
-                        }
+
+                function validateClientId($provided_client_id) {
+                    $provided_client_id = testInput($provided_client_id);
+                    if (!is_numeric($provided_client_id)) {
+                        $_SESSION["client_id_error"] = "<p class=\"error\">Please select an appropriate client</p>";
+                        header("Location: choose_employment_procedural.php", true, 303);
+                        exit();
                     }
                     else {
-                        $_SESSION['disable_choose_employment'] = 1;
+                        setcookie("client_id", $provided_client_id);
+                        header('Location: edit_employment.php');
+                        exit();
                     }
-                ?>
-            </select><br><br>
-            <input type="submit" name="select_client_submit" value="Select Client" <?php if (isset($_SESSION['disable_choose_employment'])) {echo "disabled";} ?>>
-        </form>
-        <?php
-            if (isset($_SESSION['disable_choose_employment'])) {
+                }
+
+                validateClientId($_POST['client_id']);
+            }
+            elseif ($_SERVER['REQUEST_METHOD'] === "GET") {
+                if (isset($_SESSION["client_id_error"])) {echo $_SESSION["client_id_error"];}
+            }
+
+            include("database.php");
+            $stmt = $DBConnect->prepare("SELECT COUNT(client_id) AS employment_number FROM employments WHERE username = ?");
+            $stmt->bind_param("s", $_COOKIE['username']);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($retrieved_employment_number);
+            $stmt->fetch();
+            $stmt->close();
+            $DBConnect->close();
+        
+            if ($retrieved_employment_number == 0) {
                 echo 
-                "<p>Employment(s) not found.</p>
-                <p>Note: Employment(s) necessary to edit employment(s).</p>";
+                "<p class=\"error\">This user is not employed with any clients.</p>
+                <p class=\"error\">Note: A user must be employed to have timesheets.</p>";
+            }
+            elseif ($retrieved_employment_number == 1) {
+                include("database.php");
+                $stmt = $DBConnect->prepare("SELECT client_id FROM employments WHERE username = ?");
+                $stmt->bind_param("s", $_COOKIE['username']);
+                $stmt->execute();
+                $stmt->store_result();
+                $stmt->bind_result($retrieved_client_id);
+                $stmt->fetch();
+                $stmt->close();
+                $DBConnect->close();
+        
+                setcookie("client_id", $retrieved_client_id);
+                header('Location: edit_employment.php');
+                exit();
+            }
+            else {
+                echo
+                "<form method=\"post\" action="; echo htmlspecialchars($_SERVER["PHP_SELF"]); echo ">
+                    <label for=\"client_id\">Client:</label>
+                    <select id=\"client_id\" name=\"client_id\" required>
+                        <option value=\"\" "; if (!isset($_POST['select_client_submit'])) {echo "selected";} echo " disabled>Select Client</option>";
+                        include("database.php");
+                        $stmt = $DBConnect->prepare("SELECT clients.client_id, clients.client_name FROM ((clients INNER JOIN employments ON clients.client_id = employments.client_id) INNER JOIN users ON employments.username= users.username) WHERE employments.username = ?");
+                        $stmt->bind_param("s", $_COOKIE['username']);
+                        $stmt->execute();
+                        $stmt->store_result();
+                        $stmt->bind_result($retrieved_client_id, $retrieved_client_name);
+                        if ($stmt->num_rows > 0) {
+                            while($stmt->fetch()) {
+                                echo "<option value=\"$retrieved_client_id\">$retrieved_client_name</option>";
+                            }
+                        }
+                    echo "</select><br><br>
+                    <input type=\"submit\" name=\"select_client_submit\" value=\"Select Client\">
+                </form>";
             }
         ?>
     </body>
 </html>
-
+<?php
+    if (isset($_SESSION["client_id_error"])) {unset($_SESSION["client_id_error"]);}
+?>
