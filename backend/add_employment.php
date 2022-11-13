@@ -61,18 +61,6 @@
                     return $d && $d->format($format) == $date;
                 }
 
-                function validateUsername($provided_username) {
-                    $provided_username = testInput($provided_username);
-                    if (!ctype_alnum($provided_username)) {
-                        $_SESSION["username_error"] = "<p class=\"error\">Please ensure that your username is alphanumeric</p>";
-                        header("Location: create_user_procedural.php", true, 303);
-                        exit();
-                    }
-                    else {
-                        return $provided_username;
-                    }
-                }
-
                 function validateClientName($provided_client_name) {
                     $provided_client_name = testInput($provided_client_name);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_client_name)) {
@@ -226,7 +214,7 @@
                     $vendor_id = NULL;
                 }
                 
-                $username = validateUsername($_COOKIE['username']);
+                $username = $_COOKIE['username'];
                 $client_name = validateClientName($_POST['client_name']);
                 $job_position = validateJobPosition($_POST['job_position']);
                 $employment_type = validateEmploymentType($_POST['employment_type']);
@@ -261,7 +249,7 @@
             <p>Please fill the form below to add an employment for the selected user:</p>
             <p><span class="error">* required field</span></p>
                 <label for="username"><b>Username:</b></label>
-                <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE['username'])) {echo $_COOKIE['username'];} ?>" readonly required><span class="error"> * <?php if (isset($_SESSION["username_error"])) {echo $_SESSION["username_error"];} ?></span><br><br>
+                <input type="text" id="username" name="username" placeholder="username" pattern="[a-zA-Z0-9]+" title="Please ensure that your username is alphanumeric" value="<?php if (isset($_COOKIE['username'])) {echo $_COOKIE['username'];} ?>" readonly required><span class="error"> * </span><br><br>
                 <label for="client_name"><b>Client:</b></label>
                 <input list="clients" name="client_name" id="client_name" placeholder="client" pattern="^[a-zA-Z\s]*$" title="Please ensure that client name has letters and whitespaces only" value="<?php if (isset($_SESSION['client_name'])) {echo $_SESSION['client_name'];} ?>" required><span class="error"> * <?php if (isset($_SESSION['client_name_error'])) {echo $_SESSION['client_name_error'];} ?></span>
                     <datalist id="clients">
@@ -335,7 +323,6 @@
     if (isset($_SESSION['job_position'])) {unset($_SESSION['job_position']);}
     if (isset($_SESSION['employment_type'])) {unset($_SESSION['employment_type']);}
     if (isset($_SESSION['employment_start_date'])) {unset($_SESSION['employment_start_date']);}
-    if (isset($_SESSION["username_error"])) {unset($_SESSION["username_error"]);}
     if (isset($_SESSION['client_name_error'])) {unset($_SESSION['client_name_error']);}
     if (isset($_SESSION['vendor_name_error'])) {unset($_SESSION['vendor_name_error']);}
     if (isset($_SESSION['job_position_error'])) {unset($_SESSION['job_position_error']);}
