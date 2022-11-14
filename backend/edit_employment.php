@@ -84,7 +84,7 @@
                     $provided_job_position = testInput($provided_job_position);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_position)) {
                         $_SESSION['job_position_error'] = "<p class=\"error\">Please ensure that job position has letters and whitespaces only</p>";
-                        header("Location: edit_employment_procedural.php", true, 303);
+                        header("Location: edit_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -96,7 +96,7 @@
                     $provided_employment_type = testInput($provided_employment_type);
                     if ($provided_employment_type != "full-time" && $provided_employment_type != "part-time" && $provided_employment_type != "contract" && $provided_employment_type != "internship") {
                         $_SESSION['employment_type_error'] = "<p class=\"error\">Please select an appropriate employment type</p>";
-                        header("Location: edit_employment_procedural.php", true, 303);
+                        header("Location: edit_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -108,7 +108,7 @@
                     $provided_employment_start_date = testInput($provided_employment_start_date);
                     if (!validateDate($provided_employment_start_date)) {
                         $_SESSION['employment_start_date_error'] = "<p class=\"error\">Please enter a valid employment start date</p>";
-                        header("Location: edit_employment_procedural.php", true, 303);
+                        header("Location: edit_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -132,7 +132,7 @@
                     $provided_employment_end_date = testInput($provided_employment_end_date);
                     if (!validateDate($provided_employment_end_date)) {
                         $_SESSION['employment_end_date_error'] = "<p class=\"error\">Please enter a valid employment end date</p>";
-                        header("Location: edit_employment_procedural.php", true, 303);
+                        header("Location: edit_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -159,12 +159,12 @@
                 $stmt->bind_param("ssssssi", $job_position, $employment_type, $employment_start_date, $employment_status, $employment_end_date, $username, $client_id);
                 if ($stmt->execute()) {
                     $_SESSION['edit_employment_confirmation'] = "<p>Changes have been made successfully.</p>";
-                    header("Location: edit_employment_procedural.php", true, 303);
+                    header("Location: edit_employment.php", true, 303);
                     exit(); 
                 }
                 else {
                     $_SESSION['edit_employment_error'] = "<p class=\"error\">Changes have not been made successfully.</p>";
-                    header("Location: edit_employment_procedural.php", true, 303);
+                    header("Location: edit_employment.php", true, 303);
                     exit(); 
                 }
                 $stmt->close();

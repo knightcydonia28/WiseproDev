@@ -65,7 +65,7 @@
                     $provided_client_name = testInput($provided_client_name);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_client_name)) {
                         $_SESSION['client_name_error'] = "<p class=\"error\">Please ensure that client name has letters and whitespaces only</p>";
-                        header("Location: add_employment_procedural.php", true, 303);
+                        header("Location: add_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -78,7 +78,7 @@
                     $provided_vendor_name = testInput($provided_vendor_name);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_vendor_name)) {
                         $_SESSION['vendor_name_error'] = "<p class=\"error\">Please ensure that vendor name has letters and whitespaces only</p>";
-                        header("Location: add_employment_procedural.php", true, 303);
+                        header("Location: add_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -91,7 +91,7 @@
                     $provided_job_position = testInput($provided_job_position);
                     if (!preg_match("/^[a-zA-Z\s]*$/", $provided_job_position)) {
                         $_SESSION['job_position_error'] = "<p class=\"error\">Please ensure that job position has letters and whitespaces only</p>";
-                        header("Location: add_employment_procedural.php", true, 303);
+                        header("Location: add_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -104,7 +104,7 @@
                     $provided_employment_type = testInput($provided_employment_type);
                     if ($provided_employment_type != "full-time" && $provided_employment_type != "part-time" && $provided_employment_type != "contract" && $provided_employment_type != "internship") {
                         $_SESSION['employment_type_error'] = "<p class=\"error\">Please select an appropriate employment type</p>";
-                        header("Location: add_employment_procedural.php", true, 303);
+                        header("Location: add_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -117,7 +117,7 @@
                     $provided_employment_start_date = testInput($provided_employment_start_date);
                     if (!validateDate($provided_employment_start_date)) {
                         $_SESSION['employment_start_date_error'] = "<p class=\"error\">Please enter a valid employment start date</p>";
-                        header("Location: add_employment_procedural.php", true, 303);
+                        header("Location: add_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -130,7 +130,7 @@
                     $provided_employment_status = testInput($provided_employment_status);
                     if ($provided_employment_status != "employed") {
                         $_SESSION['employment_status_error'] = "<p class=\"error\">Please ensure that the employment status of the user is employed when adding employment</p>";
-                        header("Location: add_employment_procedural.php", true, 303);
+                        header("Location: add_employment.php", true, 303);
                         exit();
                     }
                     else {
@@ -227,12 +227,12 @@
                 $stmt->bind_param("siissss", $username, $client_id, $vendor_id, $job_position, $employment_type, $employment_start_date, $employment_status); 
                 if ($stmt->execute()) {
                     $_SESSION['add_employment_confirmation'] = "<p>Employment was successfully added.</p>";
-                    header("Location: add_employment_procedural.php", true, 303);
+                    header("Location: add_employment.php", true, 303);
                     exit();
                 }
                 else {
                     $_SESSION['add_employment_error'] = "<p class=\"error\">Employment was not successfully added.</p>";
-                    header("Location: add_employment_procedural.php", true, 303);
+                    header("Location: add_employment.php", true, 303);
                     exit();
                 }
                 $stmt->close();

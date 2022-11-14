@@ -111,7 +111,7 @@
                     $provided_password_expiration = testInput($provided_password_expiration);
                     if($provided_password_expiration != 0 && $provided_password_expiration != 1) {
                         $_SESSION['password_expiration_error'] = "<p class=\"error\">Please select an appropriate value for the password expiration</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -123,7 +123,7 @@
                     $provided_user_role = testInput($provided_user_role);
                     if ($provided_user_role != "user" && $provided_user_role != "recruiter" && $provided_user_role != "administrator") {
                         $_SESSION["user_role_error"] = "<p class=\"error\">Please select an appropriate user role</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -135,7 +135,7 @@
                     $provided_user_first_name = testInput($provided_user_first_name);
                     if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_first_name)) {
                         $_SESSION["user_first_name_error"] = "<p class=\"error\">Please ensure that your first name has letters, dashes, apostrophes and whitespaces only</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -147,7 +147,7 @@
                     $provided_user_middle_name = testInput($provided_user_middle_name);
                     if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_middle_name)) {
                         $_SESSION["user_middle_name_error"] = "<p class=\"error\">Please ensure that your middle name has letters, dashes, apostrophes and whitespaces only</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -159,7 +159,7 @@
                     $provided_user_last_name = testInput($provided_user_last_name);
                     if (!preg_match("/^[a-zA-Z-' ]*$/", $provided_user_last_name)) {
                         $_SESSION["user_last_name_error"] = "<p class=\"error\">Please ensure that your last name has letters, dashes, apostrophes and whitespaces only</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -171,7 +171,7 @@
                     $provided_user_email = testInput($provided_user_email);
                     if (!filter_var($provided_user_email, FILTER_VALIDATE_EMAIL)) {
                         $_SESSION["user_email_error"] = "<p class=\"error\">Please enter a valid email address (e.g., yourname@example.com)</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit(); 
                     }
                     else {
@@ -183,7 +183,7 @@
                     $provided_user_phone = testInput($provided_user_phone);
                     if (!preg_match("/^[0-9]{10}$/", $provided_user_phone)) {
                         $_SESSION["user_phone_error"] = "<p class=\"error\">Please enter a 10 digit phone number (without special characters including whitespace)</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -195,7 +195,7 @@
                     $provided_user_birth_date = testInput($provided_user_birth_date);
                     if (!validateDate($provided_user_birth_date)) {
                         $_SESSION["user_birth_date_error"] = "<p class=\"error\">Please enter a valid birth date</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -207,7 +207,7 @@
                     $provided_user_status = testInput($provided_user_status);
                     if (($provided_user_status != "active" && $provided_user_status != "inactive")) {
                         $_SESSION["user_status_error"] = "<p class=\"error\">Please ensure that the status of the user is active upon creation</p>";
-                        header("Location: create_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -219,7 +219,7 @@
                     $provided_secret_key = testInput($provided_secret_key);
                     if ($provided_secret_key != 0 && $provided_secret_key != 1) {
                         $_SESSION['secret_key_error'] = "<p class=\"error\">Please select an appropriate value for the secret key</p>";
-                        header("Location: edit_user_procedural.php", true, 303);
+                        header("Location: edit_user.php", true, 303);
                         exit();
                     }
                     else {
@@ -272,12 +272,12 @@
                 $stmt->bind_param($types, ...$values);
                 if ($stmt->execute()) {
                     $_SESSION["edit_user_confirmation"] = "<p>Changes have been made successfully.</p>";
-                    header("Location: edit_user_procedural.php", true, 303);
+                    header("Location: edit_user.php", true, 303);
                     exit();
                 }
                 else {
                     $_SESSION["edit_user_error"] = "<p class=\"error\">Changes have not been made successfully.</p>";
-                    header("Location: edit_user_procedural.php", true, 303);
+                    header("Location: edit_user.php", true, 303);
                     exit();
                 }
                 $stmt->close();
