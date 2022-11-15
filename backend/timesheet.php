@@ -21,18 +21,19 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
         <meta charset="UTF-8" >
         <title>Timesheet</title>
         <style>
-            table, th, td {
+             table, th, td {
                 border: 1px solid black;
             }
             .timesheet_information {
-                border: 1px solid black;
+                border: 1px solid black
                 padding: 5px;
                 width: 821px;
             }
-            input[type=submit] {
+            input[name=display_timesheet],[name=submit_timesheet], input[name=save_timesheet] {
                 background-color: #10469A;
                 color: white;
                 padding: 12px 12px;
@@ -40,9 +41,37 @@
                 border: none;
                 cursor: pointer;
                 border-radius: 20px;
-                
+                display: inline-block;
             }
-            button{
+            
+            .home-button{
+                background-color: #10469A;
+                color: white;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                padding-right: 8px;
+                padding-left: 8px;
+                border-radius: 20px;
+                cursor: pointer;
+                border:solid;
+                display:inline-block;
+                margin-bottom: 7px;
+                width: 60px;
+        }
+            .logout-button{
+            background-color: #10469A;
+            color: white;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            padding-right: 8px;
+            padding-left: 8px;
+            border-radius: 20px;
+            cursor: pointer;
+            border:solid;
+            width: 60px;
+            margin-bottom: 7px;
+            }
+            .export-button{
                 background-color: #10469A;
                 color: white;
                 padding: 12px 12px;
@@ -50,7 +79,6 @@
                 border: none;
                 cursor: pointer;
                 border-radius: 20px; 
-                margin-left: 55px;
             }
             table {
                 border-collapse: collapse;
@@ -65,6 +93,10 @@
             th {
                 background-color: #10469A;
                 color: white;
+            }
+            a {
+                text-decoration: none;
+                outline: none;
             }
         </style>
         <script src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
@@ -319,7 +351,6 @@
         </script>
     </head>
     <body>
-        <p id='test'></p>
         <?php
             //This function converts null values to zeros in case the user leaves a cell blank.
             function null_to_zero($given_hours) {
@@ -374,8 +405,8 @@
             
                     //Checks database if the current date is already within the table
                     include("database.php");
-                    $stmt = $DBConnect->prepare("SELECT COUNT(work_date) AS COUNT FROM timesheets WHERE work_date = ? AND client_id = ?");
-                    $stmt->bind_param("ss", $formatted_date, $_COOKIE['client_id']);
+                    $stmt = $DBConnect->prepare("SELECT COUNT(work_date) AS COUNT FROM timesheets WHERE work_date = ? AND client_id = ? AND username = ?");
+                    $stmt->bind_param("sss", $formatted_date, $_COOKIE['client_id'], $GLOBALS['username']);
                     $stmt->execute();
                     $stmt->store_result();
                     $stmt->bind_result($retrieved_work_date_count);
@@ -387,11 +418,13 @@
                         $date_count++;
                         $day_type_count++;
                         $notes_count++;
+                        echo 1;
                     } else {
                         add_hours($formatted_date, $hours_array, $DBConnect, $hours, $first_day_of_week, $last_day_of_week, $day_types_array[$day_type_count], $notes_array[$notes_count], $vendor_id);
                         $date_count++;
                         $day_type_count++;
                         $notes_count++;
+                        echo 2;
                     }
                 }
             }
@@ -433,7 +466,7 @@
                     
                     //result variable will either be a 1 if is already there, or a 0 if not
                     if ($retrieved_work_date_count == 1) {
-                        echo "$hours, $day_types_array[$day_type_count], $notes_array[$notes_count], $timesheet_status, $formatted_date, ".$GLOBALS['username'].", ".$_COOKIE['client_id']."<br>";
+                        //echo "$hours, $day_types_array[$day_type_count], $notes_array[$notes_count], $timesheet_status, $formatted_date, ".$GLOBALS['username'].", ".$_COOKIE['client_id']."<br>";
                         $stmt = $DBConnect->prepare("UPDATE timesheets SET hours=?, day_type=?, notes=?, timesheet_status=? WHERE work_date=? AND username =? AND client_id=?");
                         $stmt->bind_param("sssssss", $hours, $day_types_array[$day_type_count], $notes_array[$notes_count], $timesheet_status, $formatted_date, $GLOBALS['username'], $_COOKIE['client_id']);
                         $stmt->execute();
@@ -452,11 +485,15 @@
                 }
             }
         ?>
-        <a href="home.php">Home</a><br ><br >
+        <a href="home.php">
+            <button class="home-button">Home</button>
+        </a>         
         <?php
             include("logout.php");
         ?>
-        <a href='?logout=true'>Logout</a>
+        <a href='?logout=true'>
+            <button class="logout-button">Logout</button>
+        </a>         
         <h1>Timesheet</h1>
         <p>Please enter your hours below.</p>
         <?php
@@ -679,7 +716,7 @@
                 </form>";
                     $ex_month = $month;
                     $ex_year = $year;
-                    echo "<button onclick='getFormData()' ",($month > $current_month || $day_timesheet_status == 1 || $day_timesheet_status == 2) ? "disabled" : "",">Export table to excel</button>
+                    echo "<button class='export-button'onclick='getFormData()' ",($month > $current_month || $day_timesheet_status == 1 || $day_timesheet_status == 2) ? "disabled" : "",">Export table to excel</button>
                         <script>
                             src=\"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js\"
                             function getFormData() {
@@ -691,7 +728,6 @@
                                 let e = 0;
                                 let f = document.getElementsByName(\"textual_day\");
                                 let day_type = '';
-
                                 for (let i = 0; i < a.length; i++) {
                                     switch(c[i].value){
                                         case 'workday':
@@ -722,14 +758,12 @@
                                     \"Hours\" : e
                                 }
                                 res.push(obj);
-
                                 console.log(res);
                                 downloadAsExcel(res);
                             }
                             document.getElementById(\"json\").innerHTML = JSON.stringify(data,undefined,4);
                             const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                             const EXCEL_EXTENSION = '.xlsx';
-
                             function downloadAsExcel(data){
                                 const worksheet  = XLSX.utils.json_to_sheet(data);
                                 const workbook = {
@@ -745,12 +779,10 @@
                                 file_name = ".json_encode($GLOBALS['username'])." + \"_\" + year + \"_\" + month;
                                 saveAsExcel(excelBuffer,file_name);
                             }
-
                             function saveAsExcel(buffer,filename){
                                 const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
                                 saveAs(data,filename);
                             }
-
                         </script>";
             }
         ?>
